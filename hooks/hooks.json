@@ -1,16 +1,15 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "description": "Post-session reminder to validate a freshly generated or adapted plugin.",
   "hooks": {
     "Stop": [
       {
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "If this session generated or adapted a plugin under a new directory, remind the user they can run /global-plugins:validate <path> to confirm manifests, projection parity, version sync, and the Prompt Defense Baseline before shipping. Do not block; this is a reminder only."
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/suggest-validate.sh\"",
+            "timeout": 5
           }
-        ],
-        "description": "Post-session reminder to validate a freshly generated or adapted plugin.",
-        "id": "stop:suggest-validate"
+        ]
       }
     ]
   }
