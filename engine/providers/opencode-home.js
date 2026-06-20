@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { planFromModules, defaultCopy, transformAgents } = require('./_base');
+const { planFromModules, defaultCopy } = require('./_base');
 const { buildValidationIssue } = require('../helpers');
 
 const REQUIRED_ARTEFACTS = Object.freeze([
@@ -64,22 +64,13 @@ function validate(input, adapter) {
 
 function planOperations(planInput, adapter) {
   return planFromModules(planInput, adapter, {
-    // Agents carry Claude-native frontmatter (array tools, `color`, bare
-    // `model`) that OpenCode's schema rejects; rewrite each into OpenCode's
-    // agent shape (object tools, provider/model, mode) under .opencode/agents.
-    agents: (ctx) => transformAgents(ctx, 'opencode-agent', 'agents', onlyMarkdown),
+    agents: defaultCopy,
     skills: defaultCopy,
     commands: defaultCopy,
     hooks: defaultCopy,
     rules: defaultCopy,
     mcp: defaultCopy,
   });
-}
-
-// Keep only markdown agent files (preserving relative path); non-md companions
-// are skipped — OpenCode agents are markdown.
-function onlyMarkdown(rel) {
-  return rel.endsWith('.md') ? rel : null;
 }
 
 module.exports = { planOperations, validate };

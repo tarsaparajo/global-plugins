@@ -35,6 +35,21 @@ export const MyPlugin: Plugin = async ({ client, project, $, directory, worktree
 }
 ```
 
+## Agent frontmatter — declarative shape
+
+The programmatic surface above is the *advantage*; the declarative agent markdown is the *parity* surface. OpenCode agents live in `agents/*.md` (dirs are **PLURAL** — `agents/`, `skills/`, `commands/`). Their YAML frontmatter fields:
+
+- `description` (required); `mode` ∈ {`primary`, `subagent`, `all`}; `prompt`; `disable`; `hidden`; `steps`.
+- `model` — a `"provider/model"` string (e.g. `anthropic/claude-sonnet-4-5`), **not** a bare alias.
+- Inference knobs: `temperature`, `top_p`.
+- `color` — hex (`#RRGGBB`) **or** a theme token; this is native here (unlike Codex, where color has no frontmatter slot).
+- `permission` — an OBJECT mapping actions (`read`/`edit`/`bash`/…) → `allow` | `ask` | `deny`. This is the **preferred** permission surface.
+- `tools` — an **OBJECT of name→boolean** (e.g. `{ write: false, edit: true }`). It is **NEVER an array**. It is **DEPRECATED in favor of `permission`** but still valid.
+
+**Skills:** `skills/<name>/SKILL.md`, frontmatter `name` + `description` (plus optional `allowed-tools` array, `license`, `metadata`). **Commands:** `commands/*.md`, frontmatter `description`/`agent`/`model`/`subtask`/`template` — note there is **no `argument-hint`** on OpenCode commands.
+
+When global-plugins projects a canonical (Claude-shaped) agent to OpenCode it **rewrites** `tools` array → object (`{name: bool}`) and `model` alias → `provider/model`, **keeps** `color` (named tokens kept as-is; hex/theme valid), and **drops** `argument-hint`. The canonical field-by-field reference is **`skills/_knowledge/provider-matrix.md` → "Frontmatter field adaptation"**.
+
 ## Loading & resolution
 
 - Local (project): `.opencode/plugins/` · Local (global): `~/.config/opencode/plugins/` · npm: the `plugin` array in `opencode.json`.

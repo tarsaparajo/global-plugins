@@ -5,18 +5,19 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
-## [0.4.2] - 2026-06-20
-
-### Fixed
-
-- OpenCode agent projection emitted Claude-native frontmatter (an array `tools`, a keyword `color`, a bare `model` alias) that OpenCode's schema rejects, failing install with `Configuration is invalid` on `.opencode/agents/*.md`. Agents are now rewritten into OpenCode's agent shape: `tools` as an object map, `mode: subagent`, a provider-prefixed `model`, and no `color`.
-- Codex agent projection renamed `*.md` to `*.toml` but copied the markdown body verbatim, producing invalid TOML. Per-agent files are now emitted as real TOML (`name`/`description`/`tools` keys plus a multi-line `instructions` block); the `AGENTS.md` capability index and the `config.toml` baseline are unchanged.
+## [0.5.0] - 2026-06-20
 
 ### Added
 
-- `engine/frontmatter.js`: a dependency-free YAML-subset frontmatter parser/serializer plus per-provider agent mappers (`toOpenCodeAgent`, `toCodexAgentToml`).
-- A `transform-agent` projection operation and a `transformAgents` planning helper, so adapters rewrite agent frontmatter/format for their target instead of copying bytes verbatim. Generated child plugins inherit the fix automatically (they bundle the engine whole); the child `project.mjs` now fails loudly if a required engine module — including `frontmatter.js` — is missing from the bundled copy.
-- Tests covering the frontmatter transforms and schema-validity assertions for the OpenCode and Codex agent outputs.
+- **Frontmatter adaptation** — projecting a canonical (Claude-shaped) agent/skill/command to a non-Claude provider now ADAPTS its frontmatter to that provider's real schema instead of copying it verbatim. New engine module `engine/frontmatter.js` applies the deterministic verbs — **keep / rewrite / drop** — per the cross-referenced field matrix; the agentic **re-express** verb (e.g. a named color → a Codex `interface.brand_color` hex) is owned by the `canonical-projector`. Wired into the executor via a `frontmatterTarget` op tag set in `engine/providers/_base.js` for the `agents`/`skills`/`commands` dirs. Claude projection is unchanged (canonical IS the Claude shape).
+  - **OpenCode:** agent `tools` array → object (`{ read: true, … }`), `model` alias → `provider/model` (e.g. `anthropic/claude-sonnet-4-5`; `inherit` → dropped), `color` kept, `argument-hint` dropped.
+  - **Codex:** `color` / `tools` / `model` / `argument-hint` dropped (no Codex frontmatter slot); a skill's `SKILL.md` frontmatter is reduced to `name` + `description`.
+- New doctrine section **"Frontmatter field adaptation"** in `skills/_knowledge/provider-matrix.md` (the per-field matrix + verbs + determinism boundary + casing landmines), consulted by `canonical-projector`, `capability-extractor`, and `plugin-architect` so generated CHILD plugins adapt frontmatter correctly too.
+
+### Fixed
+
+- **Codex projection emitted invalid frontmatter.** Agents were flattened to `.codex/agents/<name>.toml` by a rename-only transform, so each file was Claude YAML+markdown (a `tools` array, a `model` alias, a `color` field) renamed `.toml` — none of which exist in real Codex. Agents are now re-expressed as native `[agents.<name>]` tables in `config.toml` (carrying Codex's real `description` field) and named in the `AGENTS.md` index; no per-agent `.toml` file is emitted. Verified against the official Codex docs (June 2026): `SKILL.md` frontmatter is `name` + `description` only; per-agent `color`/`tools`/`model` have no Codex frontmatter slot.
+- Corrected the Codex/OpenCode knowledge + adapter docs and the `capability-extractor` reverse-transform, which had described Codex agents as standalone `.toml` files with `tools`/`model` frontmatter (wrong model).
 
 ## [0.4.1] - 2026-06-20
 

@@ -1,6 +1,5 @@
 ---
 description: Fast pass/fail validation gate for a plugin before shipping — manifests, projection round-trips, version sync, changelog, prompt-defense.
-argument-hint: <path-to-plugin>
 ---
 ## Prompt Defense Baseline
 

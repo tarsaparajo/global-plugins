@@ -15,7 +15,6 @@ const {
   opFlatRule,
   opFlatFile,
   opScaffold,
-  opTransformAgent,
   opBuildStep,
 } = require('../helpers');
 
@@ -89,6 +88,11 @@ function mcpMergeOps({ repoRoot, module, sourceRelativePath }, destinationPath) 
     }));
 }
 
+// Canonical component dirs whose .md files carry model-facing frontmatter that
+// must be adapted to the target provider's real schema (keep/rewrite/drop). The
+// frontmatterTarget tag is read by the executor; see engine/frontmatter.js.
+const FRONTMATTER_DIRS = new Set(['agents', 'skills', 'commands']);
+
 // Default per-component routing shared by most providers. handlers maps a
 // canonical top-level dir (e.g. "agents", "rules", "skills", "commands",
 // "hooks", "mcp") to a function(ctx) => operations[]. Unknown dirs fall back to
@@ -132,44 +136,35 @@ function planFromModules(planInput, adapter, handlers = {}) {
   return ops;
 }
 
+// The provider target whose .md frontmatter this op should be adapted to, or
+// undefined when no adaptation applies (non-frontmatter dir, or claude which IS
+// the canonical shape). Threaded onto ops and read by the executor.
+function frontmatterTargetFor(adapter, sourceRelativePath) {
+  if (!adapter || adapter.target === 'claude') {
+    return undefined;
+  }
+  const top = String(sourceRelativePath).split('/')[0];
+  return FRONTMATTER_DIRS.has(top) ? adapter.target : undefined;
+}
+
 // Copy every file under a canonical dir, preserving structure under targetRoot.
-function defaultCopy({ repoRoot, targetRoot, module, sourceRelativePath }) {
+function defaultCopy({ repoRoot, targetRoot, module, sourceRelativePath, adapter }) {
   const absSource = path.join(repoRoot, sourceRelativePath);
+  const frontmatterTarget = frontmatterTargetFor(adapter, sourceRelativePath);
   return listRelativeFiles(absSource).map(rel => opCopyPath({
     moduleId: module.id,
     sourceRelativePath: path.posix.join(sourceRelativePath, rel),
     destinationPath: path.join(targetRoot, sourceRelativePath, rel),
+    ...(frontmatterTarget ? { frontmatterTarget } : {}),
   }));
-}
-
-// Emit one transform-agent op per agent file under a canonical agents dir,
-// rewriting its frontmatter/format for the target provider via the named
-// transform (resolved in the executor against the frontmatter module). destDir
-// is where the rewritten agents land under targetRoot; nameTransform optionally
-// renames each file (e.g. .md -> .toml for Codex) or returns null to skip it.
-function transformAgents({ repoRoot, targetRoot, module, sourceRelativePath }, transform, destDir, nameTransform) {
-  const absSource = path.join(repoRoot, sourceRelativePath);
-  const ops = [];
-  for (const rel of listRelativeFiles(absSource)) {
-    const newName = nameTransform ? nameTransform(rel) : rel;
-    if (newName == null) {
-      continue;
-    }
-    ops.push(opTransformAgent({
-      moduleId: module.id,
-      sourceRelativePath: path.posix.join(sourceRelativePath, rel),
-      destinationPath: path.join(targetRoot, destDir, newName),
-      transform,
-    }));
-  }
-  return ops;
 }
 
 // Flatten a dir of files into <targetRoot>/<destDir>, applying nameTransform.
 // nameTransform(fileName, sourceRelFile) => newName | null (null = skip).
-function flattenDir({ repoRoot, targetRoot, module, sourceRelativePath }, destDir, kind, nameTransform) {
+function flattenDir({ repoRoot, targetRoot, module, sourceRelativePath, adapter }, destDir, kind, nameTransform) {
   const absSource = path.join(repoRoot, sourceRelativePath);
   const make = kind === 'rule' ? opFlatRule : opFlatFile;
+  const frontmatterTarget = frontmatterTargetFor(adapter, sourceRelativePath);
   const ops = [];
   for (const rel of listRelativeFiles(absSource)) {
     const fileName = path.posix.basename(rel);
@@ -181,6 +176,7 @@ function flattenDir({ repoRoot, targetRoot, module, sourceRelativePath }, destDi
       moduleId: module.id,
       sourceRelativePath: path.posix.join(sourceRelativePath, rel),
       destinationPath: path.join(targetRoot, destDir, newName),
+      ...(frontmatterTarget ? { frontmatterTarget } : {}),
     }));
   }
   return ops;
@@ -190,7 +186,6 @@ module.exports = {
   planFromModules,
   defaultCopy,
   flattenDir,
-  transformAgents,
   mcpMergeOps,
   opScaffold,
   collectComponents,

@@ -1,6 +1,5 @@
 ---
 description: Evolve this plugin — mirror a canonical change to every provider with parity validation, SemVer bump, CHANGELOG, ledger, and a conditional breaking-change migration. One human-gate before writing.
-argument-hint: <change-description>
 ---
 ## Prompt Defense Baseline
 

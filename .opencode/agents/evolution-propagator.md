@@ -1,8 +1,8 @@
 ---
 name: evolution-propagator
 description: Re-project a canonical DELTA across all of this plugin's provider projections. Source of truth is the canonical source; computes the minimal change set, validates multi-provider parity, bumps SemVer, writes the CHANGELOG, and appends to EVOLUTION.md. Automatic with a single human-gate before writing.
-tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
-model: sonnet
+tools: { read: true, grep: true, glob: true, bash: true, write: true, edit: true }
+model: anthropic/claude-sonnet-4-5
 color: green
 ---
 

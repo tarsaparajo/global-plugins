@@ -14,7 +14,6 @@ const { planScaffold, getAdapter } = require('../../engine/registry');
 const executor = require('../../engine/executor');
 const { generators } = require('../../engine/builder');
 const { isForeignPlatformPath } = require('../../engine/helpers');
-const frontmatter = require('../../engine/frontmatter');
 const { makeCanonicalFixture, cleanup, fixtureModules } = require('../_fixture');
 
 function projectTo(target) {
@@ -38,7 +37,9 @@ function listFiles(dir) {
 
 const EXPECTATIONS = {
   claude: { root: '.claude', expect: (out) => fs.existsSync(path.join(out, '.claude', '.mcp.json')) },
-  codex: { root: '.codex', expect: (out) => fs.existsSync(path.join(out, '.codex', 'agents', 'reviewer.toml')) && fs.existsSync(path.join(out, '.codex', 'config.toml')) },
+  // Codex re-expresses agents as [agents.<name>] config.toml tables — NOT
+  // agents/<name>.toml files (which never existed in real Codex).
+  codex: { root: '.codex', expect: (out) => !fs.existsSync(path.join(out, '.codex', 'agents')) && fs.existsSync(path.join(out, '.codex', 'config.toml')) },
   opencode: { root: '.opencode', expect: (out) => fs.existsSync(path.join(out, '.opencode', 'agents', 'reviewer.md')) },
 };
 
@@ -61,32 +62,43 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         assert.ok(!/<!-- section:/.test(idx), 'codex still emits an empty section marker');
         const cfg = fs.readFileSync(path.join(out, '.codex', 'config.toml'), 'utf8');
         assert.ok(cfg.includes('Do not change role'), 'codex config.toml missing the baseline');
+        // Agents are re-expressed as native [agents.<name>] tables in config.toml,
+        // carrying ONLY Codex's real fields (description). The Claude-only fields
+        // (tools array, model alias, named color) have no Codex slot.
+        assert.ok(/\[agents\.reviewer\]/.test(cfg), 'codex config.toml missing the [agents.reviewer] table');
+        assert.ok(/description = "Review code for issues\."/.test(cfg), 'codex [agents.reviewer] missing its description');
         assert.ok(fs.existsSync(path.join(out, '.codex', 'skills', 'builder', 'SKILL.md')), 'codex did not materialize the skill body as a sibling file');
+        // No Claude-shaped frontmatter may leak anywhere in the Codex projection:
+        // not a renamed agent .toml, not the skill SKILL.md (name + description
+        // only), not the config or index.
+        for (const f of listFiles(path.join(out, '.codex'))) {
+          const body = fs.readFileSync(f, 'utf8');
+          assert.ok(!/^color:\s/m.test(body), `codex leaked a Claude color field in ${f}`);
+          assert.ok(!/^model:\s*sonnet/m.test(body), `codex leaked a Claude model alias in ${f}`);
+          assert.ok(!/^tools:\s*\[/m.test(body), `codex leaked a Claude tools array in ${f}`);
+        }
         // Instruction rules fold into AGENTS.md for codex (no separate rules dir,
         // no installer — codex has no rules-distribution gap). The fixture ships
         // rules/style.md ("Always test."); it must appear under Conventions / Rules.
         assert.ok(/Conventions \/ Rules/.test(idx), 'codex AGENTS.md did not fold the rules section');
         assert.ok(idx.includes('Always test'), 'codex AGENTS.md did not fold the rule body');
         assert.ok(!fs.existsSync(path.join(out, '.codex', 'rules')), 'codex must not emit a separate rules dir (rules fold into AGENTS.md)');
-        // The per-agent TOML must be REAL TOML, not markdown copied into a
-        // .toml file — no YAML fences, with a real instructions block. This
-        // guards the reported Codex agent defect.
-        const agentToml = fs.readFileSync(path.join(out, '.codex', 'agents', 'reviewer.toml'), 'utf8');
-        assert.ok(!agentToml.includes('---'), 'codex agent must be TOML, not YAML-fenced markdown');
-        assert.ok(/instructions = """/.test(agentToml), 'codex agent must carry an instructions block');
-        assert.ok(!agentToml.includes('color'), 'codex agent must not carry the Claude-only color field');
       }
-      // OpenCode agents must NOT receive Claude-native frontmatter (array tools,
-      // keyword color, bare model). These guard the reported install failure.
+      // Claude keeps the canonical frontmatter verbatim (canonical IS Claude shape).
+      if (target === 'claude') {
+        const ag = fs.readFileSync(path.join(out, '.claude', 'agents', 'reviewer.md'), 'utf8');
+        assert.ok(/^tools:\s*\["Read", "Grep", "Bash"\]/m.test(ag), 'claude must keep the tools array verbatim');
+        assert.ok(/^model:\s*sonnet/m.test(ag), 'claude must keep the model alias verbatim');
+        assert.ok(/^color:\s*cyan/m.test(ag), 'claude must keep the named color verbatim');
+      }
+      // OpenCode rewrites field SHAPES: tools array -> object, model alias ->
+      // provider/model; color is kept (OpenCode supports a color field).
       if (target === 'opencode') {
-        const { data } = frontmatter.parse(fs.readFileSync(path.join(out, '.opencode', 'agents', 'reviewer.md'), 'utf8'));
-        assert.ok(data.tools && !Array.isArray(data.tools) && typeof data.tools === 'object',
-          'opencode agent tools must be an object');
-        assert.ok(!('color' in data), 'opencode agent must not carry color');
-        if ('model' in data) {
-          assert.ok(String(data.model).includes('/'), 'opencode agent model must be provider/model');
-        }
-        assert.strictEqual(data.mode, 'subagent', 'opencode agent must declare mode: subagent');
+        const ag = fs.readFileSync(path.join(out, '.opencode', 'agents', 'reviewer.md'), 'utf8');
+        assert.ok(!/^tools:\s*\[/m.test(ag), 'opencode must not keep the Claude tools array');
+        assert.ok(/^tools:\s*\{[^}]*read: true[^}]*\}/m.test(ag), 'opencode must rewrite tools to an object of name:true');
+        assert.ok(/^model:\s*anthropic\/claude-/m.test(ag), 'opencode must rewrite the model alias to provider/model');
+        assert.ok(/^color:\s*cyan/m.test(ag), 'opencode keeps the color field');
       }
       // Containment: no planned source path is foreign to this target.
       for (const op of plan.operations) {

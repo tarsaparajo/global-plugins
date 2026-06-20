@@ -1,6 +1,5 @@
 ---
 description: Adapt an existing single-provider plugin into a global multi-provider plugin, preserving 100% of its functionality.
-argument-hint: <path-to-plugin> [--targets all|<list>]
 ---
 ## Prompt Defense Baseline
 

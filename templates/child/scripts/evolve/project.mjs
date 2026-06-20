@@ -16,10 +16,11 @@ const apply = args.includes('--apply');
 const root = args.find((a) => !a.startsWith('--')) || process.cwd();
 
 // The child ships the engine under ./engine (copied at generation time). The
-// engine MUST be bundled whole — agent frontmatter is rewritten per provider
-// (e.g. OpenCode object `tools`, Codex TOML) by engine/frontmatter.js, so a
-// partial copy produces invalid provider files. Fail loudly if a required
-// engine module is missing rather than emitting an unprojectable plugin.
+// engine MUST be bundled whole — agent frontmatter is adapted per provider
+// (OpenCode object `tools` + provider/model, Codex drops with no slot) by
+// engine/frontmatter.js, so a partial copy produces invalid provider files.
+// Fail loudly if a required engine module is missing rather than emitting an
+// unprojectable plugin.
 const enginePath = join(root, 'engine');
 const REQUIRED_ENGINE = ['resolver.js', 'projector.js', 'executor.js', 'builder.js', 'frontmatter.js', 'helpers.js'];
 const missingEngine = REQUIRED_ENGINE.filter((f) => !existsSync(join(enginePath, f)));

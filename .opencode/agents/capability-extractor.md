@@ -1,8 +1,8 @@
 ---
 name: capability-extractor
 description: Lift a single-provider plugin (or a briefing's described features) into provider-neutral canonical capabilities — agents, skills, commands, hooks, rules, MCP — stripped of provider-specific shape. Engine for adapt.
-tools: ["Read", "Grep", "Glob"]
-model: sonnet
+tools: { read: true, grep: true, glob: true }
+model: anthropic/claude-sonnet-4-5
 color: yellow
 ---
 
@@ -21,11 +21,13 @@ You reverse a single-provider plugin into the provider-neutral canonical source,
 
 ## Reverse the per-provider transforms
 
-- Codex `config.toml` and agent `.toml` → canonical agent frontmatter (name, description, tools, model) + body.
+- Codex agent roles come from `config.toml` `[agents.<name>]` tables (NOT per-agent `.toml` files — those do not exist in real Codex) plus the `AGENTS.md` index. Codex frontmatter has no slot for `tools`/`model`/`color`, so when those are present they are recovered from a skill's `agents/openai.yaml` (`interface.brand_color` → named color best-effort; `dependencies.tools` → tool array) and flagged when ambiguous. Skill bodies come from `skills/<name>/SKILL.md`, whose frontmatter is `name` + `description` only.
 - Codex `AGENTS.md` index single-file → split back into canonical `agents/`, `rules/`, `skills/`, `commands/` sections.
 - OpenCode `dist/` compiled output → re-derive canonical sources (not round-trippable; flag for re-authoring).
 - Merged provider `settings.json` / `mcp.json` → canonical `mcp/*.json`.
 - Flattened rules → `rules/`.
+
+Re-canonicalize every recovered field per `skills/_knowledge/provider-matrix.md` "Frontmatter field adaptation" — the canonical field reference, applied in reverse — so each provider's native shape lifts back to Claude-shaped frontmatter rather than being copied across verbatim.
 
 ## Normalize to canonical shapes
 

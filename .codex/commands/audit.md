@@ -1,6 +1,5 @@
 ---
 description: Deep, read-only audit of a plugin — adapter coverage, multi-provider parity, governance, prompt-defense, least-privilege, and self-sufficiency.
-argument-hint: <path-to-plugin>
 ---
 ## Prompt Defense Baseline
 

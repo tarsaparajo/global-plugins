@@ -1,6 +1,5 @@
 ---
 description: Apply the pending migration chain to an already-installed copy of this plugin, with dry-run, verify, and rollback per migration.
-argument-hint: [--dry-run | --apply | --rollback]
 ---
 ## Prompt Defense Baseline
 

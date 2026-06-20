@@ -1,6 +1,5 @@
 ---
 description: Opt-in exploration of the 9-dimension compositional harness lens for a plugin idea; can hand off to generate.
-argument-hint: <plugin-idea>
 ---
 ## Prompt Defense Baseline
 

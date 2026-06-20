@@ -9,13 +9,45 @@ const { resolve } = require('./resolver');
 const { planAll } = require('./projector');
 const { collectComponents } = require('./providers/_base');
 
+// Escape a value for a TOML basic string (double-quoted). Newlines are folded to
+// spaces; backslashes and quotes are escaped. Codex agent descriptions are short
+// single-line strings, so this stays simple and deterministic.
+function tomlString(value) {
+  return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\s*\n\s*/g, ' ').trim()}"`;
+}
+
+// Re-express canonical agents as Codex `[agents.<name>]` config.toml tables. Each
+// canonical agent contributes its name + description (the only fields Codex's
+// native agent-table schema carries: config_file / description /
+// nickname_candidates). The Claude-only frontmatter (tools array, model alias,
+// named color) has NO Codex slot and is intentionally NOT emitted here — it is
+// dropped from frontmatter and, where a real equivalent exists, re-expressed by
+// the agentic projector (color -> openai.yaml interface.brand_color, etc.).
+function codexAgentTables(repoRoot) {
+  const agents = collectComponents(repoRoot, 'agents');
+  if (!agents.length) {
+    return '';
+  }
+  const out = ['', '# Custom agents (native Codex [agents.<name>] tables).',
+    '# Re-expressed from canonical agents; their guidance is indexed in AGENTS.md.'];
+  for (const a of agents) {
+    out.push('', `[agents.${a.name}]`);
+    if (a.description) {
+      out.push(`description = ${tomlString(a.description)}`);
+    }
+  }
+  return `${out.join('\n')}\n`;
+}
+
 // Build a deterministic capability index (markdown) describing the agents,
 // skills, and commands a plugin ships, derived from the canonical source. Each
 // single-file provider embeds this index so the model is aware of every
 // capability and where its body lives, rather than receiving an empty file.
 function capabilityIndex(repoRoot, { bodyDir } = {}) {
   const groups = [
-    { dir: 'agents', label: 'Agents', noun: 'agent' },
+    // Codex agents are re-expressed as config.toml [agents.<name>] tables, not
+    // files under .codex/agents/ — so the agents group points at config.toml.
+    { dir: 'agents', label: 'Agents', noun: 'agent', whereOverride: 'config.toml `[agents.<name>]`' },
     { dir: 'skills', label: 'Skills', noun: 'skill' },
     { dir: 'commands', label: 'Commands', noun: 'command' },
   ];
@@ -27,7 +59,12 @@ function capabilityIndex(repoRoot, { bodyDir } = {}) {
     }
     lines.push(`### ${g.label}`, '');
     for (const it of items) {
-      const where = bodyDir ? ` — \`${bodyDir}/${g.dir}/\`` : '';
+      let where = '';
+      if (g.whereOverride) {
+        where = ` — ${g.whereOverride}`;
+      } else if (bodyDir) {
+        where = ` — \`${bodyDir}/${g.dir}/\``;
+      }
       const desc = it.description ? ` — ${it.description}` : '';
       lines.push(`- **${it.name}**${desc}${where}`);
     }
@@ -77,8 +114,9 @@ function buildProjectionPlan(pluginRoot, request = {}) {
 // Scaffold generators: generator-name -> function(op, ctx) => string content.
 // These produce deterministic content for non-copy operations.
 const generators = {
-  'codex:config-toml'(op) {
+  'codex:config-toml'(op, ctx) {
     const defense = require('./prompt-defense').baselineBlock();
+    const agentTables = codexAgentTables(ctx.repoRoot);
     return [
       '#:schema https://developers.openai.com/codex/config-schema.json',
       '',
@@ -88,7 +126,7 @@ const generators = {
       'prompt_defense_baseline = """',
       defense,
       '"""',
-      '',
+      agentTables,
     ].join('\n');
   },
   'codex:agents-md'(op, ctx) {
@@ -96,9 +134,12 @@ const generators = {
     return [
       '# Agents',
       '',
-      'This plugin projects its agents as native Codex role files under',
-      '`.codex/agents/*.toml`. Its skills and commands are installed as sibling',
-      'files under `.codex/`; the index below names each capability.',
+      'This plugin re-expresses its agents as native Codex `[agents.<name>]`',
+      'tables in `config.toml`; their roles are named in the index below. Skills',
+      'and commands are installed as sibling files under `.codex/` (skill',
+      'frontmatter reduced to Codex\'s `name` + `description`). Provider-specific',
+      'agent metadata that has no Codex frontmatter slot (named color, a tools',
+      'array, a model alias) is intentionally not carried here.',
       '',
       capabilityIndex(ctx.repoRoot, { bodyDir: '.codex' }),
       ...(rules ? ['', rules] : []),

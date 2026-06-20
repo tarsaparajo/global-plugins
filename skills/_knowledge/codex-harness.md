@@ -9,22 +9,41 @@ Codex is **instruction-and-TOML driven** — conceptually close to Claude Code (
 ```
 .codex/
 ├── AGENTS.md           # base instructions + capability index
-├── config.toml         # runtime config; MCP; [agents.*] role refs; Prompt Defense baseline (string field)
-├── agents/<name>.toml  # one role file per agent
-├── skills/<name>/SKILL.md   # skill bodies (sibling files, indexed from AGENTS.md)
+├── config.toml         # runtime config; MCP; [agents.<name>] TABLES (role defs); Prompt Defense baseline (string field)
+├── skills/<name>/SKILL.md   # skill bodies (sibling dirs, indexed from AGENTS.md); frontmatter = name + description ONLY
+│   └── agents/openai.yaml   # OPTIONAL per-skill UI/tool metadata (brand_color hex, dependencies.tools, policy)
 └── commands/<name>.md       # command bodies (sibling files)
 ```
 
-`config.toml` and `AGENTS.md` live at the home root `~/.codex/`. `AGENTS.md` is Codex's base instruction file (its CLAUDE.md analogue); fallback filenames `TEAM_GUIDE.md` / `.agents.md` are configurable via `project_doc_fallback_filenames`.
+`config.toml` and `AGENTS.md` live at the home root `~/.codex/`. `AGENTS.md` is Codex's base instruction file (its CLAUDE.md analogue); fallback filenames `TEAM_GUIDE.md` / `.agents.md` are configurable via `project_doc_fallback_filenames`. Note there are **no standalone `agents/<name>.toml` files** in real Codex — agents are tables inside `config.toml` (see below). The canonical field reference for what survives projection is **`skills/_knowledge/provider-matrix.md` → "Frontmatter field adaptation"**.
 
 ## Custom agents (subagents) — official
 
-- **Location:** `~/.codex/agents/` (personal) or `.codex/agents/` (project) — standalone TOML, one agent per file.
-- **Required fields:** `name`, `description`, `developer_instructions`.
-- **Optional fields:** `nickname_candidates`, `model`, `model_reasoning_effort`, `sandbox_mode`, `mcp_servers`, `skills.config`.
+- **Definition:** custom agents are **`[agents.<name>]` TABLES inside `config.toml`** — NOT standalone `agents/<name>.toml` files (that earlier model was wrong). The table key is the agent name.
+- **Fields on the table:** `config_file` (points at the agent's instruction/config file), `description`, `nickname_candidates`. There is **no per-agent `color`/`tools`/`model` frontmatter slot** on a Codex agent.
 - **Global `[agents]` config in `config.toml`:** `max_threads` (default 6), `max_depth` (default 1), `job_max_runtime_seconds`.
 - **Built-in agents:** `default`, `worker`, `explorer`.
 - **Invocation:** `/agent` in the CLI switches/inspects agent threads; Codex orchestrates spawning and result collection.
+
+### SKILL.md frontmatter is `name` + `description` ONLY
+
+A native Codex skill's `SKILL.md` frontmatter carries **only** `name` and `description`. There is no `color`, no `tools` array, and no `model` in that markdown frontmatter. Anything richer lives in the skill's optional `agents/openai.yaml` (below), not in the markdown.
+
+### `agents/openai.yaml` — where UI + tool metadata lives
+
+A Codex skill directory may carry an **optional `agents/openai.yaml`** (snake_case schema) for everything the SKILL.md frontmatter cannot hold:
+
+- `interface.{display_name, short_description, icon_small, icon_large, brand_color, default_prompt}` — `brand_color` is a `#RRGGBB` **hex** value (this is where a UI color lives).
+- `dependencies.tools` — an **ARRAY of objects** `{type, value, description, transport, url}` declaring the skill's tool requirements.
+- `policy.allow_implicit_invocation` — boolean.
+
+### Claude fields with no Codex frontmatter slot
+
+Claude's `color` (named enum), `tools` (array of names), and `model` (alias) have **no Codex frontmatter equivalent** and must be **dropped from frontmatter**. Where a real native equivalent exists, they are **re-expressed** in the skill's `agents/openai.yaml`: `color` → `interface.brand_color` (hex); `tools` array → `dependencies.tools` objects. `model` is a runtime/config concern (it lives in `config.toml`, not frontmatter) and has no `openai.yaml` slot.
+
+### No `plugin.json`, no `hooks.json`
+
+A native Codex skill has **no `plugin.json`** (that is a Claude Code artifact) and **no `hooks.json`**. Its only optional dirs are `scripts/`, `references/`, and `assets/`.
 
 ## MCP — official
 
@@ -44,7 +63,7 @@ Codex governs which commands run outside the sandbox via **rules written in Star
 
 ## Skills, slash commands & hooks
 
-- **Skills:** documented in `docs/skills.md` (`skills.config` on agents). `[fallback]` global-plugins ships skill bodies as `.codex/skills/<id>/SKILL.md` and lists them in the AGENTS.md capability index.
+- **Skills:** documented in `docs/skills.md`. A skill dir is `skills/<id>/SKILL.md` (frontmatter `name` + `description` only) plus optional `scripts/`/`references/`/`assets/` and an optional `agents/openai.yaml` (UI/tool metadata; see "Custom agents" above). There is **no `plugin.json` and no `hooks.json`** in a native Codex skill. `[fallback]` global-plugins ships skill bodies this way and lists them in the AGENTS.md capability index.
 - **Slash commands:** `docs/slash_commands.md`; custom prompts live in `~/.codex/prompts/`.
 - **Hooks:** Codex has a **managed hooks** layer — `allow_managed_hooks_only` in `requirements.toml` ignores user/project/session hook configs while still allowing managed hooks (it does NOT take effect in `config.toml`). The full per-event hook API is not published the way Claude Code's is. `[fallback]` express automation as `developer_instructions` in AGENTS.md / agent TOML plus out-of-band shell — do NOT assume Claude-Code-style hook events on Codex. Confirm against `docs/config.md` before generating hook-dependent Codex behavior.
 
@@ -60,4 +79,4 @@ Codex instructions live in `AGENTS.md` (its CLAUDE.md analogue), committed to th
 
 ## How global-plugins uses this
 
-The Codex projection: agents → `.toml` role files; skills/commands → sibling files indexed in `AGENTS.md`; the Prompt Defense Baseline carried as a string field in `config.toml`. When enriching a child's Codex version, prefer the documented surfaces (agent TOML roles, MCP, prompts, skills) and treat undocumented areas (full hook API, plugin marketplace mechanics) as fallback/uncertain — verify against https://developers.openai.com/codex.
+The Codex projection: agents are re-expressed as **`[agents.<name>]` tables in `config.toml`** (each with `config_file`/`description`/`nickname_candidates`) plus an entry in the `AGENTS.md` capability index — **NOT** as `agents/*.toml` files. Skill `SKILL.md` frontmatter is reduced to **`name` + `description`** only; Claude's `color`/`tools`-array/`model`-alias are dropped from frontmatter and, where a native target exists, re-expressed in the skill's `agents/openai.yaml` (`interface.brand_color` hex, `dependencies.tools` objects). Commands → sibling files indexed in `AGENTS.md`; the Prompt Defense Baseline carried as a string field in `config.toml`. The canonical field-by-field reference is **`skills/_knowledge/provider-matrix.md` → "Frontmatter field adaptation"**. When enriching a child's Codex version, prefer the documented surfaces (`[agents.*]` tables, MCP, prompts, skills) and treat undocumented areas (full hook API, plugin marketplace mechanics) as fallback/uncertain — verify against https://developers.openai.com/codex.

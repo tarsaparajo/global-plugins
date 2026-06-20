@@ -27,14 +27,9 @@ You project the canonical source onto every resolved provider and write the comm
    ```
 2. **Build first when required.** If the target set includes `opencode`, run `node engine/build-opencode.js <out>` BEFORE validation; otherwise the OpenCode adapter hard-fails with `opencode-plugin-not-built`.
 3. **Human-gate.** Render the propagation plan (files to create, modify, or delete per provider, with the transform for each) and require one confirmation before any write.
-4. **Execute.** Apply the plan with the executor; it injects the Prompt Defense Baseline into every model-facing `.md`, performs per-provider transforms (agent-frontmatter rewrite for OpenCode object `tools`/`mode`/`provider-model`, agents→Codex `.toml`, single-file consolidation, merge-json), and enforces the foreign-path guard so one provider's shape never leaks into another's dotfolder.
+4. **Execute.** Apply the plan with the executor; it injects the Prompt Defense Baseline into every model-facing `.md`, performs per-provider transforms (`.md`→`.mdc`, agents→`.toml`, single-file consolidation, merge-json), and enforces the foreign-path guard so one provider's shape never leaks into another's dotfolder.
+   - **Frontmatter adaptation.** When projecting a model-facing `.md` to each provider, consult `skills/_knowledge/provider-matrix.md` and apply **keep/rewrite/drop/re-express** per the matrix — frontmatter is adapted to the target's schema, never copied. The engine does the deterministic **keep/rewrite/drop** within frontmatter (`engine/frontmatter.js`); you do the agentic **re-express** verb — moving data into the target's native structure (e.g. choosing a Codex `interface.brand_color` hex from a named color, modeling `tools` as `dependencies.tools` objects in a skill's `agents/openai.yaml`) — and flag every lossy choice for human review.
 5. **Sync version.** Run the SemVer sync so `plugin.json` and `marketplace.json` match `VERSION`.
-
-## Agent frontmatter is provider-specific
-
-Canonical agents are authored in Claude-native frontmatter: an array `tools`, a keyword `color`, a bare `model` alias. The other providers reject that shape, so the engine rewrites it per target (OpenCode needs an object `tools` map, a `provider/model` id, and a `mode`; Codex needs valid TOML). Never copy agent frontmatter verbatim into a provider that has its own agent schema.
-
-When a generated plugin bundles the engine for self-evolution, copy the engine **whole** — `engine/frontmatter.js` and every `engine/providers/*.js` included — so the child's re-projection produces the same schema-valid agent files. A partial engine copy yields unprojectable agents.
 
 ## Invariants
 
