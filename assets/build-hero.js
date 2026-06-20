@@ -208,8 +208,8 @@ svg += pillRow(64, 853, ['Zed', 'Qwen', 'CodeBuddy', 'JoyCode', 'Antigravity', '
 })();
 
 // Cards (SKILLS shows the 5 surface skills; evolve/migrate are child-injected)
-svg += card(1064, 'AGENTS', 5, ['plugin-architect', 'provider-detector', 'capability-extractor', 'canonical-projector', 'compliance-validator']);
-svg += card(1497, 'SKILLS', 5, ['generate', 'adapt', 'audit', 'validate', 'harness-lens']);
+svg += card(1064, 'AGENTS', 7, ['plugin-architect', 'provider-detector', 'capability-extractor', 'canonical-projector', 'compliance-validator', 'evolution-propagator', 'migration-analyzer']);
+svg += card(1497, 'SKILLS', 7, ['generate', 'adapt', 'audit', 'validate', 'harness-lens', 'evolve', 'migrate']);
 svg += card(1930, 'PROVIDERS', 14, ['claude', 'codex', 'cursor', 'opencode', 'gemini', 'kiro', 'zed', 'qwen', 'codebuddy', 'joycode', 'antigravity', 'trae', 'vscode']);
 
 // Footer: five groups justified (space-between) across the full content width,
