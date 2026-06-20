@@ -42,45 +42,56 @@ Todo plugin que ele produz vem com seu próprio motor de evolução: edite a fon
 
 ## Matriz de provedores
 
-| Provedor | Escopo | Raiz | Transformação notável | Build |
-|----------|--------|------|-----------------------|-------|
-| claude | home | `.claude` | cópia; merge de MCP | — |
-| codex | home | `.codex` | agents para TOML; índice `AGENTS.md` + arquivos irmãos de skills/commands + `config.toml` | — |
-| opencode | home | `.opencode` | cópia; plugin compilado em `dist/` | sim |
+| Provedor | Escopo | Pasta no repositório | Instala em | Transformação notável | Build |
+|----------|--------|----------------------|------------|-----------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | cópia; merge de MCP | — |
+| codex | home | `.codex` | `~/.codex` | agents para TOML; índice `AGENTS.md` + arquivos irmãos de skills/commands + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | cópia; plugin compilado em `dist/` | sim |
 
-**Escopo:** os três são provedores *home* (CLIs) — cada um mantém uma configuração global por usuário no seu diretório home.
+**Escopo:** os três são provedores *home* (CLIs) — cada um mantém uma configuração global por usuário. A **Pasta no repositório** é o nome da pasta-ponto neste repositório (a fonte da projeção); **Instala em** é onde você a coloca para que aquele provedor a leia.
 
 O registry é aberto. Novos provedores podem ser adicionados estendendo o registry com uma entrada real, um contrato de provedor, um módulo adaptador e um teste.
 
 ## Instalação
 
-A pasta-ponto versionada de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Os três são provedores *home* (CLIs) e são instalados no seu diretório home (`~/`). Escolha o seu provedor abaixo.
+A pasta-ponto versionada de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Escolha o seu provedor abaixo.
 
 ### Claude Code
+
+O Claude Code instala a partir de um marketplace de plugins — sem necessidade de clonar:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ou copie `.claude` para `~/.claude`. Os comandos `/plugin` são exclusivos do Claude Code.
+Os comandos `/plugin` são exclusivos do Claude Code.
 
 ### Codex
 
+O Codex não tem instalação via marketplace para este plugin, então clone o repositório e copie a pasta `.codex` para o diretório de configuração global do Codex:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-Configuração global da CLI. O índice `AGENTS.md`, o `config.toml`, os arquivos irmãos de skills/commands e os `.codex/agents/*.toml` são detectados automaticamente quando você executa `codex` no projeto.
+O Codex lê `~/.codex/`: ele detecta automaticamente o `~/.codex/config.toml`, o índice `AGENTS.md`, os papéis em `agents/*.toml` e os arquivos irmãos `skills/`/`commands/` na próxima vez que você executar `codex`.
 
 ### opencode
 
+O opencode não tem instalação via marketplace para este plugin, então clone o repositório, compile o plugin e então copie a pasta `.opencode` para o diretório de configuração global do opencode:
+
 ```
-node engine/build-opencode.js   # compile o plugin primeiro
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-Configuração global da CLI. O passo de build gera `.opencode/dist/` e é obrigatório antes do uso.
+O opencode lê sua configuração global de `~/.config/opencode/` (não de `~/.opencode/`). O passo de build é obrigatório antes do uso; ele produz `.opencode/dist/`.
 
 Consulte a [Matriz de provedores](#provider-matrix) para a transformação exata que cada provedor aplica.
 

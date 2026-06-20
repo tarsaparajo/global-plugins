@@ -42,45 +42,56 @@ Chaque plugin produit est livré avec son propre moteur d'évolution : modifiez 
 
 ## Matrice des fournisseurs
 
-| Fournisseur | Portée | Racine | Transformation notable | Build |
-|----------|-------|------|-------------------|-------|
-| claude | poste utilisateur | `.claude` | copie ; fusion MCP | — |
-| codex | poste utilisateur | `.codex` | agents en TOML ; index `AGENTS.md` + fichiers frères skills/commands + `config.toml` | — |
-| opencode | poste utilisateur | `.opencode` | copie ; plugin compilé sous `dist/` | oui |
+| Fournisseur | Portée | Dossier du dépôt | S'installe vers | Transformation notable | Build |
+|----------|-------|-------------|-------------|-------------------|-------|
+| claude | poste utilisateur | `.claude` | marketplace / `~/.claude` | copie ; fusion MCP | — |
+| codex | poste utilisateur | `.codex` | `~/.codex` | agents en TOML ; index `AGENTS.md` + fichiers frères skills/commands + `config.toml` | — |
+| opencode | poste utilisateur | `.opencode` | `~/.config/opencode` | copie ; plugin compilé sous `dist/` | oui |
 
-**Portée :** les trois sont des fournisseurs de type *poste utilisateur* (CLI) — chacun conserve une configuration globale par utilisateur dans votre répertoire personnel.
+**Portée :** les trois sont des fournisseurs de type *poste utilisateur* (CLI) — chacun conserve une configuration globale par utilisateur. **Dossier du dépôt** est le nom du dotfolder dans ce dépôt (la source de projection) ; **S'installe vers** est l'emplacement où vous le placez pour que ce fournisseur puisse le lire.
 
 Le registre est ouvert. De nouveaux fournisseurs peuvent être ajoutés en étendant le registre avec une entrée réelle, un contrat de fournisseur, un module d'adaptateur et un test.
 
 ## Installation
 
-Le dossier de configuration (dotfolder) versionné de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Les trois sont des fournisseurs *poste utilisateur* (CLI) et s'installent dans votre répertoire personnel (`~/`). Choisissez votre fournisseur ci-dessous.
+Le dossier de configuration (dotfolder) versionné de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Choisissez votre fournisseur ci-dessous.
 
 ### Claude Code
+
+Claude Code s'installe depuis une marketplace de plugins — aucun clonage nécessaire :
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ou bien copiez `.claude` dans `~/.claude`. Les commandes `/plugin` sont propres à Claude Code.
+Les commandes `/plugin` sont propres à Claude Code.
 
 ### Codex
 
+Codex ne dispose d'aucune installation par marketplace pour ce plugin ; clonez donc le dépôt et copiez son dossier `.codex` dans le répertoire de configuration globale de Codex :
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-Configuration globale de la CLI. L'index `AGENTS.md`, `config.toml`, les fichiers frères skills/commands et `.codex/agents/*.toml` sont détectés automatiquement lorsque vous lancez `codex` dans le projet.
+Codex lit `~/.codex/` : il détecte automatiquement `~/.codex/config.toml`, l'index `AGENTS.md`, les rôles `agents/*.toml` et les fichiers frères `skills/`/`commands/` lors de votre prochaine exécution de `codex`.
 
 ### opencode
 
+opencode ne dispose d'aucune installation par marketplace pour ce plugin ; clonez donc le dépôt, construisez le plugin compilé, puis copiez son dossier `.opencode` dans le répertoire de configuration globale d'opencode :
+
 ```
-node engine/build-opencode.js   # construire d'abord le plugin compilé
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-Configuration globale de la CLI. L'étape de build produit `.opencode/dist/` et est requise avant utilisation.
+opencode lit sa configuration globale depuis `~/.config/opencode/` (et non `~/.opencode/`). L'étape de build est requise avant utilisation ; elle produit `.opencode/dist/`.
 
 Consultez la [Matrice des fournisseurs](#provider-matrix) pour connaître la transformation exacte qu'applique chaque fournisseur.
 

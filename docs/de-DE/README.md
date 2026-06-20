@@ -42,45 +42,56 @@ Jedes erzeugte Plugin wird mit einer eigenen Evolutions-Engine ausgeliefert: Bea
 
 ## Provider-Matrix
 
-| Provider | Geltungsbereich | Root | Wesentliche Transformation | Build |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | Kopie; MCP-Merge | — |
-| codex | home | `.codex` | Agents nach TOML; `AGENTS.md`-Index + Geschwisterdateien für Skills/Commands + `config.toml` | — |
-| opencode | home | `.opencode` | Kopie; kompiliertes Plugin unter `dist/` | ja |
+| Provider | Geltungsbereich | Repo-Ordner | Installiert nach | Wesentliche Transformation | Build |
+|----------|-------|-------------|------------------|-------------------|-------|
+| claude | home | `.claude` | Marketplace / `~/.claude` | Kopie; MCP-Merge | — |
+| codex | home | `.codex` | `~/.codex` | Agents nach TOML; `AGENTS.md`-Index + Geschwisterdateien für Skills/Commands + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | Kopie; kompiliertes Plugin unter `dist/` | ja |
 
-**Geltungsbereich:** Alle drei sind *home*-Provider (CLIs) – jeder hält eine globale Konfiguration pro Benutzer in deinem Home-Verzeichnis vor.
+**Geltungsbereich:** Alle drei sind *home*-Provider (CLIs) – jeder hält eine globale Konfiguration pro Benutzer vor. **Repo-Ordner** ist der Name des Dotfolders in diesem Repository (die Projektionsquelle); **Installiert nach** ist der Ort, an dem du ihn ablegst, damit der jeweilige Provider ihn liest.
 
 Die Registry ist offen. Neue Provider lassen sich hinzufügen, indem man die Registry um einen echten Eintrag, einen Provider-Vertrag, ein Adapter-Modul und einen Test erweitert.
 
 ## Installation
 
-Der committete Dotfolder jedes Providers ist ein echtes, einsatzbereites Artefakt, das durch erneute Projektion regeneriert wird – bearbeite ihn niemals von Hand. Alle drei sind *home*-Provider (CLIs) und installieren in dein Home-Verzeichnis (`~/`). Wähle unten deinen Provider.
+Der committete Dotfolder jedes Providers ist ein echtes, einsatzbereites Artefakt, das durch erneute Projektion regeneriert wird – bearbeite ihn niemals von Hand. Wähle unten deinen Provider.
 
 ### Claude Code
+
+Claude Code installiert aus einem Plugin-Marketplace – kein Klonen nötig:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Oder kopiere `.claude` nach `~/.claude`. Die `/plugin`-Befehle gelten nur für Claude Code.
+Die `/plugin`-Befehle gelten nur für Claude Code.
 
 ### Codex
 
+Codex bietet keine Marketplace-Installation für dieses Plugin, klone also das Repository und kopiere dessen `.codex`-Ordner in das globale Konfigurationsverzeichnis von Codex:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-Globale CLI-Konfiguration. Der `AGENTS.md`-Index, `config.toml`, die Geschwisterdateien für Skills/Commands und `.codex/agents/*.toml` werden automatisch erkannt, wenn du `codex` im Projekt ausführst.
+Codex liest `~/.codex/`: Es erkennt `~/.codex/config.toml`, den `AGENTS.md`-Index, die `agents/*.toml`-Rollen und die Geschwisterdateien für `skills/`/`commands/` automatisch, sobald du `codex` das nächste Mal ausführst.
 
 ### opencode
 
+opencode bietet keine Marketplace-Installation für dieses Plugin, klone also das Repository, baue das kompilierte Plugin und kopiere dann dessen `.opencode`-Ordner in das globale Konfigurationsverzeichnis von opencode:
+
 ```
-node engine/build-opencode.js   # zuerst das kompilierte Plugin bauen
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # das kompilierte Plugin bauen (erzeugt .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-Globale CLI-Konfiguration. Der Build-Schritt erzeugt `.opencode/dist/` und ist vor der Nutzung erforderlich.
+opencode liest seine globale Konfiguration aus `~/.config/opencode/` (nicht `~/.opencode/`). Der Build-Schritt ist vor der Nutzung erforderlich; er erzeugt `.opencode/dist/`.
 
 Siehe die [Provider-Matrix](#provider-matrix) für die genaue Transformation, die jeder Provider anwendet.
 

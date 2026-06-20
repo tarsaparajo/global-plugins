@@ -42,45 +42,56 @@ Ogni plugin prodotto viene fornito con il proprio motore di evoluzione: modifica
 
 ## Matrice dei provider
 
-| Provider | Ambito | Radice | Trasformazione rilevante | Build |
-|----------|--------|--------|--------------------------|-------|
-| claude | home | `.claude` | copia; merge MCP | — |
-| codex | home | `.codex` | agenti in TOML; indice `AGENTS.md` + file fratelli skill/comandi + `config.toml` | — |
-| opencode | home | `.opencode` | copia; plugin compilato sotto `dist/` | sì |
+| Provider | Ambito | Cartella nel repo | Si installa in | Trasformazione rilevante | Build |
+|----------|--------|-------------------|----------------|--------------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | copia; merge MCP | — |
+| codex | home | `.codex` | `~/.codex` | agenti in TOML; indice `AGENTS.md` + file fratelli skill/comandi + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | copia; plugin compilato sotto `dist/` | sì |
 
-**Ambito:** tutti e tre sono provider *home* (CLI) — ciascuno mantiene una configurazione globale per utente nella tua home directory.
+**Ambito:** tutti e tre sono provider *home* (CLI) — ciascuno mantiene una configurazione globale per utente. La **Cartella nel repo** è il nome della dotfolder in questo repository (la sorgente della proiezione); **Si installa in** è il punto in cui la collochi affinché quel provider la legga.
 
 Il registro è aperto. È possibile aggiungere nuovi provider estendendo il registro con una voce reale, un contratto di provider, un modulo adapter e un test.
 
 ## Installazione
 
-La dotfolder versionata di ciascun provider è un artefatto reale e pronto all'uso, rigenerato tramite ri-proiezione: non modificarla mai a mano. Tutti e tre sono provider *home* (CLI) e si installano nella tua home directory (`~/`). Scegli il tuo provider qui sotto.
+La dotfolder versionata di ciascun provider è un artefatto reale e pronto all'uso, rigenerato tramite ri-proiezione: non modificarla mai a mano. Scegli il tuo provider qui sotto.
 
 ### Claude Code
+
+Claude Code si installa da un marketplace di plugin — non serve clonare:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-In alternativa, copia `.claude` in `~/.claude`. I comandi `/plugin` sono solo per Claude Code.
+I comandi `/plugin` sono solo per Claude Code.
 
 ### Codex
 
+Codex non ha un'installazione da marketplace per questo plugin, quindi clona il repo e copia la sua cartella `.codex` nella directory di configurazione globale di Codex:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-Configurazione globale della CLI. L'indice `AGENTS.md`, `config.toml`, i file fratelli skill/comandi e `.codex/agents/*.toml` vengono rilevati automaticamente quando esegui `codex` nel progetto.
+Codex legge `~/.codex/`: rileva automaticamente `~/.codex/config.toml`, l'indice `AGENTS.md`, i ruoli `agents/*.toml` e i file fratelli `skills/`/`commands/` la prossima volta che esegui `codex`.
 
 ### opencode
 
+opencode non ha un'installazione da marketplace per questo plugin, quindi clona il repo, compila il plugin, poi copia la sua cartella `.opencode` nella directory di configurazione globale di opencode:
+
 ```
-node engine/build-opencode.js   # compila prima il plugin
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # compila il plugin (produce .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-Configurazione globale della CLI. Il passaggio di build produce `.opencode/dist/` ed è necessario prima dell'uso.
+opencode legge la sua configurazione globale da `~/.config/opencode/` (non `~/.opencode/`). Il passaggio di build è necessario prima dell'uso; produce `.opencode/dist/`.
 
 Consulta la [Matrice dei provider](#provider-matrix) per la trasformazione esatta che ciascun provider applica.
 

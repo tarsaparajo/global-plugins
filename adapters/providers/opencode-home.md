@@ -1,8 +1,8 @@
 # Provider Contract — opencode-home
 
 - **Target:** `opencode`
-- **Scope (kind):** `home` — CLI global config (`~/.opencode/`).
-- **Root:** `.opencode`
+- **Scope (kind):** `home` — CLI global config. The repo folder is `.opencode/`, but opencode reads its global config from `~/.config/opencode/` (XDG), so installation copies `.opencode/.` into `~/.config/opencode/`.
+- **Root:** `.opencode` (repo folder / projection source)
 - **Build step:** `node engine/build-opencode.js` — REQUIRED before validation.
 
 ## Transforms

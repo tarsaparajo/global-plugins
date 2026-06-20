@@ -42,45 +42,56 @@
 
 ## 服务商矩阵
 
-| 服务商 | 范围 | 根目录 | 关键转换 | 需构建 |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | 复制；MCP 合并 | — |
-| codex | home | `.codex` | 智能体转 TOML；`AGENTS.md` 索引 + 同级的 skills/commands 文件 + `config.toml` | — |
-| opencode | home | `.opencode` | 复制；编译后的插件置于 `dist/` 下 | 是 |
+| 服务商 | 范围 | 仓库目录 | 安装到 | 关键转换 | 需构建 |
+|----------|-------|-------------|-------------|-------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | 复制；MCP 合并 | — |
+| codex | home | `.codex` | `~/.codex` | 智能体转 TOML；`AGENTS.md` 索引 + 同级的 skills/commands 文件 + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | 复制；编译后的插件置于 `dist/` 下 | 是 |
 
-**范围：** 三家全部为 *home* 类服务商（命令行工具）——每一家都在你的主目录中保留一份全局的、按用户区分的配置。
+**范围：** 三家全部为 *home* 类服务商（命令行工具）——每一家都保留一份全局的、按用户区分的配置。**仓库目录**是本仓库中的点目录名（投影源）；**安装到**是你为让该服务商读取而放置它的位置。
 
 注册表是开放的。要新增服务商，只需在注册表中扩展一个真实条目、一份服务商契约、一个适配器模块以及一个测试。
 
 ## 安装
 
-每个服务商已纳入版本管理的点目录（dotfolder）都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。三家全部为 *home* 类服务商（命令行工具），均安装到你的主目录（`~/`）。请在下方选择你的服务商。
+每个服务商已纳入版本管理的点目录（dotfolder）都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。请在下方选择你的服务商。
 
 ### Claude Code
+
+Claude Code 通过插件 marketplace 安装——无需克隆：
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-或将 `.claude` 复制到 `~/.claude`。`/plugin` 命令仅适用于 Claude Code。
+`/plugin` 命令仅适用于 Claude Code。
 
 ### Codex
 
+Codex 没有针对本插件的 marketplace 安装方式，因此请克隆仓库，并将其 `.codex` 目录复制到 Codex 的全局配置目录：
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-命令行工具的全局配置。当你在项目中运行 `codex` 时，`AGENTS.md` 索引、`config.toml`、同级的 skills/commands 文件以及 `.codex/agents/*.toml` 会被自动检测。
+Codex 读取 `~/.codex/`：当你下次运行 `codex` 时，它会自动检测 `~/.codex/config.toml`、`AGENTS.md` 索引、`agents/*.toml` 角色以及同级的 `skills/`/`commands/` 文件。
 
 ### opencode
 
+opencode 没有针对本插件的 marketplace 安装方式，因此请克隆仓库，构建编译后的插件，然后将其 `.opencode` 目录复制到 opencode 的全局配置目录：
+
 ```
-node engine/build-opencode.js   # 先构建编译后的插件
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-命令行工具的全局配置。构建步骤会生成 `.opencode/dist/`，使用前必须先执行。
+opencode 从 `~/.config/opencode/`（而非 `~/.opencode/`）读取其全局配置。使用前必须先执行构建步骤；它会生成 `.opencode/dist/`。
 
 请参阅[服务商矩阵](#provider-matrix)，了解每个服务商应用的具体转换。
 

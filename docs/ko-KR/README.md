@@ -42,45 +42,56 @@
 
 ## 프로바이더 매트릭스
 
-| 프로바이더 | 범위 | 루트 | 주요 변환 | 빌드 |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | 복사; MCP 병합 | — |
-| codex | home | `.codex` | 에이전트를 TOML로; `AGENTS.md` 인덱스 + 형제 스킬/커맨드 파일 + `config.toml` | — |
-| opencode | home | `.opencode` | 복사; `dist/` 아래에 컴파일된 플러그인 | yes |
+| 프로바이더 | 범위 | 저장소 폴더 | 설치 위치 | 주요 변환 | 빌드 |
+|----------|-------|-------------|-----------|-------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | 복사; MCP 병합 | — |
+| codex | home | `.codex` | `~/.codex` | 에이전트를 TOML로; `AGENTS.md` 인덱스 + 형제 스킬/커맨드 파일 + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | 복사; `dist/` 아래에 컴파일된 플러그인 | yes |
 
-**범위:** 세 프로바이더 모두 *home* 프로바이더(CLI)입니다. 각각 홈 디렉터리에 사용자별 전역 설정을 유지합니다.
+**범위:** 세 프로바이더 모두 *home* 프로바이더(CLI)이며, 각각 사용자별 전역 설정을 유지합니다. **저장소 폴더**는 이 저장소 내 도트 폴더 이름(투영 소스)이고, **설치 위치**는 해당 프로바이더가 읽을 수 있도록 그것을 배치하는 곳입니다.
 
 레지스트리는 개방형입니다. 실제 항목, 프로바이더 계약(contract), 어댑터 모듈, 테스트를 추가해 레지스트리를 확장하는 방식으로 새 프로바이더를 추가할 수 있습니다.
 
 ## 설치
 
-각 프로바이더의 커밋된 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. 세 프로바이더 모두 *home* 프로바이더(CLI)이며 홈 디렉터리(`~/`)에 설치됩니다. 아래에서 사용하는 프로바이더를 선택하세요.
+각 프로바이더의 커밋된 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. 아래에서 사용하는 프로바이더를 선택하세요.
 
 ### Claude Code
+
+Claude Code는 플러그인 마켓플레이스에서 설치하므로 클론이 필요 없습니다.
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-또는 `.claude`를 `~/.claude`에 복사하세요. `/plugin` 커맨드는 Claude Code 전용입니다.
+`/plugin` 커맨드는 Claude Code 전용입니다.
 
 ### Codex
 
+Codex에는 이 플러그인에 대한 마켓플레이스 설치가 없으므로, 저장소를 클론한 뒤 그 `.codex` 폴더를 Codex의 전역 설정 디렉터리에 복사하세요.
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-CLI 전역 설정입니다. 프로젝트에서 `codex`를 실행하면 `AGENTS.md` 인덱스, `config.toml`, 형제 스킬/커맨드 파일, `.codex/agents/*.toml`이 자동으로 감지됩니다.
+Codex는 `~/.codex/`를 읽습니다. 다음번에 `codex`를 실행하면 `~/.codex/config.toml`, `AGENTS.md` 인덱스, `agents/*.toml` 역할, 형제 `skills/`/`commands/` 파일을 자동으로 감지합니다.
 
 ### opencode
 
+opencode에는 이 플러그인에 대한 마켓플레이스 설치가 없으므로, 저장소를 클론하고 컴파일된 플러그인을 빌드한 뒤 그 `.opencode` 폴더를 opencode의 전역 설정 디렉터리에 복사하세요.
+
 ```
-node engine/build-opencode.js   # 먼저 컴파일된 플러그인을 빌드합니다
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # 컴파일된 플러그인을 빌드합니다 (.opencode/dist/를 생성)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-CLI 전역 설정입니다. 빌드 단계는 `.opencode/dist/`를 생성하며 사용 전에 반드시 필요합니다.
+opencode는 전역 설정을 `~/.config/opencode/`에서 읽습니다(`~/.opencode/`가 아님). 빌드 단계는 사용 전에 반드시 필요하며 `.opencode/dist/`를 생성합니다.
 
 각 프로바이더가 적용하는 정확한 변환은 [프로바이더 매트릭스](#provider-matrix)를 참조하세요.
 

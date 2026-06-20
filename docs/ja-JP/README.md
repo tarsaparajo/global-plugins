@@ -42,45 +42,56 @@
 
 ## プロバイダーマトリクス
 
-| プロバイダー | スコープ | ルート | 主な変換 | ビルド |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | コピー、MCP マージ | — |
-| codex | home | `.codex` | エージェントを TOML 化、`AGENTS.md` インデックス + skills／commands の同階層ファイル + `config.toml` | — |
-| opencode | home | `.opencode` | コピー、`dist/` 配下にコンパイル済みプラグイン | あり |
+| プロバイダー | スコープ | リポジトリのフォルダ | インストール先 | 主な変換 | ビルド |
+|----------|-------|-------------|-------------|-------------------|-------|
+| claude | home | `.claude` | マーケットプレイス / `~/.claude` | コピー、MCP マージ | — |
+| codex | home | `.codex` | `~/.codex` | エージェントを TOML 化、`AGENTS.md` インデックス + skills／commands の同階層ファイル + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | コピー、`dist/` 配下にコンパイル済みプラグイン | あり |
 
-**スコープ:** 3 つすべてが *home* プロバイダー（CLI）です。それぞれがホームディレクトリにユーザーごとのグローバル設定を保持します。
+**スコープ:** 3 つすべてが *home* プロバイダー（CLI）です。それぞれがユーザーごとのグローバル設定を保持します。**リポジトリのフォルダ** はこのリポジトリ内のドットフォルダ名（投影元）であり、**インストール先** はそのプロバイダーが読み取れるように配置する場所です。
 
 レジストリは拡張可能です。実エントリ、プロバイダー契約 (provider contract)、アダプターモジュール、テストを追加してレジストリを拡張すれば、新しいプロバイダーを追加できます。
 
 ## インストール
 
-各プロバイダーのコミット済みドットフォルダは、再投影によって再生成される、実際にすぐ使える成果物です。手作業で編集しないでください。3 つすべてが *home* プロバイダー（CLI）であり、ホームディレクトリ（`~/`）へインストールされます。以下からお使いのプロバイダーを選択してください。
+各プロバイダーのコミット済みドットフォルダは、再投影によって再生成される、実際にすぐ使える成果物です。手作業で編集しないでください。以下からお使いのプロバイダーを選択してください。
 
 ### Claude Code
+
+Claude Code はプラグインマーケットプレイスからインストールします。クローンは不要です。
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-または `.claude` を `~/.claude` へコピーします。`/plugin` コマンドは Claude Code 専用です。
+`/plugin` コマンドは Claude Code 専用です。
 
 ### Codex
 
+Codex にはこのプラグイン用のマーケットプレイスインストールがないため、リポジトリをクローンし、その `.codex` フォルダを Codex のグローバル設定ディレクトリへコピーします。
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-CLI のグローバル設定です。`AGENTS.md` インデックス、`config.toml`、skills／commands の同階層ファイル、`.codex/agents/*.toml` は、プロジェクトで `codex` を実行すると自動検出されます。
+Codex は `~/.codex/` を読み取ります。次に `codex` を実行したときに、`~/.codex/config.toml`、`AGENTS.md` インデックス、`agents/*.toml` のロール、そして skills／commands の同階層ファイルを自動検出します。
 
 ### opencode
 
+opencode にはこのプラグイン用のマーケットプレイスインストールがないため、リポジトリをクローンし、コンパイル済みプラグインをビルドしてから、その `.opencode` フォルダを opencode のグローバル設定ディレクトリへコピーします。
+
 ```
-node engine/build-opencode.js   # まずコンパイル済みプラグインをビルド
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-CLI のグローバル設定です。ビルド手順は `.opencode/dist/` を生成し、使用前に必須です。
+opencode はグローバル設定を `~/.config/opencode/`（`~/.opencode/` ではありません）から読み取ります。使用前にビルド手順が必須であり、これにより `.opencode/dist/` が生成されます。
 
 各プロバイダーが適用する正確な変換については、[プロバイダーマトリクス](#provider-matrix)を参照してください。
 

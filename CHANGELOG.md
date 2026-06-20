@@ -5,6 +5,13 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-20
+
+### Fixed
+
+- README Install section was unfollowable for Codex and opencode: the `cp`/build commands are relative to a cloned repo, but no `git clone` step was given. Added explicit `git clone` + `cd` steps for both, and clarified that Codex/opencode have no marketplace install (unlike Claude Code).
+- opencode install pointed at `~/.opencode`, but opencode reads its global config from `~/.config/opencode/` (XDG) — the plugin would silently never load. Corrected the command (`mkdir -p ~/.config/opencode` + `cp -r .opencode/. ~/.config/opencode/`), the Provider Matrix (new "Repo folder" + "Installs to" columns), and the `opencode-home` adapter contract. Propagated across the English README and all 13 locales.
+
 ## [0.4.0] - 2026-06-20
 
 ### Added

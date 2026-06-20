@@ -42,45 +42,56 @@ Tek bir sağlayıcı için yazılmış bir eklentiyi gösterin; Global Plugins o
 
 ## Sağlayıcı Matrisi
 
-| Sağlayıcı | Kapsam | Kök | Dikkat çeken dönüşüm | Derleme |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | kopyalama; MCP birleştirme | — |
-| codex | home | `.codex` | agent'ları TOML'a; `AGENTS.md` indeksi + skill/komut kardeş dosyaları + `config.toml` | — |
-| opencode | home | `.opencode` | kopyalama; `dist/` altında derlenmiş eklenti | evet |
+| Sağlayıcı | Kapsam | Depo klasörü | Kurulduğu yer | Dikkat çeken dönüşüm | Derleme |
+|----------|-------|-------------|---------------|-------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | kopyalama; MCP birleştirme | — |
+| codex | home | `.codex` | `~/.codex` | agent'ları TOML'a; `AGENTS.md` indeksi + skill/komut kardeş dosyaları + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | kopyalama; `dist/` altında derlenmiş eklenti | evet |
 
-**Kapsam:** üçünün de *home* sağlayıcısı olması (CLI'lar) — her biri ev dizininizde kullanıcı başına genel bir yapılandırma tutar.
+**Kapsam:** üçü de *home* sağlayıcısıdır (CLI'lar) — her biri kullanıcı başına genel bir yapılandırma tutar. **Depo klasörü**, bu depodaki nokta klasörü adıdır (yansıtma kaynağı); **Kurulduğu yer**, o sağlayıcının okuması için onu yerleştirdiğiniz konumdur.
 
 Kayıt defteri (registry) açıktır. Kayıt defterini gerçek bir girdi, bir sağlayıcı sözleşmesi (contract), bir adaptör modülü ve bir testle genişleterek yeni sağlayıcılar eklenebilir.
 
 ## Kurulum
 
-Her sağlayıcının commit edilmiş nokta klasörü, yeniden yansıtmayla üretilen gerçek, kullanıma hazır bir yapıttır; asla elle düzenlemeyin. Üçü de *home* sağlayıcısıdır (CLI'lar) ve ev dizininize (`~/`) kurulur. Aşağıdan sağlayıcınızı seçin.
+Her sağlayıcının commit edilmiş nokta klasörü, yeniden yansıtmayla üretilen gerçek, kullanıma hazır bir yapıttır; asla elle düzenlemeyin. Aşağıdan sağlayıcınızı seçin.
 
 ### Claude Code
+
+Claude Code, bir eklenti marketplace'inden kurulur; klonlamaya gerek yoktur:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ya da `.claude` klasörünü `~/.claude` konumuna kopyalayın. `/plugin` komutları yalnızca Claude Code içindir.
+`/plugin` komutları yalnızca Claude Code içindir.
 
 ### Codex
 
+Codex'in bu eklenti için marketplace kurulumu yoktur; bu yüzden depoyu klonlayın ve `.codex` klasörünü Codex'in genel yapılandırma dizinine kopyalayın:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-CLI genel yapılandırması. Projede `codex` komutunu çalıştırdığınızda `AGENTS.md` indeksi, `config.toml`, kardeş skill/komut dosyaları ve `.codex/agents/*.toml` otomatik olarak algılanır.
+Codex, `~/.codex/` dizinini okur: `codex` komutunu bir sonraki çalıştırışınızda `~/.codex/config.toml`, `AGENTS.md` indeksi, `agents/*.toml` rolleri ve kardeş `skills/`/`commands/` dosyaları otomatik olarak algılanır.
 
 ### opencode
 
+opencode'un bu eklenti için marketplace kurulumu yoktur; bu yüzden depoyu klonlayın, derlenmiş eklentiyi oluşturun, ardından `.opencode` klasörünü opencode'un genel yapılandırma dizinine kopyalayın:
+
 ```
-node engine/build-opencode.js   # önce derlenmiş eklentiyi oluşturun
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # derlenmiş eklentiyi oluştur (.opencode/dist/ üretir)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-CLI genel yapılandırması. Derleme adımı `.opencode/dist/` klasörünü üretir ve kullanımdan önce gereklidir.
+opencode, genel yapılandırmasını `~/.config/opencode/` dizininden okur (`~/.opencode/` değil). Derleme adımı kullanımdan önce gereklidir; `.opencode/dist/` klasörünü üretir.
 
 Her sağlayıcının uyguladığı tam dönüşüm için [Sağlayıcı Matrisi](#provider-matrix) bölümüne bakın.
 

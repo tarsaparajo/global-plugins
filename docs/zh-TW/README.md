@@ -42,45 +42,56 @@
 
 ## 供應商對照表
 
-| 供應商 | 範圍 | 根目錄 | 主要轉換 | 需建置 |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | 複製；MCP 合併 | — |
-| codex | home | `.codex` | agents 轉為 TOML；`AGENTS.md` 索引 + skills/commands 並列檔案 + `config.toml` | — |
-| opencode | home | `.opencode` | 複製；編譯後的外掛置於 `dist/` 下 | 是 |
+| 供應商 | 範圍 | 儲存庫資料夾 | 安裝至 | 主要轉換 | 需建置 |
+|----------|-------|-------------|-------------|-------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | 複製；MCP 合併 | — |
+| codex | home | `.codex` | `~/.codex` | agents 轉為 TOML；`AGENTS.md` 索引 + skills/commands 並列檔案 + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | 複製；編譯後的外掛置於 `dist/` 下 | 是 |
 
-**範圍：** 三者皆為 *home* 供應商（CLI）——每個都會在你的家目錄中保有全域、以使用者為單位的設定。
+**範圍：** 三者皆為 *home* 供應商（CLI）——每個都會保有全域、以使用者為單位的設定。**儲存庫資料夾**是本儲存庫中的 dotfolder 名稱（投影來源）；**安裝至**則是你為了讓該供應商讀取而放置它的位置。
 
 此登錄表是開放的。只要為登錄表擴充一筆真實項目、一份供應商合約、一個轉接模組與一項測試，即可加入新的供應商。
 
 ## 安裝
 
-每個供應商已納入版本控制的 dotfolder 都是真實、可直接使用的產物，會透過重新投影重新產生——切勿手動編輯它們。三者皆為 *home* 供應商（CLI），都會安裝到你的家目錄（`~/`）。請在下方選擇你的供應商。
+每個供應商已納入版本控制的 dotfolder 都是真實、可直接使用的產物，會透過重新投影重新產生——切勿手動編輯它們。請在下方選擇你的供應商。
 
 ### Claude Code
+
+Claude Code 從外掛 marketplace 安裝——無需 clone：
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-或將 `.claude` 複製到 `~/.claude`。`/plugin` 指令僅適用於 Claude Code。
+`/plugin` 指令僅適用於 Claude Code。
 
 ### Codex
 
+此外掛在 Codex 沒有 marketplace 安裝方式，因此請 clone 儲存庫並將其 `.codex` 資料夾複製到 Codex 的全域設定目錄：
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-CLI 全域設定。當你在專案中執行 `codex` 時，`AGENTS.md` 索引、`config.toml`、並列的 skills/commands 檔案與 `.codex/agents/*.toml` 會被自動偵測。
+Codex 會讀取 `~/.codex/`：下次你執行 `codex` 時，它會自動偵測 `~/.codex/config.toml`、`AGENTS.md` 索引、`agents/*.toml` 角色，以及並列的 `skills/`／`commands/` 檔案。
 
 ### opencode
 
+此外掛在 opencode 沒有 marketplace 安裝方式，因此請 clone 儲存庫、建置編譯後的外掛，然後將其 `.opencode` 資料夾複製到 opencode 的全域設定目錄：
+
 ```
-node engine/build-opencode.js   # 請先建置編譯後的外掛
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-CLI 全域設定。建置步驟會產生 `.opencode/dist/`，且為使用前的必要條件。
+opencode 會從 `~/.config/opencode/`（而非 `~/.opencode/`）讀取其全域設定。建置步驟為使用前的必要條件；它會產生 `.opencode/dist/`。
 
 請參閱[供應商對照表](#provider-matrix)以了解每個供應商套用的確切轉換。
 

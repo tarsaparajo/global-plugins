@@ -42,45 +42,56 @@ Mọi plugin do nó tạo ra đều đi kèm engine tiến hóa riêng: chỉnh 
 
 ## Ma trận nhà cung cấp
 
-| Nhà cung cấp | Phạm vi | Thư mục gốc | Phép biến đổi đáng chú ý | Build |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | sao chép; gộp MCP | — |
-| codex | home | `.codex` | agent sang TOML; chỉ mục `AGENTS.md` + các file skill/command đồng cấp + `config.toml` | — |
-| opencode | home | `.opencode` | sao chép; plugin đã biên dịch nằm trong `dist/` | có |
+| Nhà cung cấp | Phạm vi | Thư mục trong repo | Cài đặt vào | Phép biến đổi đáng chú ý | Build |
+|----------|-------|-------------|-------------|-------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | sao chép; gộp MCP | — |
+| codex | home | `.codex` | `~/.codex` | agent sang TOML; chỉ mục `AGENTS.md` + các file skill/command đồng cấp + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | sao chép; plugin đã biên dịch nằm trong `dist/` | có |
 
-**Phạm vi:** cả ba đều là nhà cung cấp *home* (CLI) — mỗi nhà cung cấp giữ một config toàn cục theo từng người dùng trong thư mục home của bạn.
+**Phạm vi:** cả ba đều là nhà cung cấp *home* (CLI) — mỗi nhà cung cấp giữ một config toàn cục theo từng người dùng. **Thư mục trong repo** là tên dotfolder trong repository này (nguồn để chiếu); **Cài đặt vào** là nơi bạn đặt nó để nhà cung cấp đó đọc được.
 
 Registry là mở. Có thể bổ sung nhà cung cấp mới bằng cách mở rộng registry với một entry thực sự, một provider contract, một module adapter, và một bài test.
 
 ## Cài đặt
 
-Dotfolder được commit của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Cả ba đều là nhà cung cấp *home* (CLI) và cài đặt vào thư mục home của bạn (`~/`). Hãy chọn nhà cung cấp của bạn bên dưới.
+Dotfolder được commit của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Hãy chọn nhà cung cấp của bạn bên dưới.
 
 ### Claude Code
+
+Claude Code cài đặt từ một plugin marketplace — không cần clone:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Hoặc sao chép `.claude` vào `~/.claude`. Các lệnh `/plugin` chỉ dành cho Claude Code.
+Các lệnh `/plugin` chỉ dành cho Claude Code.
 
 ### Codex
 
+Codex không có cài đặt qua marketplace cho plugin này, vì vậy hãy clone repo và sao chép thư mục `.codex` của nó vào thư mục config toàn cục của Codex:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-Config toàn cục của CLI. Chỉ mục `AGENTS.md`, `config.toml`, các file skill/command đồng cấp, và `.codex/agents/*.toml` được tự động phát hiện khi bạn chạy `codex` trong dự án.
+Codex đọc `~/.codex/`: nó tự động phát hiện `~/.codex/config.toml`, chỉ mục `AGENTS.md`, các role `agents/*.toml`, và các file `skills/`/`commands/` đồng cấp ở lần tiếp theo bạn chạy `codex`.
 
 ### opencode
 
+opencode không có cài đặt qua marketplace cho plugin này, vì vậy hãy clone repo, build plugin đã biên dịch, rồi sao chép thư mục `.opencode` của nó vào thư mục config toàn cục của opencode:
+
 ```
-node engine/build-opencode.js   # build plugin đã biên dịch trước
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-Config toàn cục của CLI. Bước build tạo ra `.opencode/dist/` và là bắt buộc trước khi sử dụng.
+opencode đọc config toàn cục của nó từ `~/.config/opencode/` (không phải `~/.opencode/`). Bước build là bắt buộc trước khi sử dụng; nó tạo ra `.opencode/dist/`.
 
 Xem [Ma trận nhà cung cấp](#provider-matrix) để biết chính xác phép biến đổi mà mỗi nhà cung cấp áp dụng.
 

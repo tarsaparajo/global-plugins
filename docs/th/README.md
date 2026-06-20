@@ -42,45 +42,56 @@
 
 ## ตารางผู้ให้บริการ
 
-| Provider | ขอบเขต | Root | การแปลงที่น่าสนใจ | Build |
-|----------|-------|------|-------------------|-------|
-| claude | home | `.claude` | คัดลอก; MCP merge | — |
-| codex | home | `.codex` | agents เป็น TOML; ดัชนี `AGENTS.md` + ไฟล์ skills/commands ระดับเดียวกัน + `config.toml` | — |
-| opencode | home | `.opencode` | คัดลอก; ปลั๊กอินที่คอมไพล์แล้วใต้ `dist/` | yes |
+| Provider | ขอบเขต | โฟลเดอร์ใน Repo | ติดตั้งไปที่ | การแปลงที่น่าสนใจ | Build |
+|----------|-------|-------------|-------------|-------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | คัดลอก; MCP merge | — |
+| codex | home | `.codex` | `~/.codex` | agents เป็น TOML; ดัชนี `AGENTS.md` + ไฟล์ skills/commands ระดับเดียวกัน + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | คัดลอก; ปลั๊กอินที่คอมไพล์แล้วใต้ `dist/` | yes |
 
-**ขอบเขต:** ทั้งสามรายเป็นผู้ให้บริการแบบ *home* (CLI) — แต่ละรายจะเก็บ config ระดับ global ต่อผู้ใช้หนึ่งคนไว้ในไดเรกทอรี home ของคุณ
+**ขอบเขต:** ทั้งสามรายเป็นผู้ให้บริการแบบ *home* (CLI) — แต่ละรายจะเก็บ config ระดับ global ต่อผู้ใช้หนึ่งคนไว้ **โฟลเดอร์ใน Repo** คือชื่อ dotfolder ในรีโพนี้ (แหล่งที่มาของการฉายภาพ) ส่วน **ติดตั้งไปที่** คือตำแหน่งที่คุณวางมันไว้เพื่อให้ผู้ให้บริการรายนั้นอ่านได้
 
 registry เปิดให้ขยายได้ คุณสามารถเพิ่มผู้ให้บริการรายใหม่ได้ด้วยการขยาย registry ด้วย entry จริง provider contract โมดูล adapter และ test
 
 ## การติดตั้ง
 
-โฟลเดอร์ dotfolder ที่ถูก commit ไว้ของผู้ให้บริการแต่ละรายคือ artifact จริงที่พร้อมใช้งาน ถูกสร้างใหม่ด้วยการฉายภาพซ้ำ อย่าแก้ไขด้วยมือเด็ดขาด ทั้งสามรายเป็นผู้ให้บริการแบบ *home* (CLI) และจะติดตั้งลงในไดเรกทอรี home ของคุณ (`~/`) เลือกผู้ให้บริการของคุณด้านล่าง
+โฟลเดอร์ dotfolder ที่ถูก commit ไว้ของผู้ให้บริการแต่ละรายคือ artifact จริงที่พร้อมใช้งาน ถูกสร้างใหม่ด้วยการฉายภาพซ้ำ อย่าแก้ไขด้วยมือเด็ดขาด เลือกผู้ให้บริการของคุณด้านล่าง
 
 ### Claude Code
+
+Claude Code ติดตั้งจาก plugin marketplace โดยไม่ต้องโคลน:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-หรือคัดลอก `.claude` ไปไว้ที่ `~/.claude` คำสั่ง `/plugin` ใช้ได้กับ Claude Code เท่านั้น
+คำสั่ง `/plugin` ใช้ได้กับ Claude Code เท่านั้น
 
 ### Codex
 
+Codex ไม่มีการติดตั้งผ่าน marketplace สำหรับปลั๊กอินนี้ ดังนั้นให้โคลนรีโพแล้วคัดลอกโฟลเดอร์ `.codex` ของมันไปไว้ในไดเรกทอรี config ระดับ global ของ Codex:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-config ระดับ global ของ CLI ระบบจะตรวจจับดัชนี `AGENTS.md`, `config.toml`, ไฟล์ skills/commands ระดับเดียวกัน และ `.codex/agents/*.toml` โดยอัตโนมัติเมื่อคุณรัน `codex` ในโปรเจกต์
+Codex อ่านจาก `~/.codex/`: มันจะตรวจจับ `~/.codex/config.toml`, ดัชนี `AGENTS.md`, roles `agents/*.toml` และไฟล์ `skills/`/`commands/` ระดับเดียวกัน โดยอัตโนมัติในครั้งถัดไปที่คุณรัน `codex`
 
 ### opencode
 
+opencode ไม่มีการติดตั้งผ่าน marketplace สำหรับปลั๊กอินนี้ ดังนั้นให้โคลนรีโพ build ปลั๊กอินที่คอมไพล์แล้ว จากนั้นคัดลอกโฟลเดอร์ `.opencode` ของมันไปไว้ในไดเรกทอรี config ระดับ global ของ opencode:
+
 ```
-node engine/build-opencode.js   # build ปลั๊กอินที่คอมไพล์แล้วก่อน
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-config ระดับ global ของ CLI ขั้นตอน build จะสร้าง `.opencode/dist/` และจำเป็นต้องทำก่อนใช้งาน
+opencode อ่าน config ระดับ global ของมันจาก `~/.config/opencode/` (ไม่ใช่ `~/.opencode/`) ขั้นตอน build จำเป็นต้องทำก่อนใช้งาน โดยมันจะสร้าง `.opencode/dist/`
 
 ดู[ตารางผู้ให้บริการ](#provider-matrix) สำหรับการแปลงที่แน่นอนซึ่งผู้ให้บริการแต่ละรายนำมาใช้
 

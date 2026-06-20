@@ -42,45 +42,56 @@ Cada plugin que produce viene con su propio motor de evolución: edita la fuente
 
 ## Matriz de proveedores
 
-| Proveedor | Ámbito | Raíz | Transformación destacada | Build |
-|-----------|--------|------|--------------------------|-------|
-| claude | home | `.claude` | copia; fusión de MCP | — |
-| codex | home | `.codex` | agents a TOML; índice `AGENTS.md` + archivos hermanos de skills/commands + `config.toml` | — |
-| opencode | home | `.opencode` | copia; plugin compilado bajo `dist/` | sí |
+| Proveedor | Ámbito | Carpeta del repo | Se instala en | Transformación destacada | Build |
+|-----------|--------|------------------|---------------|--------------------------|-------|
+| claude | home | `.claude` | marketplace / `~/.claude` | copia; fusión de MCP | — |
+| codex | home | `.codex` | `~/.codex` | agents a TOML; índice `AGENTS.md` + archivos hermanos de skills/commands + `config.toml` | — |
+| opencode | home | `.opencode` | `~/.config/opencode` | copia; plugin compilado bajo `dist/` | sí |
 
-**Ámbito:** los tres son proveedores *home* (CLIs): cada uno mantiene una configuración global por usuario en tu directorio de inicio.
+**Ámbito:** los tres son proveedores *home* (CLIs): cada uno mantiene una configuración global por usuario. **Carpeta del repo** es el nombre de la carpeta oculta en este repositorio (la fuente de proyección); **Se instala en** es el lugar donde la colocas para que ese proveedor la lea.
 
 El registro es abierto. Se pueden añadir nuevos proveedores ampliando el registro con una entrada real, un contrato de proveedor, un módulo adaptador y una prueba.
 
 ## Instalación
 
-La carpeta de configuración versionada de cada proveedor es un artefacto real, listo para usar, regenerado mediante reproyección: nunca la edites a mano. Los tres son proveedores *home* (CLIs) y se instalan en tu directorio de inicio (`~/`). Elige tu proveedor a continuación.
+La carpeta de configuración versionada de cada proveedor es un artefacto real, listo para usar, regenerado mediante reproyección: nunca la edites a mano. Elige tu proveedor a continuación.
 
 ### Claude Code
+
+Claude Code se instala desde un marketplace de plugins, sin necesidad de clonar:
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-O copia `.claude` en `~/.claude`. Los comandos `/plugin` son exclusivos de Claude Code.
+Los comandos `/plugin` son exclusivos de Claude Code.
 
 ### Codex
 
+Codex no tiene instalación por marketplace para este plugin, así que clona el repositorio y copia su carpeta `.codex` en el directorio de configuración global de Codex:
+
 ```
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
 cp -r .codex ~/.codex
 ```
 
-Configuración global de la CLI. El índice `AGENTS.md`, `config.toml`, los archivos hermanos de skills/commands y `.codex/agents/*.toml` se detectan automáticamente cuando ejecutas `codex` en el proyecto.
+Codex lee `~/.codex/`: detecta automáticamente `~/.codex/config.toml`, el índice `AGENTS.md`, los roles `agents/*.toml` y los archivos hermanos de `skills/`/`commands/` la próxima vez que ejecutas `codex`.
 
 ### opencode
 
+opencode no tiene instalación por marketplace para este plugin, así que clona el repositorio, compila el plugin y luego copia su carpeta `.opencode` en el directorio de configuración global de opencode:
+
 ```
-node engine/build-opencode.js   # primero compila el plugin
-cp -r .opencode ~/.opencode
+git clone https://github.com/tarsaparajo/global-plugins
+cd global-plugins
+node engine/build-opencode.js          # compila el plugin (produce .opencode/dist/)
+mkdir -p ~/.config/opencode
+cp -r .opencode/. ~/.config/opencode/
 ```
 
-Configuración global de la CLI. El paso de compilación produce `.opencode/dist/` y es obligatorio antes de usarlo.
+opencode lee su configuración global desde `~/.config/opencode/` (no `~/.opencode/`). El paso de compilación es obligatorio antes de usarlo; produce `.opencode/dist/`.
 
 Consulta la [Matriz de proveedores](#provider-matrix) para ver la transformación exacta que aplica cada proveedor.
 
