@@ -61,12 +61,35 @@ El registro es abierto. Se pueden añadir nuevos proveedores ampliando el regist
 
 ## Instalación
 
+### Claude Code (nativo — destino principal)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-O instálalo manualmente copiando este directorio en la ubicación de tus plugins. Las carpetas de configuración por proveedor que se incluyen versionadas son artefactos reales, regenerados mediante reproyección: nunca las edites a mano.
+> Los comandos `/plugin` anteriores son exclusivos de Claude Code. Todos los demás proveedores se instalan copiando en su lugar su carpeta de configuración versionada.
+
+### Otros proveedores
+
+La carpeta de configuración de cada proveedor es un artefacto real, listo para usar, regenerado mediante reproyección: nunca la edites a mano. Los proveedores *home* (CLIs) se instalan en tu directorio de inicio; los proveedores *project* (IDEs/editores) se instalan en la raíz del repositorio. Copia la carpeta de configuración correspondiente:
+
+| Proveedor | Ámbito | Copiar a |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — ejecuta antes `node engine/build-opencode.js` |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Consulta la [Matriz de proveedores](#provider-matrix) para ver la transformación exacta que aplica cada proveedor.
 
 ## Uso
 

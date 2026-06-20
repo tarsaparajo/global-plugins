@@ -61,12 +61,35 @@
 
 ## 설치
 
+### Claude Code (네이티브 — 주요 대상)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-또는 이 디렉터리를 플러그인 위치로 복사해 수동으로 설치할 수 있습니다. 커밋된 프로바이더 도트 폴더는 실제 산출물이며 재투영을 통해 다시 생성됩니다. 절대 직접 손으로 수정하지 마세요.
+> 위의 `/plugin` 커맨드는 Claude Code 전용입니다. 다른 모든 프로바이더는 커밋된 도트 폴더를 제자리에 복사하는 방식으로 설치합니다.
+
+### 다른 프로바이더
+
+각 프로바이더의 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. *home* 프로바이더(CLI)는 홈 디렉터리에, *project* 프로바이더(IDE/에디터)는 저장소 루트에 설치됩니다. 해당하는 도트 폴더를 복사하세요.
+
+| 프로바이더 | 범위 | 복사 위치 |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — 먼저 `node engine/build-opencode.js` 실행 |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+각 프로바이더가 적용하는 정확한 변환은 [프로바이더 매트릭스](#provider-matrix)를 참조하세요.
 
 ## 사용법
 

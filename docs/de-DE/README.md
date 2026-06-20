@@ -61,12 +61,35 @@ Die Registry ist offen. Neue Provider lassen sich hinzufügen, indem man die Reg
 
 ## Installation
 
+### Claude Code (nativ – primäres Ziel)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Oder installiere das Plugin manuell, indem du dieses Verzeichnis an deinen Plugin-Speicherort kopierst. Die versionierten Provider-Dotfolder sind echte Artefakte, die durch erneute Projektion regeneriert werden – bearbeite sie niemals von Hand.
+> Die obigen `/plugin`-Befehle gelten nur für Claude Code. Jeder andere Provider wird installiert, indem sein committeter Dotfolder an die passende Stelle kopiert wird.
+
+### Andere Provider
+
+Der Dotfolder jedes Providers ist ein echtes, einsatzbereites Artefakt, das durch erneute Projektion regeneriert wird – bearbeite ihn niemals von Hand. *home*-Provider (CLIs) installieren in dein Home-Verzeichnis; *project*-Provider (IDEs/Editoren) installieren in das Repository-Root. Kopiere den passenden Dotfolder:
+
+| Provider | Geltungsbereich | Kopieren nach |
+|----------|-------|------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` – führe zuerst `node engine/build-opencode.js` aus |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Siehe die [Provider-Matrix](#provider-matrix) für die genaue Transformation, die jeder Provider anwendet.
 
 ## Verwendung
 

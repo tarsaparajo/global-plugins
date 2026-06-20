@@ -61,12 +61,35 @@ Il registro è aperto. È possibile aggiungere nuovi provider estendendo il regi
 
 ## Installazione
 
+### Claude Code (nativo — target principale)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Oppure installa manualmente copiando questa directory nella tua posizione dei plugin. Le cartelle dotfolder dei provider versionate sono artefatti reali, rigenerati tramite ri-proiezione: non modificarle mai a mano.
+> I comandi `/plugin` qui sopra sono solo per Claude Code. Ogni altro provider si installa copiando la sua dotfolder versionata al posto giusto.
+
+### Altri provider
+
+La dotfolder di ciascun provider è un artefatto reale e pronto all'uso, rigenerato tramite ri-proiezione: non modificarla mai a mano. I provider *home* (CLI) si installano nella tua home directory; i provider *project* (IDE/editor) si installano nella radice del repository. Copia la dotfolder corrispondente:
+
+| Provider | Ambito | Copia in |
+|----------|--------|----------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — esegui prima `node engine/build-opencode.js` |
+| cursor | progetto | `<repo>/.cursor` |
+| kiro | progetto | `<repo>/.kiro` |
+| gemini | progetto | `<repo>/.gemini` |
+| zed | progetto | `<repo>/.zed` |
+| codebuddy | progetto | `<repo>/.codebuddy` |
+| joycode | progetto | `<repo>/.joycode` |
+| antigravity | progetto | `<repo>/.agent` |
+| trae | progetto | `<repo>/.trae` |
+| vscode | progetto | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Consulta la [Matrice dei provider](#provider-matrix) per la trasformazione esatta che ciascun provider applica.
 
 ## Utilizzo
 

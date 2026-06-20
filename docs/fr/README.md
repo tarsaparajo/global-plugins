@@ -61,12 +61,35 @@ Le registre est ouvert. De nouveaux fournisseurs peuvent être ajoutés en éten
 
 ## Installation
 
+### Claude Code (natif — cible principale)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ou installez manuellement en copiant ce répertoire dans votre emplacement de plugins. Les dossiers de configuration versionnés (dotfolders) des fournisseurs sont de véritables artefacts, régénérés par re-projection — ne les modifiez jamais à la main.
+> Les commandes `/plugin` ci-dessus sont propres à Claude Code. Tous les autres fournisseurs s'installent en copiant à l'emplacement voulu leur dossier de configuration (dotfolder) versionné.
+
+### Autres fournisseurs
+
+Le dossier de configuration (dotfolder) de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Les fournisseurs de type *poste utilisateur* (CLI) s'installent dans votre répertoire personnel ; les fournisseurs de type *projet* (IDE/éditeurs) s'installent à la racine du dépôt. Copiez le dossier de configuration correspondant :
+
+| Fournisseur | Portée | Copier vers |
+|----------|-------|---------|
+| codex | poste utilisateur | `~/.codex` |
+| qwen | poste utilisateur | `~/.qwen` |
+| opencode | poste utilisateur | `~/.opencode` — exécutez d'abord `node engine/build-opencode.js` |
+| cursor | projet | `<repo>/.cursor` |
+| kiro | projet | `<repo>/.kiro` |
+| gemini | projet | `<repo>/.gemini` |
+| zed | projet | `<repo>/.zed` |
+| codebuddy | projet | `<repo>/.codebuddy` |
+| joycode | projet | `<repo>/.joycode` |
+| antigravity | projet | `<repo>/.agent` |
+| trae | projet | `<repo>/.trae` |
+| vscode | projet | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Consultez la [Matrice des fournisseurs](#provider-matrix) pour connaître la transformation exacte qu'applique chaque fournisseur.
 
 ## Utilisation
 

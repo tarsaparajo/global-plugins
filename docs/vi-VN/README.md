@@ -61,12 +61,35 @@ Registry là mở. Có thể bổ sung nhà cung cấp mới bằng cách mở r
 
 ## Cài đặt
 
+### Claude Code (gốc — mục tiêu chính)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Hoặc cài thủ công bằng cách sao chép thư mục này vào vị trí plugin của bạn. Các dotfolder nhà cung cấp đã được commit là những artifact thực sự, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay chúng.
+> Các lệnh `/plugin` ở trên chỉ dành cho Claude Code. Mọi nhà cung cấp khác đều cài đặt bằng cách sao chép dotfolder đã được commit của nó vào đúng vị trí.
+
+### Các nhà cung cấp khác
+
+Dotfolder của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Các nhà cung cấp *home* (CLI) cài đặt vào thư mục home của bạn; các nhà cung cấp *project* (IDE/editor) cài đặt vào thư mục gốc của repository. Sao chép dotfolder tương ứng:
+
+| Nhà cung cấp | Phạm vi | Sao chép vào |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — chạy `node engine/build-opencode.js` trước |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Xem [Ma trận nhà cung cấp](#provider-matrix) để biết chính xác phép biến đổi mà mỗi nhà cung cấp áp dụng.
 
 ## Cách dùng
 

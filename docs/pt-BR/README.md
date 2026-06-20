@@ -61,12 +61,35 @@ O registry é aberto. Novos provedores podem ser adicionados estendendo o regist
 
 ## Instalação
 
+### Claude Code (nativo — alvo principal)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ou instale manualmente, copiando este diretório para o local dos seus plugins. As pastas-ponto de provedor versionadas são artefatos reais, regenerados por reprojeção — nunca as edite à mão.
+> Os comandos `/plugin` acima são exclusivos do Claude Code. Todos os outros provedores são instalados copiando para o local correto a pasta-ponto versionada do provedor.
+
+### Outros provedores
+
+A pasta-ponto de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Provedores *home* (CLIs) são instalados no seu diretório home; provedores *project* (IDEs/editores) são instalados na raiz do repositório. Copie a pasta-ponto correspondente:
+
+| Provedor | Escopo | Copiar para |
+|----------|--------|-------------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — execute `node engine/build-opencode.js` primeiro |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Consulte a [Matriz de provedores](#provider-matrix) para a transformação exata que cada provedor aplica.
 
 ## Uso
 

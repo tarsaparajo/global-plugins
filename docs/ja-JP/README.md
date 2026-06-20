@@ -61,12 +61,35 @@
 
 ## インストール
 
+### Claude Code（ネイティブ — 主要ターゲット）
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-または、このディレクトリをプラグイン格納場所へコピーして手動でインストールすることもできます。コミット済みのプロバイダー用ドットフォルダは実際の成果物であり、再投影によって再生成されます。手作業で編集しないでください。
+> 上記の `/plugin` コマンドは Claude Code 専用です。他のすべてのプロバイダーは、コミット済みのドットフォルダを所定の場所へコピーしてインストールします。
+
+### その他のプロバイダー
+
+各プロバイダーのドットフォルダは、再投影によって再生成される、実際にすぐ使える成果物です。手作業で編集しないでください。*home* プロバイダー（CLI）はホームディレクトリへインストールされ、*project* プロバイダー（IDE／エディタ）はリポジトリのルートへインストールされます。該当するドットフォルダをコピーしてください。
+
+| プロバイダー | スコープ | コピー先 |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — まず `node engine/build-opencode.js` を実行 |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github`（+ `.vscode/settings.json`） |
+
+各プロバイダーが適用する正確な変換については、[プロバイダーマトリクス](#provider-matrix)を参照してください。
 
 ## 使い方
 

@@ -61,12 +61,35 @@
 
 ## 安裝
 
+### Claude Code（原生——主要目標）
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-或手動將此目錄複製到你的外掛存放位置進行安裝。已納入版本控制的供應商 dotfolder 都是真實的產物，會透過重新投影重新產生——切勿手動編輯它們。
+> 上述 `/plugin` 指令僅適用於 Claude Code。其他每個供應商都是透過將其已納入版本控制的 dotfolder 複製到位來安裝。
+
+### 其他供應商
+
+每個供應商的 dotfolder 都是真實、可直接使用的產物，會透過重新投影重新產生——切勿手動編輯它們。*home* 供應商（CLI）會安裝到你的家目錄；*project* 供應商（IDE／編輯器）則會安裝到儲存庫根目錄。請複製對應的 dotfolder：
+
+| 供應商 | 範圍 | 複製到 |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode`——請先執行 `node engine/build-opencode.js` |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github`（＋ `.vscode/settings.json`） |
+
+請參閱[供應商對照表](#provider-matrix)以了解每個供應商套用的確切轉換。
 
 ## 使用方式
 

@@ -61,12 +61,35 @@ Kayıt defteri (registry) açıktır. Kayıt defterini gerçek bir girdi, bir sa
 
 ## Kurulum
 
+### Claude Code (yerel — birincil hedef)
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ya da bu dizini eklentilerinizin bulunduğu konuma kopyalayarak elle kurun. Commit edilen sağlayıcı nokta klasörleri gerçek yapıtlardır ve yeniden yansıtmayla üretilir; bunları asla elle düzenlemeyin.
+> Yukarıdaki `/plugin` komutları yalnızca Claude Code içindir. Diğer her sağlayıcı, commit edilmiş nokta klasörünü yerine kopyalayarak kurulur.
+
+### Diğer sağlayıcılar
+
+Her sağlayıcının nokta klasörü, yeniden yansıtmayla üretilen gerçek, kullanıma hazır bir yapıttır; asla elle düzenlemeyin. *home* sağlayıcıları (CLI'lar) ev dizininize kurulur; *project* sağlayıcıları (IDE'ler/editörler) depo köküne kurulur. Eşleşen nokta klasörünü kopyalayın:
+
+| Sağlayıcı | Kapsam | Şuraya kopyalayın |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode` — önce `node engine/build-opencode.js` komutunu çalıştırın |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+
+Her sağlayıcının uyguladığı tam dönüşüm için [Sağlayıcı Matrisi](#provider-matrix) bölümüne bakın.
 
 ## Kullanım
 

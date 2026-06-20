@@ -61,12 +61,35 @@
 
 ## 安装
 
+### Claude Code（原生——首要目标）
+
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-或手动将本目录复制到你的插件位置。已纳入版本管理的各服务商点目录（dotfolder）都是真实产物，由重新投影自动生成——切勿手工编辑。
+> 上述 `/plugin` 命令仅适用于 Claude Code。其他所有服务商均通过将其已纳入版本管理的点目录（dotfolder）复制到位来安装。
+
+### 其他服务商
+
+每个服务商的点目录都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。*home* 类服务商（命令行工具）安装到你的主目录；*project* 类服务商（IDE/编辑器）安装到仓库根目录。复制对应的点目录：
+
+| 服务商 | 范围 | 复制到 |
+|----------|-------|---------|
+| codex | home | `~/.codex` |
+| qwen | home | `~/.qwen` |
+| opencode | home | `~/.opencode`——先运行 `node engine/build-opencode.js` |
+| cursor | project | `<repo>/.cursor` |
+| kiro | project | `<repo>/.kiro` |
+| gemini | project | `<repo>/.gemini` |
+| zed | project | `<repo>/.zed` |
+| codebuddy | project | `<repo>/.codebuddy` |
+| joycode | project | `<repo>/.joycode` |
+| antigravity | project | `<repo>/.agent` |
+| trae | project | `<repo>/.trae` |
+| vscode | project | `<repo>/.github`（+ `.vscode/settings.json`） |
+
+请参阅[服务商矩阵](#provider-matrix)，了解每个服务商应用的具体转换。
 
 ## 用法
 
