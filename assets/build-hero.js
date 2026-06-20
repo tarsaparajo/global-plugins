@@ -123,7 +123,10 @@ svg += `<defs>`;
 svg += `<linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="0.5" stop-color="#22d3ee"/><stop offset="1" stop-color="#34d399"/></linearGradient>`;
 svg += `<linearGradient id="accentH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b82f6"/><stop offset="0.5" stop-color="#22d3ee"/><stop offset="1" stop-color="#34d399"/></linearGradient>`;
 svg += `<linearGradient id="accentStroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(59,130,246,0.6)"/><stop offset="1" stop-color="rgba(52,211,153,0.6)"/></linearGradient>`;
-svg += `<radialGradient id="iconGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="rgba(34,211,238,0.18)"/><stop offset="1" stop-color="rgba(34,211,238,0)"/></radialGradient>`;
+svg += `<radialGradient id="iconGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="rgba(34,211,238,0.40)"/><stop offset="0.6" stop-color="rgba(52,211,153,0.16)"/><stop offset="1" stop-color="rgba(34,211,238,0)"/></radialGradient>`;
+// Neon glow filter for the logo mark frame and glyph.
+svg += `<filter id="neon" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+svg += `<filter id="neonSoft" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
 svg += `<radialGradient id="heroGlow" cx="0.3" cy="0.35" r="0.6"><stop offset="0" stop-color="rgba(34,211,238,0.07)"/><stop offset="1" stop-color="rgba(34,211,238,0)"/></radialGradient>`;
 svg += `<linearGradient id="markFrame" x1="18" y1="14" x2="82" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#34d399"/></linearGradient>`;
 svg += `<linearGradient id="markNode" x1="24" y1="24" x2="72" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#34d399"/></linearGradient>`;
@@ -141,22 +144,29 @@ svg += `<ellipse cx="520" cy="470" rx="760" ry="520" fill="url(#heroGlow)"/>`;
 // Top bar
 svg += `<rect x="0" y="0" width="${W}" height="115" fill="${BG_BAR}"/>`;
 svg += `<line x1="0" y1="115" x2="${W}" y2="115" stroke="rgba(238,242,246,0.07)" stroke-width="1.5"/>`;
-svg += `<circle cx="97" cy="58" r="80" fill="url(#iconGlow)"/>`;
-// Logo mark: rounded frame + inner panel + connected nodes glyph (one source -> many)
-svg += `<g transform="translate(52.787,13.787) scale(0.9211)">`;
-svg += `<rect x="10" y="10" width="76" height="76" rx="24" fill="rgba(255,255,255,0.03)" stroke="url(#markFrame)" stroke-width="2"/>`;
-svg += `<rect x="22" y="22" width="52" height="52" rx="16" fill="rgba(8,12,20,0.86)" stroke="rgba(255,255,255,0.06)"/>`;
-// one source node (left) branching to two (right)
-svg += `<path d="M36 48H50" stroke="url(#markNode)" stroke-width="4" stroke-linecap="round" fill="none"/>`;
-svg += `<path d="M50 48C56 48 56 36 62 36" stroke="url(#markNode)" stroke-width="4" stroke-linecap="round" fill="none"/>`;
-svg += `<path d="M50 48C56 48 56 60 62 60" stroke="url(#markNode)" stroke-width="4" stroke-linecap="round" fill="none"/>`;
-svg += `<circle cx="34" cy="48" r="5.5" fill="#3b82f6"/>`;
-svg += `<circle cx="64" cy="36" r="5.5" fill="#22d3ee"/>`;
-svg += `<circle cx="64" cy="60" r="5.5" fill="#34d399"/>`;
+// Strong neon halo behind the mark.
+svg += `<circle cx="100" cy="58" r="62" fill="url(#iconGlow)"/>`;
+// Logo mark: glowing rounded frame + dark inner panel + share glyph (one node -> two).
+// Drawn in a 100x100 local space, scaled to ~88px, vertically centered in the 115px bar.
+svg += `<g transform="translate(54,12) scale(0.88)">`;
+// Outer glowing gradient frame (thick, neon).
+svg += `<g filter="url(#neonSoft)">`;
+svg += `<rect x="10" y="10" width="80" height="80" rx="26" fill="rgba(8,12,20,0.7)" stroke="url(#markFrame)" stroke-width="4"/>`;
 svg += `</g>`;
-svg += `<text x="152" y="68" font-family="${SANS}" font-size="32" font-weight="bold" letter-spacing="0.3" fill="${TEXT}">Global Plugins</text>`;
-svg += `<text x="392" y="68" font-family="${SANS}" font-size="29" fill="#4a5663">/</text>`;
-svg += `<text x="420" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3">tarsaparajo/global-plugins</text>`;
+// Dark inner panel.
+svg += `<rect x="20" y="20" width="60" height="60" rx="19" fill="#070b12" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+// Share glyph with its own glow: left node connects to top-right and bottom-right nodes.
+svg += `<g filter="url(#neon)">`;
+svg += `<line x1="40" y1="50" x2="60" y2="38" stroke="url(#markNode)" stroke-width="4.5" stroke-linecap="round"/>`;
+svg += `<line x1="40" y1="50" x2="60" y2="62" stroke="url(#markNode)" stroke-width="4.5" stroke-linecap="round"/>`;
+svg += `<circle cx="38" cy="50" r="7" fill="#3b82f6"/>`;
+svg += `<circle cx="62" cy="36" r="7" fill="#22d3ee"/>`;
+svg += `<circle cx="62" cy="64" r="7" fill="#34d399"/>`;
+svg += `</g>`;
+svg += `</g>`;
+svg += `<text x="162" y="68" font-family="${SANS}" font-size="33" font-weight="bold" letter-spacing="0.3" fill="${TEXT}">Global Plugins</text>`;
+svg += `<text x="410" y="68" font-family="${SANS}" font-size="29" fill="#4a5663">/</text>`;
+svg += `<text x="438" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3">tarsaparajo/global-plugins</text>`;
 // Version pill
 svg += `<rect x="2010" y="29" width="326" height="56" rx="28" fill="#10171f" stroke="rgba(59,130,246,0.35)" stroke-width="1.5"/>`;
 svg += `<circle cx="2040" cy="57" r="6" fill="#34d399"/>`;
