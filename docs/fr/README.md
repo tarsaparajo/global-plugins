@@ -61,33 +61,114 @@ Le registre est ouvert. De nouveaux fournisseurs peuvent être ajoutés en éten
 
 ## Installation
 
-### Claude Code (natif — cible principale)
+Le dossier de configuration (dotfolder) versionné de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Les fournisseurs *poste utilisateur* (CLI) s'installent dans votre répertoire personnel (`~/`) ; les fournisseurs *projet* (IDE/éditeurs) s'installent à la racine du dépôt. Choisissez votre fournisseur ci-dessous.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> Les commandes `/plugin` ci-dessus sont propres à Claude Code. Tous les autres fournisseurs s'installent en copiant à l'emplacement voulu leur dossier de configuration (dotfolder) versionné.
+Ou bien copiez `.claude` dans `~/.claude` (global) ou `<repo>/.claude` (par projet). Les commandes `/plugin` sont propres à Claude Code.
 
-### Autres fournisseurs
+### Codex
 
-Le dossier de configuration (dotfolder) de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Les fournisseurs de type *poste utilisateur* (CLI) s'installent dans votre répertoire personnel ; les fournisseurs de type *projet* (IDE/éditeurs) s'installent à la racine du dépôt. Copiez le dossier de configuration correspondant :
+```
+cp -r .codex ~/.codex
+```
 
-| Fournisseur | Portée | Copier vers |
-|----------|-------|---------|
-| codex | poste utilisateur | `~/.codex` |
-| qwen | poste utilisateur | `~/.qwen` |
-| opencode | poste utilisateur | `~/.opencode` — exécutez d'abord `node engine/build-opencode.js` |
-| cursor | projet | `<repo>/.cursor` |
-| kiro | projet | `<repo>/.kiro` |
-| gemini | projet | `<repo>/.gemini` |
-| zed | projet | `<repo>/.zed` |
-| codebuddy | projet | `<repo>/.codebuddy` |
-| joycode | projet | `<repo>/.joycode` |
-| antigravity | projet | `<repo>/.agent` |
-| trae | projet | `<repo>/.trae` |
-| vscode | projet | `<repo>/.github` (+ `.vscode/settings.json`) |
+Configuration globale de la CLI. `AGENTS.md` + `config.toml` et `.codex/agents/*.toml` sont détectés automatiquement lorsque vous lancez `codex` dans le projet.
+
+### opencode
+
+```
+node engine/build-opencode.js   # construire d'abord le plugin compilé
+cp -r .opencode ~/.opencode
+```
+
+Configuration globale de la CLI. L'étape de build produit `.opencode/dist/` et est requise avant utilisation.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+Configuration globale de la CLI. Tout le contexte d'instructions tient dans le fichier unique `QWEN.md`.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+Configuration projet de l'IDE. Cursor charge automatiquement `.cursor/rules/*.mdc`, `.cursor/agents/`, et fusionne `.cursor/mcp.json`.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+Configuration projet. Fournisseur à fichier unique — tout le contexte est consolidé dans `.gemini/GEMINI.md`.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+Configuration projet de l'IDE. Les agents sont livrés en `.md` + `.json` ; `.kiro/mcp.json` est fusionné.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+Configuration projet de l'éditeur. Les règles sont mises à plat ; `.zed/settings.json` est fusionné.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # copilot-instructions.md consolidé
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+Configuration projet. Tout le contexte d'instructions est consolidé dans `.github/copilot-instructions.md`.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+Configuration projet de l'IDE. Les commandes/agents sont remappés vers les workflows et skills d'Antigravity.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+Configuration projet. Commandes, agents, skills et règles mises à plat ; livré avec un script d'installation.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+Configuration projet. Commandes, agents, skills et règles mises à plat ; livré avec un script d'installation.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+Configuration projet de l'IDE. Commandes, agents, skills et règles mises à plat ; livré avec un script d'installation.
 
 Consultez la [Matrice des fournisseurs](#provider-matrix) pour connaître la transformation exacte qu'applique chaque fournisseur.
 

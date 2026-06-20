@@ -61,33 +61,114 @@
 
 ## 설치
 
-### Claude Code (네이티브 — 주요 대상)
+각 프로바이더의 커밋된 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. *home* 프로바이더(CLI)는 홈 디렉터리(`~/`)에, *project* 프로바이더(IDE/에디터)는 저장소 루트에 설치됩니다. 아래에서 사용하는 프로바이더를 선택하세요.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> 위의 `/plugin` 커맨드는 Claude Code 전용입니다. 다른 모든 프로바이더는 커밋된 도트 폴더를 제자리에 복사하는 방식으로 설치합니다.
+또는 `.claude`를 `~/.claude`(전역) 또는 `<repo>/.claude`(프로젝트별)에 복사하세요. `/plugin` 커맨드는 Claude Code 전용입니다.
 
-### 다른 프로바이더
+### Codex
 
-각 프로바이더의 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. *home* 프로바이더(CLI)는 홈 디렉터리에, *project* 프로바이더(IDE/에디터)는 저장소 루트에 설치됩니다. 해당하는 도트 폴더를 복사하세요.
+```
+cp -r .codex ~/.codex
+```
 
-| 프로바이더 | 범위 | 복사 위치 |
-|----------|-------|---------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode` — 먼저 `node engine/build-opencode.js` 실행 |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+CLI 전역 설정입니다. 프로젝트에서 `codex`를 실행하면 `AGENTS.md` + `config.toml`과 `.codex/agents/*.toml`이 자동으로 감지됩니다.
+
+### opencode
+
+```
+node engine/build-opencode.js   # 먼저 컴파일된 플러그인을 빌드합니다
+cp -r .opencode ~/.opencode
+```
+
+CLI 전역 설정입니다. 빌드 단계는 `.opencode/dist/`를 생성하며 사용 전에 반드시 필요합니다.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+CLI 전역 설정입니다. 모든 지시 컨텍스트는 단일 `QWEN.md` 파일에 들어 있습니다.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+프로젝트 IDE 설정입니다. Cursor는 `.cursor/rules/*.mdc`, `.cursor/agents/`를 자동으로 불러오고 `.cursor/mcp.json`을 병합합니다.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+프로젝트 설정입니다. 단일 파일 프로바이더로, 모든 컨텍스트가 `.gemini/GEMINI.md`에 통합됩니다.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+프로젝트 IDE 설정입니다. 에이전트는 `.md` + `.json`으로 제공되며, `.kiro/mcp.json`은 병합됩니다.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+프로젝트 에디터 설정입니다. 룰은 평탄화되며, `.zed/settings.json`은 병합됩니다.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # 통합된 copilot-instructions.md
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+프로젝트 설정입니다. 모든 지시 컨텍스트는 `.github/copilot-instructions.md`에 통합됩니다.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+프로젝트 IDE 설정입니다. 커맨드/에이전트는 Antigravity 워크플로와 스킬로 재매핑됩니다.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+프로젝트 설정입니다. 커맨드, 에이전트, 스킬, 평탄화된 룰을 포함하며, 설치 스크립트와 함께 제공됩니다.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+프로젝트 설정입니다. 커맨드, 에이전트, 스킬, 평탄화된 룰을 포함하며, 설치 스크립트와 함께 제공됩니다.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+프로젝트 IDE 설정입니다. 커맨드, 에이전트, 스킬, 평탄화된 룰을 포함하며, 설치 스크립트와 함께 제공됩니다.
 
 각 프로바이더가 적용하는 정확한 변환은 [프로바이더 매트릭스](#provider-matrix)를 참조하세요.
 

@@ -61,33 +61,114 @@ El registro es abierto. Se pueden añadir nuevos proveedores ampliando el regist
 
 ## Instalación
 
-### Claude Code (nativo — destino principal)
+La carpeta de configuración versionada de cada proveedor es un artefacto real, listo para usar, regenerado mediante reproyección: nunca la edites a mano. Los proveedores *home* (CLIs) se instalan en tu directorio de inicio (`~/`); los proveedores *project* (IDEs/editores) se instalan en la raíz del repositorio. Elige tu proveedor a continuación.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> Los comandos `/plugin` anteriores son exclusivos de Claude Code. Todos los demás proveedores se instalan copiando en su lugar su carpeta de configuración versionada.
+O copia `.claude` en `~/.claude` (global) o `<repo>/.claude` (por proyecto). Los comandos `/plugin` son exclusivos de Claude Code.
 
-### Otros proveedores
+### Codex
 
-La carpeta de configuración de cada proveedor es un artefacto real, listo para usar, regenerado mediante reproyección: nunca la edites a mano. Los proveedores *home* (CLIs) se instalan en tu directorio de inicio; los proveedores *project* (IDEs/editores) se instalan en la raíz del repositorio. Copia la carpeta de configuración correspondiente:
+```
+cp -r .codex ~/.codex
+```
 
-| Proveedor | Ámbito | Copiar a |
-|----------|-------|---------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode` — ejecuta antes `node engine/build-opencode.js` |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+Configuración global de la CLI. `AGENTS.md` + `config.toml` y `.codex/agents/*.toml` se detectan automáticamente cuando ejecutas `codex` en el proyecto.
+
+### opencode
+
+```
+node engine/build-opencode.js   # primero compila el plugin
+cp -r .opencode ~/.opencode
+```
+
+Configuración global de la CLI. El paso de compilación produce `.opencode/dist/` y es obligatorio antes de usarlo.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+Configuración global de la CLI. Todo el contexto de instrucciones reside en el único archivo `QWEN.md`.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+Configuración de IDE por proyecto. Cursor carga automáticamente `.cursor/rules/*.mdc`, `.cursor/agents/` y fusiona `.cursor/mcp.json`.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+Configuración por proyecto. Proveedor de archivo único: todo el contexto se consolida en `.gemini/GEMINI.md`.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+Configuración de IDE por proyecto. Los agents se entregan como `.md` + `.json`; `.kiro/mcp.json` se fusiona.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+Configuración de editor por proyecto. Las reglas se aplanan; `.zed/settings.json` se fusiona.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # copilot-instructions.md consolidado
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+Configuración por proyecto. Todo el contexto de instrucciones se consolida en `.github/copilot-instructions.md`.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+Configuración de IDE por proyecto. Los comandos/agents se reasignan a workflows y skills de Antigravity.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+Configuración por proyecto. Comandos, agents, skills y reglas aplanadas; incluye un script de instalación.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+Configuración por proyecto. Comandos, agents, skills y reglas aplanadas; incluye un script de instalación.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+Configuración de IDE por proyecto. Comandos, agents, skills y reglas aplanadas; incluye un script de instalación.
 
 Consulta la [Matriz de proveedores](#provider-matrix) para ver la transformación exacta que aplica cada proveedor.
 

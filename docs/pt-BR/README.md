@@ -61,33 +61,114 @@ O registry é aberto. Novos provedores podem ser adicionados estendendo o regist
 
 ## Instalação
 
-### Claude Code (nativo — alvo principal)
+A pasta-ponto versionada de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Provedores *home* (CLIs) são instalados no seu diretório home (`~/`); provedores *project* (IDEs/editores) são instalados na raiz do repositório. Escolha o seu provedor abaixo.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> Os comandos `/plugin` acima são exclusivos do Claude Code. Todos os outros provedores são instalados copiando para o local correto a pasta-ponto versionada do provedor.
+Ou copie `.claude` para `~/.claude` (global) ou `<repo>/.claude` (por projeto). Os comandos `/plugin` são exclusivos do Claude Code.
 
-### Outros provedores
+### Codex
 
-A pasta-ponto de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Provedores *home* (CLIs) são instalados no seu diretório home; provedores *project* (IDEs/editores) são instalados na raiz do repositório. Copie a pasta-ponto correspondente:
+```
+cp -r .codex ~/.codex
+```
 
-| Provedor | Escopo | Copiar para |
-|----------|--------|-------------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode` — execute `node engine/build-opencode.js` primeiro |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+Configuração global da CLI. `AGENTS.md` + `config.toml` e `.codex/agents/*.toml` são detectados automaticamente quando você executa `codex` no projeto.
+
+### opencode
+
+```
+node engine/build-opencode.js   # compile o plugin primeiro
+cp -r .opencode ~/.opencode
+```
+
+Configuração global da CLI. O passo de build gera `.opencode/dist/` e é obrigatório antes do uso.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+Configuração global da CLI. Todo o contexto de instruções fica no único arquivo `QWEN.md`.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+Configuração de IDE por projeto. O Cursor carrega automaticamente `.cursor/rules/*.mdc`, `.cursor/agents/` e mescla `.cursor/mcp.json`.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+Configuração por projeto. Provedor de arquivo único — todo o contexto é consolidado em `.gemini/GEMINI.md`.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+Configuração de IDE por projeto. Os agents vêm como `.md` + `.json`; `.kiro/mcp.json` é mesclado.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+Configuração de editor por projeto. As regras são achatadas; `.zed/settings.json` é mesclado.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # copilot-instructions.md consolidado
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+Configuração por projeto. Todo o contexto de instruções é consolidado em `.github/copilot-instructions.md`.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+Configuração de IDE por projeto. Comandos/agents são remapeados para workflows e skills do Antigravity.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+Configuração por projeto. Comandos, agents, skills e regras achatadas; acompanha um script de instalação.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+Configuração por projeto. Comandos, agents, skills e regras achatadas; acompanha um script de instalação.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+Configuração de IDE por projeto. Comandos, agents, skills e regras achatadas; acompanha um script de instalação.
 
 Consulte a [Matriz de provedores](#provider-matrix) para a transformação exata que cada provedor aplica.
 

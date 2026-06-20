@@ -61,33 +61,114 @@
 
 ## 安装
 
-### Claude Code（原生——首要目标）
+每个服务商已纳入版本管理的点目录（dotfolder）都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。*home* 类服务商（命令行工具）安装到你的主目录（`~/`）；*project* 类服务商（IDE/编辑器）安装到仓库根目录。请在下方选择你的服务商。
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> 上述 `/plugin` 命令仅适用于 Claude Code。其他所有服务商均通过将其已纳入版本管理的点目录（dotfolder）复制到位来安装。
+或将 `.claude` 复制到 `~/.claude`（全局）或 `<repo>/.claude`（按项目）。`/plugin` 命令仅适用于 Claude Code。
 
-### 其他服务商
+### Codex
 
-每个服务商的点目录都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。*home* 类服务商（命令行工具）安装到你的主目录；*project* 类服务商（IDE/编辑器）安装到仓库根目录。复制对应的点目录：
+```
+cp -r .codex ~/.codex
+```
 
-| 服务商 | 范围 | 复制到 |
-|----------|-------|---------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode`——先运行 `node engine/build-opencode.js` |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github`（+ `.vscode/settings.json`） |
+命令行工具的全局配置。当你在项目中运行 `codex` 时，`AGENTS.md` + `config.toml` 以及 `.codex/agents/*.toml` 会被自动检测。
+
+### opencode
+
+```
+node engine/build-opencode.js   # 先构建编译后的插件
+cp -r .opencode ~/.opencode
+```
+
+命令行工具的全局配置。构建步骤会生成 `.opencode/dist/`，使用前必须先执行。
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+命令行工具的全局配置。所有指令上下文都集中在单个 `QWEN.md` 文件中。
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+项目级 IDE 配置。Cursor 会自动加载 `.cursor/rules/*.mdc`、`.cursor/agents/`，并合并 `.cursor/mcp.json`。
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+项目级配置。单文件服务商——所有上下文都整合到 `.gemini/GEMINI.md` 中。
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+项目级 IDE 配置。智能体以 `.md` + `.json` 形式提供；`.kiro/mcp.json` 会被合并。
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+项目级编辑器配置。规则被平铺；`.zed/settings.json` 会被合并。
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # 整合后的 copilot-instructions.md
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+项目级配置。所有指令上下文都整合到 `.github/copilot-instructions.md` 中。
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+项目级 IDE 配置。命令/智能体被重映射为 Antigravity 的工作流与技能。
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+项目级配置。命令、智能体、技能以及平铺后的规则；附带安装脚本。
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+项目级配置。命令、智能体、技能以及平铺后的规则；附带安装脚本。
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+项目级 IDE 配置。命令、智能体、技能以及平铺后的规则；附带安装脚本。
 
 请参阅[服务商矩阵](#provider-matrix)，了解每个服务商应用的具体转换。
 

@@ -61,33 +61,114 @@
 
 ## 安裝
 
-### Claude Code（原生——主要目標）
+每個供應商已納入版本控制的 dotfolder 都是真實、可直接使用的產物，會透過重新投影重新產生——切勿手動編輯它們。*home* 供應商（CLI）會安裝到你的家目錄（`~/`）；*project* 供應商（IDE／編輯器）則會安裝到儲存庫根目錄。請在下方選擇你的供應商。
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> 上述 `/plugin` 指令僅適用於 Claude Code。其他每個供應商都是透過將其已納入版本控制的 dotfolder 複製到位來安裝。
+或將 `.claude` 複製到 `~/.claude`（全域）或 `<repo>/.claude`（單一專案）。`/plugin` 指令僅適用於 Claude Code。
 
-### 其他供應商
+### Codex
 
-每個供應商的 dotfolder 都是真實、可直接使用的產物，會透過重新投影重新產生——切勿手動編輯它們。*home* 供應商（CLI）會安裝到你的家目錄；*project* 供應商（IDE／編輯器）則會安裝到儲存庫根目錄。請複製對應的 dotfolder：
+```
+cp -r .codex ~/.codex
+```
 
-| 供應商 | 範圍 | 複製到 |
-|----------|-------|---------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode`——請先執行 `node engine/build-opencode.js` |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github`（＋ `.vscode/settings.json`） |
+CLI 全域設定。當你在專案中執行 `codex` 時，`AGENTS.md` + `config.toml` 與 `.codex/agents/*.toml` 會被自動偵測。
+
+### opencode
+
+```
+node engine/build-opencode.js   # 請先建置編譯後的外掛
+cp -r .opencode ~/.opencode
+```
+
+CLI 全域設定。建置步驟會產生 `.opencode/dist/`，且為使用前的必要條件。
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+CLI 全域設定。所有指令上下文都集中於單一的 `QWEN.md` 檔案中。
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+專案 IDE 設定。Cursor 會自動載入 `.cursor/rules/*.mdc`、`.cursor/agents/`，並合併 `.cursor/mcp.json`。
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+專案設定。單一檔案供應商——所有上下文都整合於 `.gemini/GEMINI.md`。
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+專案 IDE 設定。agents 以 `.md` + `.json` 呈現；`.kiro/mcp.json` 會被合併。
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+專案編輯器設定。rules 會被平鋪；`.zed/settings.json` 會被合併。
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # 整合的 copilot-instructions.md
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+專案設定。所有指令上下文都整合於 `.github/copilot-instructions.md`。
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+專案 IDE 設定。commands/agents 會被重新對應為 Antigravity 的 workflows 與 skills。
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+專案設定。commands、agents、skills 與平鋪的 rules；隨附安裝腳本。
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+專案設定。commands、agents、skills 與平鋪的 rules；隨附安裝腳本。
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+專案 IDE 設定。commands、agents、skills 與平鋪的 rules；隨附安裝腳本。
 
 請參閱[供應商對照表](#provider-matrix)以了解每個供應商套用的確切轉換。
 

@@ -61,33 +61,114 @@ Registry là mở. Có thể bổ sung nhà cung cấp mới bằng cách mở r
 
 ## Cài đặt
 
-### Claude Code (gốc — mục tiêu chính)
+Dotfolder được commit của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Các nhà cung cấp *home* (CLI) cài đặt vào thư mục home của bạn (`~/`); các nhà cung cấp *project* (IDE/editor) cài đặt vào thư mục gốc của repository. Hãy chọn nhà cung cấp của bạn bên dưới.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> Các lệnh `/plugin` ở trên chỉ dành cho Claude Code. Mọi nhà cung cấp khác đều cài đặt bằng cách sao chép dotfolder đã được commit của nó vào đúng vị trí.
+Hoặc sao chép `.claude` vào `~/.claude` (toàn cục) hoặc `<repo>/.claude` (theo từng dự án). Các lệnh `/plugin` chỉ dành cho Claude Code.
 
-### Các nhà cung cấp khác
+### Codex
 
-Dotfolder của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Các nhà cung cấp *home* (CLI) cài đặt vào thư mục home của bạn; các nhà cung cấp *project* (IDE/editor) cài đặt vào thư mục gốc của repository. Sao chép dotfolder tương ứng:
+```
+cp -r .codex ~/.codex
+```
 
-| Nhà cung cấp | Phạm vi | Sao chép vào |
-|----------|-------|---------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode` — chạy `node engine/build-opencode.js` trước |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+Config toàn cục của CLI. `AGENTS.md` + `config.toml` và `.codex/agents/*.toml` được tự động phát hiện khi bạn chạy `codex` trong dự án.
+
+### opencode
+
+```
+node engine/build-opencode.js   # build plugin đã biên dịch trước
+cp -r .opencode ~/.opencode
+```
+
+Config toàn cục của CLI. Bước build tạo ra `.opencode/dist/` và là bắt buộc trước khi sử dụng.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+Config toàn cục của CLI. Toàn bộ ngữ cảnh chỉ dẫn nằm trong một file `QWEN.md` duy nhất.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+Config IDE theo dự án. Cursor tự động nạp `.cursor/rules/*.mdc`, `.cursor/agents/`, và gộp `.cursor/mcp.json`.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+Config theo dự án. Nhà cung cấp dùng một file duy nhất — mọi ngữ cảnh được gộp vào `.gemini/GEMINI.md`.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+Config IDE theo dự án. Các agent được phát hành dưới dạng `.md` + `.json`; `.kiro/mcp.json` được gộp.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+Config editor theo dự án. Các rule được để phẳng; `.zed/settings.json` được gộp.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # copilot-instructions.md đã hợp nhất
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+Config theo dự án. Toàn bộ ngữ cảnh chỉ dẫn được hợp nhất vào `.github/copilot-instructions.md`.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+Config IDE theo dự án. Command/agent được ánh xạ lại thành workflow và skill của Antigravity.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+Config theo dự án. Command, agent, skill và các rule đã để phẳng; đi kèm một script cài đặt.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+Config theo dự án. Command, agent, skill và các rule đã để phẳng; đi kèm một script cài đặt.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+Config IDE theo dự án. Command, agent, skill và các rule đã để phẳng; đi kèm một script cài đặt.
 
 Xem [Ma trận nhà cung cấp](#provider-matrix) để biết chính xác phép biến đổi mà mỗi nhà cung cấp áp dụng.
 

@@ -61,33 +61,114 @@ Il registro è aperto. È possibile aggiungere nuovi provider estendendo il regi
 
 ## Installazione
 
-### Claude Code (nativo — target principale)
+La dotfolder versionata di ciascun provider è un artefatto reale e pronto all'uso, rigenerato tramite ri-proiezione: non modificarla mai a mano. I provider *home* (CLI) si installano nella tua home directory (`~/`); i provider *project* (IDE/editor) si installano nella radice del repository. Scegli il tuo provider qui sotto.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> I comandi `/plugin` qui sopra sono solo per Claude Code. Ogni altro provider si installa copiando la sua dotfolder versionata al posto giusto.
+In alternativa, copia `.claude` in `~/.claude` (globale) o `<repo>/.claude` (per progetto). I comandi `/plugin` sono solo per Claude Code.
 
-### Altri provider
+### Codex
 
-La dotfolder di ciascun provider è un artefatto reale e pronto all'uso, rigenerato tramite ri-proiezione: non modificarla mai a mano. I provider *home* (CLI) si installano nella tua home directory; i provider *project* (IDE/editor) si installano nella radice del repository. Copia la dotfolder corrispondente:
+```
+cp -r .codex ~/.codex
+```
 
-| Provider | Ambito | Copia in |
-|----------|--------|----------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode` — esegui prima `node engine/build-opencode.js` |
-| cursor | progetto | `<repo>/.cursor` |
-| kiro | progetto | `<repo>/.kiro` |
-| gemini | progetto | `<repo>/.gemini` |
-| zed | progetto | `<repo>/.zed` |
-| codebuddy | progetto | `<repo>/.codebuddy` |
-| joycode | progetto | `<repo>/.joycode` |
-| antigravity | progetto | `<repo>/.agent` |
-| trae | progetto | `<repo>/.trae` |
-| vscode | progetto | `<repo>/.github` (+ `.vscode/settings.json`) |
+Configurazione globale della CLI. `AGENTS.md` + `config.toml` e `.codex/agents/*.toml` vengono rilevati automaticamente quando esegui `codex` nel progetto.
+
+### opencode
+
+```
+node engine/build-opencode.js   # compila prima il plugin
+cp -r .opencode ~/.opencode
+```
+
+Configurazione globale della CLI. Il passaggio di build produce `.opencode/dist/` ed è necessario prima dell'uso.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+Configurazione globale della CLI. Tutto il contesto di istruzioni risiede nel singolo file `QWEN.md`.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+Configurazione IDE di progetto. Cursor carica automaticamente `.cursor/rules/*.mdc`, `.cursor/agents/` e unisce `.cursor/mcp.json`.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+Configurazione di progetto. Provider a file unico: tutto il contesto è consolidato in `.gemini/GEMINI.md`.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+Configurazione IDE di progetto. Gli agenti vengono forniti come `.md` + `.json`; `.kiro/mcp.json` viene unito.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+Configurazione editor di progetto. Le regole vengono appiattite; `.zed/settings.json` viene unito.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # copilot-instructions.md consolidato
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+Configurazione di progetto. Tutto il contesto di istruzioni è consolidato in `.github/copilot-instructions.md`.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+Configurazione IDE di progetto. Comandi/agenti vengono rimappati su workflow e skill di Antigravity.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+Configurazione di progetto. Comandi, agenti, skill e regole appiattite; fornito con uno script di installazione.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+Configurazione di progetto. Comandi, agenti, skill e regole appiattite; fornito con uno script di installazione.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+Configurazione IDE di progetto. Comandi, agenti, skill e regole appiattite; fornito con uno script di installazione.
 
 Consulta la [Matrice dei provider](#provider-matrix) per la trasformazione esatta che ciascun provider applica.
 

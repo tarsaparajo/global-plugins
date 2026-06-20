@@ -61,33 +61,114 @@ Die Registry ist offen. Neue Provider lassen sich hinzufügen, indem man die Reg
 
 ## Installation
 
-### Claude Code (nativ – primäres Ziel)
+Der committete Dotfolder jedes Providers ist ein echtes, einsatzbereites Artefakt, das durch erneute Projektion regeneriert wird – bearbeite ihn niemals von Hand. *home*-Provider (CLIs) installieren in dein Home-Verzeichnis (`~/`); *project*-Provider (IDEs/Editoren) installieren in das Repository-Root. Wähle unten deinen Provider.
+
+### Claude Code
 
 ```
 /plugin marketplace add tarsaparajo/global-plugins
 /plugin install tarsaparajo@global-plugins
 ```
 
-> Die obigen `/plugin`-Befehle gelten nur für Claude Code. Jeder andere Provider wird installiert, indem sein committeter Dotfolder an die passende Stelle kopiert wird.
+Oder kopiere `.claude` nach `~/.claude` (global) oder `<repo>/.claude` (pro Projekt). Die `/plugin`-Befehle gelten nur für Claude Code.
 
-### Andere Provider
+### Codex
 
-Der Dotfolder jedes Providers ist ein echtes, einsatzbereites Artefakt, das durch erneute Projektion regeneriert wird – bearbeite ihn niemals von Hand. *home*-Provider (CLIs) installieren in dein Home-Verzeichnis; *project*-Provider (IDEs/Editoren) installieren in das Repository-Root. Kopiere den passenden Dotfolder:
+```
+cp -r .codex ~/.codex
+```
 
-| Provider | Geltungsbereich | Kopieren nach |
-|----------|-------|------|
-| codex | home | `~/.codex` |
-| qwen | home | `~/.qwen` |
-| opencode | home | `~/.opencode` – führe zuerst `node engine/build-opencode.js` aus |
-| cursor | project | `<repo>/.cursor` |
-| kiro | project | `<repo>/.kiro` |
-| gemini | project | `<repo>/.gemini` |
-| zed | project | `<repo>/.zed` |
-| codebuddy | project | `<repo>/.codebuddy` |
-| joycode | project | `<repo>/.joycode` |
-| antigravity | project | `<repo>/.agent` |
-| trae | project | `<repo>/.trae` |
-| vscode | project | `<repo>/.github` (+ `.vscode/settings.json`) |
+Globale CLI-Konfiguration. `AGENTS.md` + `config.toml` und `.codex/agents/*.toml` werden automatisch erkannt, wenn du `codex` im Projekt ausführst.
+
+### opencode
+
+```
+node engine/build-opencode.js   # zuerst das kompilierte Plugin bauen
+cp -r .opencode ~/.opencode
+```
+
+Globale CLI-Konfiguration. Der Build-Schritt erzeugt `.opencode/dist/` und ist vor der Nutzung erforderlich.
+
+### Qwen
+
+```
+cp -r .qwen ~/.qwen
+```
+
+Globale CLI-Konfiguration. Der gesamte Anweisungskontext liegt in der einzelnen Datei `QWEN.md`.
+
+### Cursor
+
+```
+cp -r .cursor <repo>/.cursor
+```
+
+Projekt-IDE-Konfiguration. Cursor lädt `.cursor/rules/*.mdc` und `.cursor/agents/` automatisch und führt `.cursor/mcp.json` zusammen.
+
+### Gemini
+
+```
+cp -r .gemini <repo>/.gemini
+```
+
+Projektkonfiguration. Einzeldatei-Provider – der gesamte Kontext wird in `.gemini/GEMINI.md` konsolidiert.
+
+### Kiro
+
+```
+cp -r .kiro <repo>/.kiro
+```
+
+Projekt-IDE-Konfiguration. Agents werden als `.md` + `.json` ausgeliefert; `.kiro/mcp.json` wird zusammengeführt.
+
+### Zed
+
+```
+cp -r .zed <repo>/.zed
+```
+
+Projekt-Editor-Konfiguration. Rules werden flach abgelegt; `.zed/settings.json` wird zusammengeführt.
+
+### VS Code (GitHub Copilot)
+
+```
+cp -r .github <repo>/.github   # konsolidierte copilot-instructions.md
+cp -r .vscode <repo>/.vscode   # settings.json
+```
+
+Projektkonfiguration. Der gesamte Anweisungskontext wird in `.github/copilot-instructions.md` konsolidiert.
+
+### Antigravity
+
+```
+cp -r .agent <repo>/.agent
+```
+
+Projekt-IDE-Konfiguration. Commands/Agents werden auf Antigravity-Workflows und -Skills umgemappt.
+
+### CodeBuddy
+
+```
+cp -r .codebuddy <repo>/.codebuddy
+```
+
+Projektkonfiguration. Commands, Agents, Skills und flach abgelegte Rules; wird mit einem Installationsskript ausgeliefert.
+
+### JoyCode
+
+```
+cp -r .joycode <repo>/.joycode
+```
+
+Projektkonfiguration. Commands, Agents, Skills und flach abgelegte Rules; wird mit einem Installationsskript ausgeliefert.
+
+### Trae
+
+```
+cp -r .trae <repo>/.trae
+```
+
+Projekt-IDE-Konfiguration. Commands, Agents, Skills und flach abgelegte Rules; wird mit einem Installationsskript ausgeliefert.
 
 Siehe die [Provider-Matrix](#provider-matrix) für die genaue Transformation, die jeder Provider anwendet.
 
