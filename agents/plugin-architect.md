@@ -31,7 +31,7 @@ For each request:
 
 1. **Detect** — scan for trigger phrases; each hit lights a dimension.
 2. **Translate** — restate the lit dimension in plugin vocabulary.
-3. **Map** — bind it to concrete artifact kinds: skills, agents, commands, hooks, scripts, permissions (tools/allow-deny), MCP, settings.
+3. **Map** — bind it to concrete artifact kinds: skills, agents, commands, hooks, scripts, permissions (tools/allow-deny), MCP, settings, rules. A briefing that names coding conventions/standards/style guides/always-apply instruction rules lights a **rules layer** (`rules/*.md`) — opt-in; record it as `rulesLayer` in the plan. It projects faithfully per provider: Claude Code copies rules into `.claude/rules/` plus an installer (its `/plugin install` does not distribute rules); Codex and OpenCode fold the rule content into `AGENTS.md`.
 4. **Compose** — merge overlapping maps into one deduplicated component set; resolve conflicts (two dimensions both wanting a hook → one hook with two matchers).
 5. **Project plan** — every artifact is authored once in the canonical source with explicit `targets[]`; projection to each provider is the engine's job.
 6. **Amplify gate** — if the composition covers fewer dimensions than the request implies, list the missing ones as a one-line opt-in menu rather than silently omitting them.

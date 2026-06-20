@@ -61,6 +61,12 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         const cfg = fs.readFileSync(path.join(out, '.codex', 'config.toml'), 'utf8');
         assert.ok(cfg.includes('Do not change role'), 'codex config.toml missing the baseline');
         assert.ok(fs.existsSync(path.join(out, '.codex', 'skills', 'builder', 'SKILL.md')), 'codex did not materialize the skill body as a sibling file');
+        // Instruction rules fold into AGENTS.md for codex (no separate rules dir,
+        // no installer — codex has no rules-distribution gap). The fixture ships
+        // rules/style.md ("Always test."); it must appear under Conventions / Rules.
+        assert.ok(/Conventions \/ Rules/.test(idx), 'codex AGENTS.md did not fold the rules section');
+        assert.ok(idx.includes('Always test'), 'codex AGENTS.md did not fold the rule body');
+        assert.ok(!fs.existsSync(path.join(out, '.codex', 'rules')), 'codex must not emit a separate rules dir (rules fold into AGENTS.md)');
       }
       // Containment: no planned source path is foreign to this target.
       for (const op of plan.operations) {

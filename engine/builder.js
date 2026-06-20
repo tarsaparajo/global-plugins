@@ -36,6 +36,32 @@ function capabilityIndex(repoRoot, { bodyDir } = {}) {
   return lines.join('\n');
 }
 
+// Fold any canonical rules/*.md bodies into a "Conventions / Rules" section.
+// Codex and OpenCode read instruction rules from their single AGENTS.md, so a
+// plugin that ships a rules/ layer has it folded here. Empty (no section) when
+// there is no rules/ dir — so plugins without rules are unaffected.
+function foldedRules(repoRoot) {
+  const fs = require('fs');
+  const path = require('path');
+  const dir = path.join(repoRoot, 'rules');
+  let files = [];
+  try {
+    files = fs.readdirSync(dir).filter(f => f.endsWith('.md') && f.toLowerCase() !== 'readme.md').sort();
+  } catch {
+    return '';
+  }
+  if (!files.length) {
+    return '';
+  }
+  const out = ['## Conventions / Rules', ''];
+  for (const f of files) {
+    let body = fs.readFileSync(path.join(dir, f), 'utf8');
+    body = body.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
+    out.push(body, '');
+  }
+  return out.join('\n');
+}
+
 // Build the full multi-target projection plan for a plugin.
 function buildProjectionPlan(pluginRoot, request = {}) {
   const { modules, targets, manifests } = resolve(pluginRoot, request);
@@ -66,6 +92,7 @@ const generators = {
     ].join('\n');
   },
   'codex:agents-md'(op, ctx) {
+    const rules = foldedRules(ctx.repoRoot);
     return [
       '# Agents',
       '',
@@ -74,6 +101,7 @@ const generators = {
       'files under `.codex/`; the index below names each capability.',
       '',
       capabilityIndex(ctx.repoRoot, { bodyDir: '.codex' }),
+      ...(rules ? ['', rules] : []),
     ].join('\n');
   },
 };
