@@ -80,7 +80,10 @@ function listRelativeFiles(dirPath, prefix = '') {
     const absolutePath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
       files.push(...listRelativeFiles(absolutePath, entryPrefix));
-    } else if (entry.isFile()) {
+    } else if (entry.isFile() || entry.isSymbolicLink()) {
+      // Symlinks count as managed entries (do not recurse into them) so the
+      // coverage/orphan checks see a universal-substrate link rather than
+      // silently skipping it.
       files.push(normalizeRelativePath(entryPrefix));
     }
   }
@@ -150,6 +153,18 @@ function opBuildStep(args) {
   });
 }
 
+// symlink: create a symbolic link at destinationPath pointing at linkTarget (a
+// path relative to the link's own directory). Used by the opt-in universal
+// substrate so AGENTS.md / CLAUDE.md across providers resolve to one file.
+function opSymlink(args) {
+  return createOperation({
+    kind: 'symlink',
+    strategy: 'symlink',
+    sourceRelativePath: null,
+    ...args,
+  });
+}
+
 // Deep-merge plain objects (arrays are replaced, not concatenated, to keep
 // merges deterministic and idempotent).
 function deepMergeJson(base, overlay) {
@@ -188,6 +203,7 @@ module.exports = {
   opFlatFile,
   opScaffold,
   opBuildStep,
+  opSymlink,
   deepMergeJson,
   readJsonFile,
 };

@@ -38,6 +38,14 @@ The three CLI providers differ in harness depth. After the baseline projection, 
 
 When the briefing asks for coding conventions, standards, style guides, or always-apply instruction rules, author a canonical `rules/*.md` layer in the child (one concern per file). It reaches each provider faithfully: **Claude Code** copies the rules into `.claude/rules/` AND ships `scripts/install-rules.mjs` + a README note, because Claude Code's `/plugin install` does NOT distribute rules (the user must copy them to `~/.claude/rules/` or `.claude/rules/`); **Codex** and **OpenCode** carry the rule content folded into `AGENTS.md`, which they auto-discover — no installer needed. This is opt-in: a child whose briefing does not call for rules gets no rules layer and no installer. global-plugins itself ships no rules.
 
+## Universal substrate (opt-in)
+
+Never delimit what the child does or how it is laid out — the user decides that entirely. But plugins often end up producing instruction files (`AGENTS.md`) as a substrate. When the child has — or will have — instruction files, offer to make that substrate **universal** across the three providers so the user can start work under one provider and continue under another reading the same substrate.
+
+The mechanism (set `universalSubstrate: true` on the projection): for every `AGENTS.md` at any level of the child, emit a sibling `CLAUDE.md` symlinked to it. Codex and OpenCode read `AGENTS.md` natively; Claude Code reads `CLAUDE.md`; OpenCode also resolves `CLAUDE.md` as a fallback — so one edit is seen by all three. It is hierarchical (one link per instruction file, at every level) and imposes nothing: if the child has no instruction files, nothing is created.
+
+Present the **trade-offs** before creating: symlinks give true single-source continuity but are fragile on Windows (need Developer Mode) and under `git core.symlinks=false` (the link checks out as a plain text file). If opted out, each provider keeps its own isolated instruction file. Surface this so the user opts in knowingly.
+
 ## Reference
 
 - `skills/_knowledge/harness-lens.md` — the compositional lens.

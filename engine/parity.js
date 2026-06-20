@@ -18,12 +18,27 @@ function checkDeterminism(planFn) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+// A path is present if it exists OR is a symlink (a managed link counts as
+// present even if a coverage check runs before its target is materialized;
+// fs.existsSync follows links and would report a not-yet-written target as
+// missing, so lstat the path itself).
+function isPresent(dest) {
+  if (fs.existsSync(dest)) {
+    return true;
+  }
+  try {
+    return fs.lstatSync(dest).isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
 // Every planned destination exists on disk (coverage).
 function checkCoverage(plan) {
   const missing = plan.operations
     .filter(op => op.kind !== 'build-step')
     .map(op => op.destinationPath)
-    .filter(dest => !fs.existsSync(dest));
+    .filter(dest => !isPresent(dest));
   return { ok: missing.length === 0, missing };
 }
 

@@ -26,6 +26,15 @@ function readFileSafe(absPath) {
   }
 }
 
+// True if the path itself is a symbolic link (does NOT follow the link).
+function isSymlink(absPath) {
+  try {
+    return fs.lstatSync(absPath).isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
 // Apply a single operation. repoRoot is the canonical source root; generators is
 // a map of generator-name -> function(op, ctx) => string content.
 function applyOperation(op, ctx) {
@@ -67,6 +76,18 @@ function applyOperation(op, ctx) {
       }
       return { scaffolded: op.destinationPath };
     }
+    case 'symlink': {
+      // Create a symbolic link pointing at op.linkTarget (relative to the link's
+      // own directory). Idempotent: replace any existing entry so re-projection
+      // and rollback are stable. The link is created even if its target file is
+      // not yet written — applyPlan orders non-link ops first so the target
+      // exists, but a relative link is valid regardless.
+      if (fs.existsSync(op.destinationPath) || isSymlink(op.destinationPath)) {
+        fs.rmSync(op.destinationPath, { force: true });
+      }
+      fs.symlinkSync(op.linkTarget, op.destinationPath);
+      return { linked: op.destinationPath, to: op.linkTarget };
+    }
     case 'build-step': {
       // Build steps are executed by the caller (canonical-projector) via the
       // adapter.buildStep command before validate(); recorded here as a marker.
@@ -87,32 +108,55 @@ function isModelFacingMarkdown(destPath) {
 }
 
 // Snapshot destination files an op set will touch, so a rollback can restore.
+// A symlink is snapshotted as a link (its target), never dereferenced, so a
+// rollback restores the link rather than a plain copy of the target's content.
 function snapshot(ops) {
   const snap = {};
   for (const op of ops) {
     if (op.destinationPath && !(op.destinationPath in snap)) {
-      snap[op.destinationPath] = readFileSafe(op.destinationPath);
+      snap[op.destinationPath] = isSymlink(op.destinationPath)
+        ? { link: fs.readlinkSync(op.destinationPath) }
+        : readFileSafe(op.destinationPath);
     }
   }
   return snap;
 }
 
 function rollback(snap) {
-  for (const [dest, content] of Object.entries(snap)) {
-    if (content === null) {
-      if (fs.existsSync(dest)) {
+  for (const [dest, prior] of Object.entries(snap)) {
+    if (prior === null) {
+      if (fs.existsSync(dest) || isSymlink(dest)) {
         fs.rmSync(dest, { force: true });
       }
-    } else {
+    } else if (prior && typeof prior === 'object' && 'link' in prior) {
+      if (fs.existsSync(dest) || isSymlink(dest)) {
+        fs.rmSync(dest, { force: true });
+      }
       ensureDir(path.dirname(dest));
-      fs.writeFileSync(dest, content);
+      fs.symlinkSync(prior.link, dest);
+    } else {
+      if (isSymlink(dest)) {
+        fs.rmSync(dest, { force: true });
+      }
+      ensureDir(path.dirname(dest));
+      fs.writeFileSync(dest, prior);
     }
   }
 }
 
 // Apply all operations in a plan; returns results. On any error, rolls back.
+// Symlink ops run last (stable order) so their targets — e.g. the canonical
+// AGENTS.md — are already written when a CLAUDE.md -> AGENTS.md link is created.
 function applyPlan(plan, ctx) {
-  const ops = plan.operations.filter(op => op.kind !== 'build-step');
+  const ops = plan.operations
+    .filter(op => op.kind !== 'build-step')
+    .map((op, i) => [op, i])
+    .sort(([a, ia], [b, ib]) => {
+      const sa = a.kind === 'symlink' ? 1 : 0;
+      const sb = b.kind === 'symlink' ? 1 : 0;
+      return sa - sb || ia - ib;
+    })
+    .map(([op]) => op);
   const snap = snapshot(ops);
   const results = [];
   try {

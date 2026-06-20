@@ -5,6 +5,14 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-20
+
+### Added
+
+- Opt-in **universal substrate** capability for generated child plugins: when a child has instruction files (`AGENTS.md`, at any level), `generate` can universalize the substrate across the three providers by emitting a sibling `CLAUDE.md` symlinked to each `AGENTS.md`. Codex and OpenCode read `AGENTS.md` natively; Claude Code reads `CLAUDE.md`; OpenCode resolves `CLAUDE.md` as a fallback — so one edit is shared by all three and work continues across providers.
+- New engine `symlink` operation kind: the executor creates relative symlinks (ordered after their targets, snapshotted/rolled back as links), and `listRelativeFiles`/parity coverage are symlink-aware.
+- The capability is hierarchical (one link per instruction file at every level), imposes nothing (only links instruction files the child already has, only when opted in), and surfaces the symlink portability trade-offs (Windows Developer Mode, `git core.symlinks`) before creating. Wired into `generate` and the `plugin-architect` amplify-gate.
+
 ## [0.3.0] - 2026-06-20
 
 ### Added

@@ -131,6 +131,9 @@ function planScaffold(options = {}) {
     repoRoot: options.repoRoot,
     projectRoot: options.projectRoot || options.repoRoot,
     homeDir: options.homeDir,
+    // Opt-in universal-substrate flag (default off) threaded through to the
+    // provider modules so they can plan instruction-file symlinks.
+    universalSubstrate: options.universalSubstrate || false,
   };
 
   const validationIssues = adapter.validate(planInput);
