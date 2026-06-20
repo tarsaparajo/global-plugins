@@ -144,26 +144,6 @@
       "stability": "stable"
     },
     {
-      "id": "hooks-runtime",
-      "kind": "hooks",
-      "description": "Post-generation validation hook configuration.",
-      "paths": [
-        "hooks"
-      ],
-      "targets": [
-        "claude",
-        "claude-project",
-        "cursor",
-        "opencode",
-        "trae",
-        "vscode"
-      ],
-      "dependencies": [],
-      "defaultInstall": true,
-      "cost": "light",
-      "stability": "stable"
-    },
-    {
       "id": "docs-i18n",
       "kind": "docs",
       "description": "Localized README documents under docs/<locale>/.",

@@ -20,6 +20,5 @@
     "cursor",
     "opencode",
     "gemini"
-  ],
-  "hooks": "./hooks/hooks.json"
+  ]
 }
