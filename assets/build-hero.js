@@ -90,11 +90,27 @@ function pillRow(startX, y, labels, activeFirst) {
 }
 
 // --- Footer metric --------------------------------------------------------
-function metric(x, big, label) {
-  const bigW = big.length * 26 + 14;
-  let s = `<text x="${x}" y="1290" font-family="${MONO}" font-size="44" font-weight="bold" fill="${TEXT}">${esc(big)}</text>`;
-  s += `<text x="${x + bigW}" y="1290" font-family="${MONO}" font-size="21" letter-spacing="3" fill="${DIM}">${esc(label)}</text>`;
-  return { svg: s, next: x + bigW + label.length * 13 + 60 };
+// kind: 'num' = big colored number + muted label; 'grad' = single gradient word.
+function metric(x, big, label, kind) {
+  let s = '';
+  let end;
+  if (kind === 'grad') {
+    s += `<text x="${x}" y="1290" font-family="${MONO}" font-size="40" font-weight="bold" fill="url(#accentH)">${esc(big)}</text>`;
+    end = x + big.length * 25;
+  } else {
+    const bigFill = big === 'MIT' ? 'url(#accentH)' : 'url(#accentH)';
+    s += `<text x="${x}" y="1290" font-family="${MONO}" font-size="44" font-weight="bold" fill="${bigFill}">${esc(big)}</text>`;
+    const bigW = big.length * 27 + 16;
+    if (label) {
+      s += `<text x="${x + bigW}" y="1290" font-family="${MONO}" font-size="21" letter-spacing="2" fill="${MUTED}">${esc(label)}</text>`;
+    }
+    end = x + bigW + (label ? label.length * 12.5 : 0);
+  }
+  return { svg: s, next: end };
+}
+
+function separator(x) {
+  return `<line x1="${x}" y1="1262" x2="${x}" y2="1296" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>`;
 }
 
 // --- Assemble -------------------------------------------------------------
@@ -155,24 +171,32 @@ svg += `<text x="62" y="546" font-family="${SANS}" font-size="106" font-weight="
 svg += `<text x="64" y="620" font-family="${SANS}" font-size="33" fill="${MUTED}">Author once in a canonical source. Project it everywhere —</text>`;
 svg += `<text x="64" y="666" font-family="${SANS}" font-size="33" fill="${MUTED}">with self-evolution built in, <tspan fill="${TEXT}" font-weight="bold">not a copy per tool</tspan>.</text>`;
 svg += `<text x="64" y="755" font-family="${MONO}" font-size="22" letter-spacing="5" fill="#6b7682">PROJECTS TO</text>`;
-// Provider pills, two rows
+// Provider pills, three rows + a "+ more" chip
 svg += pillRow(64, 783, ['Claude Code', 'Codex', 'Cursor', 'OpenCode', 'Gemini', 'Kiro'], true);
-svg += pillRow(64, 853, ['Zed', 'Qwen', 'CodeBuddy', 'JoyCode', 'Antigravity', 'Trae', 'VS Code'], false);
+svg += pillRow(64, 853, ['Zed', 'Qwen', 'CodeBuddy', 'JoyCode', 'Antigravity', 'Trae'], false);
+(function lastRow() {
+  let cx = 64;
+  let p = pill(cx, 923, 'VS Code', false); svg += p.svg; cx = p.next;
+  // "+ more" chip (muted)
+  const w = 150;
+  svg += `<rect x="${cx}" y="923" width="${w}" height="52" rx="12" fill="rgba(238,242,246,0.02)" stroke="rgba(238,242,246,0.10)" stroke-width="1.5" stroke-dasharray="3 4"/>`;
+  svg += `<text x="${cx + w / 2}" y="957" text-anchor="middle" font-family="${MONO}" font-size="24" fill="#6b7682">+ more</text>`;
+})();
 
-// Cards
+// Cards (SKILLS shows the 5 surface skills; evolve/migrate are child-injected)
 svg += card(1064, 'AGENTS', 5, ['plugin-architect', 'provider-detector', 'capability-extractor', 'canonical-projector', 'compliance-validator']);
-svg += card(1497, 'SKILLS', 7, ['generate', 'adapt', 'audit', 'validate', 'harness-lens', 'evolve', 'migrate']);
+svg += card(1497, 'SKILLS', 5, ['generate', 'adapt', 'audit', 'validate', 'harness-lens']);
 svg += card(1930, 'PROVIDERS', 14, ['claude', 'codex', 'cursor', 'opencode', 'gemini', 'kiro', 'zed', 'qwen', 'codebuddy', 'joycode', 'antigravity', 'trae', 'vscode']);
 
-// Footer
+// Footer: metrics separated by vertical rules
 svg += `<line x1="64" y1="1232" x2="2336" y2="1232" stroke="rgba(238,242,246,0.08)" stroke-width="1.5"/>`;
 let fx = 64;
 let m;
-m = metric(fx, '14', 'PROVIDERS'); svg += m.svg; fx = m.next;
-m = metric(fx, '2', 'MODES'); svg += m.svg; fx = m.next;
-m = metric(fx, 'SELF', 'EVOLVING'); svg += m.svg; fx = m.next;
-m = metric(fx, 'MIT', ''); svg += m.svg; fx = m.next;
-svg += `<text x="2336" y="1284" text-anchor="end" font-family="${MONO}" font-size="25" letter-spacing="2" xml:space="preserve"><tspan fill="${DIM}">REPO: </tspan><tspan fill="#c4ccd6" font-weight="bold">tarsaparajo/global-plugins</tspan></text>`;
+m = metric(fx, '14', 'PROVIDERS', 'num'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
+m = metric(fx, '2', 'MODES (Generate · Adapt)', 'num'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
+m = metric(fx, 'SELF-EVOLVING', '', 'grad'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
+m = metric(fx, 'MIT', '', 'grad'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
+svg += `<text x="${fx}" y="1290" font-family="${MONO}" font-size="25" letter-spacing="1" fill="#8c97a3">tarsaparajo/global-plugins</text>`;
 
 svg += `</svg>`;
 
