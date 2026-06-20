@@ -167,10 +167,24 @@ svg += `</g>`;
 svg += `<text x="162" y="68" font-family="${SANS}" font-size="33" font-weight="bold" letter-spacing="0.3" fill="${TEXT}">Global Plugins</text>`;
 svg += `<text x="410" y="68" font-family="${SANS}" font-size="29" fill="#4a5663">/</text>`;
 svg += `<text x="438" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3">tarsaparajo/global-plugins</text>`;
-// Version pill
-svg += `<rect x="2010" y="29" width="326" height="56" rx="28" fill="#10171f" stroke="rgba(59,130,246,0.35)" stroke-width="1.5"/>`;
-svg += `<circle cx="2040" cy="57" r="6" fill="#34d399"/>`;
-svg += `<text x="2060" y="66" font-family="${MONO}" font-size="26" letter-spacing="1" fill="#22d3ee">v0.1.0 · Jun 2026</text>`;
+// Version pill — right edge anchored at the content edge (2336), sized to fit
+// the text with comfortable padding on both sides.
+(function versionPill() {
+  const label = 'v0.1.0 · Jun 2026';
+  const fontSize = 26;
+  const letterSpacing = 1;
+  // mono glyph advance ~0.6em; add letter-spacing per gap.
+  const textW = label.length * (fontSize * 0.6) + (label.length - 1) * letterSpacing;
+  const dotPad = 30;   // left padding to the status dot
+  const dotGap = 18;   // dot -> text
+  const rightPad = 28; // text -> right edge
+  const pillRight = 2336;
+  const pillW = dotPad + 12 + dotGap + textW + rightPad;
+  const pillX = pillRight - pillW;
+  svg += `<rect x="${pillX}" y="29" width="${pillW}" height="56" rx="28" fill="#10171f" stroke="rgba(59,130,246,0.35)" stroke-width="1.5"/>`;
+  svg += `<circle cx="${pillX + dotPad}" cy="57" r="6" fill="#34d399"/>`;
+  svg += `<text x="${pillX + dotPad + 12 + dotGap}" y="66" font-family="${MONO}" font-size="${fontSize}" letter-spacing="${letterSpacing}" fill="#22d3ee">${esc(label)}</text>`;
+})();
 
 // Left column — eyebrow with a gradient tick to its left
 svg += `<rect x="64" y="187" width="64" height="5" rx="2.5" fill="url(#accentH)"/>`;
