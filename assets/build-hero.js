@@ -172,9 +172,9 @@ svg += `<rect x="2010" y="29" width="326" height="56" rx="28" fill="#10171f" str
 svg += `<circle cx="2040" cy="57" r="6" fill="#34d399"/>`;
 svg += `<text x="2060" y="66" font-family="${MONO}" font-size="26" letter-spacing="1" fill="#22d3ee">v0.1.0 · Jun 2026</text>`;
 
-// Left column
-svg += `<line x1="66" y1="191" x2="114" y2="191" stroke="url(#accentH)" stroke-width="3"/>`;
-svg += `<text x="132" y="200" font-family="${MONO}" font-size="24" letter-spacing="6" fill="#22d3ee" opacity="0.92">ONE SOURCE · EVERY PROVIDER</text>`;
+// Left column — eyebrow with a gradient tick to its left
+svg += `<rect x="64" y="187" width="64" height="5" rx="2.5" fill="url(#accentH)"/>`;
+svg += `<text x="148" y="200" font-family="${MONO}" font-size="24" letter-spacing="6" fill="#22d3ee" opacity="0.92">ONE SOURCE · EVERY PROVIDER</text>`;
 svg += `<text x="62" y="330" font-family="${SANS}" font-size="106" font-weight="bold" letter-spacing="-2" fill="${TEXT}">Generate, adapt &amp;</text>`;
 svg += `<text x="62" y="438" font-family="${SANS}" font-size="106" font-weight="bold" letter-spacing="-2" fill="${TEXT}">evolve plugins for</text>`;
 svg += `<text x="62" y="546" font-family="${SANS}" font-size="106" font-weight="bold" letter-spacing="-2" fill="url(#accentH)">every provider.</text>`;
@@ -198,15 +198,38 @@ svg += card(1064, 'AGENTS', 5, ['plugin-architect', 'provider-detector', 'capabi
 svg += card(1497, 'SKILLS', 5, ['generate', 'adapt', 'audit', 'validate', 'harness-lens']);
 svg += card(1930, 'PROVIDERS', 14, ['claude', 'codex', 'cursor', 'opencode', 'gemini', 'kiro', 'zed', 'qwen', 'codebuddy', 'joycode', 'antigravity', 'trae', 'vscode']);
 
-// Footer: metrics separated by vertical rules
+// Footer: five groups justified (space-between) across the full content width,
+// with vertical separators centered in each gap.
 svg += `<line x1="64" y1="1232" x2="2336" y2="1232" stroke="rgba(238,242,246,0.08)" stroke-width="1.5"/>`;
-let fx = 64;
-let m;
-m = metric(fx, '14', 'PROVIDERS', 'num'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
-m = metric(fx, '2', 'MODES (Generate · Adapt)', 'num'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
-m = metric(fx, 'SELF-EVOLVING', '', 'grad'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
-m = metric(fx, 'MIT', '', 'grad'); svg += m.svg; fx = m.next + 26; svg += separator(fx); fx += 30;
-svg += `<text x="${fx}" y="1290" font-family="${MONO}" font-size="25" letter-spacing="1" fill="#8c97a3">tarsaparajo/global-plugins</text>`;
+(function footer() {
+  const L = 64;
+  const R = 2336;
+  // Each group: estimated rendered width (for gap distribution).
+  const groups = [
+    { kind: 'num', big: '14', label: 'PROVIDERS', w: 14 * 2 + 9 * 13 + 30 },
+    { kind: 'num', big: '2', label: 'MODES (Generate · Adapt)', w: 1 * 28 + 24 * 12.5 + 30 },
+    { kind: 'grad', big: 'SELF-EVOLVING', w: 13 * 25 },
+    { kind: 'grad', big: 'MIT', w: 3 * 27 },
+    { kind: 'repo', big: 'tarsaparajo/global-plugins', w: 26 * 14.5 },
+  ];
+  const totalW = groups.reduce((a, g) => a + g.w, 0);
+  const gap = (R - L - totalW) / (groups.length - 1); // space-between
+  let x = L;
+  groups.forEach((g, i) => {
+    if (g.kind === 'repo') {
+      // right-align the repo to the content right edge
+      svg += `<text x="${R}" y="1290" text-anchor="end" font-family="${MONO}" font-size="25" letter-spacing="1" fill="#8c97a3">${esc(g.big)}</text>`;
+    } else {
+      const mm = metric(x, g.big, g.label || '', g.kind);
+      svg += mm.svg;
+    }
+    if (i < groups.length - 1) {
+      const sepX = x + g.w + gap / 2;
+      svg += separator(sepX);
+    }
+    x += g.w + gap;
+  });
+})();
 
 svg += `</svg>`;
 
