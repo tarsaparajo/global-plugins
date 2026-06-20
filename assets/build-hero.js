@@ -201,7 +201,7 @@ svg += pillRow(64, 783, ['Claude Code', 'Codex', 'OpenCode'], true);
 // Cards (SKILLS shows the 5 surface skills; evolve/migrate are child-injected)
 svg += card(1064, 'AGENTS', 7, ['plugin-architect', 'provider-detector', 'capability-extractor', 'canonical-projector', 'compliance-validator', 'evolution-propagator', 'migration-analyzer']);
 svg += card(1497, 'SKILLS', 7, ['generate', 'adapt', 'audit', 'validate', 'harness-lens', 'evolve', 'migrate']);
-svg += card(1930, 'PROVIDERS', 3, ['claude', 'codex', 'opencode']);
+svg += card(1930, 'PROVIDERS', 3, ['claude code', 'codex', 'opencode']);
 
 // Footer: five groups justified (space-between) across the full content width,
 // with vertical separators centered in each gap.
