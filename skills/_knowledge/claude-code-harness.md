@@ -35,6 +35,10 @@ Configured in `hooks/hooks.json` (or settings). Events include lifecycle (`Sessi
 
 `.claude-plugin/marketplace.json` lists plugins from sources: relative path, `github`, git `url`, `git-subdir`, or `npm`. Install: `/plugin marketplace add <owner/repo|url|path>` then `/plugin install <plugin>@<marketplace>`. `strict` mode controls whether the marketplace entry supplements or replaces `plugin.json`.
 
+## Rules distribution gap — validated (official)
+
+Claude Code's plugin system distributes commands, agents, skills, hooks, MCP servers, output styles, and LSP servers — **but NOT rules** (`.claude/rules/` always-apply instruction files). This is an official, acknowledged limitation (anthropics/claude-code Issue #21163, "Support rules field in plugin.json for distributing rules via plugins" — pending). The workaround: users must **manually copy rule files** into `~/.claude/rules/` (user) or `.claude/rules/` (project). So when a generated child plugin ships instruction rules for Claude Code, it must also ship an installer/instructions to copy them — `/plugin install` will not. (Codex and OpenCode do not have this exact gap — see their harness refs: both carry instructions via `AGENTS.md`, which IS distributed normally.)
+
 ## How global-plugins uses this
 
 The Claude projection copies agents/skills/commands verbatim and deep-merges MCP into `.claude/.mcp.json`. When enriching a child's Claude version (opt-in), reach for progressive-disclosure skills, custom subagents, and the rich hook events — capabilities Codex and OpenCode express differently or not at all. Keep provider-specific richness behind an opt-in; the baseline projection stays clean.

@@ -10,7 +10,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const scanRoot = process.argv[2] || process.cwd();
-const dotfolders = ['.claude', '.codex', '.cursor', '.gemini', '.qwen', '.opencode', '.zed', '.kiro', '.codebuddy', '.joycode', '.agent'];
+const dotfolders = ['.claude', '.codex', '.opencode'];
 
 function findDotfolders(dir, depth = 0, acc = []) {
   if (depth > 3 || !existsSync(dir)) return acc;

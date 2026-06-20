@@ -100,6 +100,10 @@ Offer these when enriching a child plugin's OpenCode version — none are native
 
 Matters: programmatic interception of the loop, per-request tuning, typed code tools, multi-agent compaction/state control, low latency (function call vs subprocess fork + I/O per hook). Irrelevant or inverted: easy distribution/discovery (Claude Code and Codex have curated marketplaces), purely declarative setups, or reusing existing Claude Code plugins.
 
+## Rules / instructions distribution — validated
+
+OpenCode loads instructions from `AGENTS.md` (project root, traversing up) → `~/.config/opencode/AGENTS.md` (global) → **`CLAUDE.md` / `~/.claude/CLAUDE.md` as Claude Code-compatibility fallbacks**. There is **no dedicated rules directory** and no Claude-Code-style "rules not distributable" gap: instructions are distributed by committing `AGENTS.md`, or via the `instructions` field in `opencode.json` (file paths or remote URLs). `/init` scaffolds the project `AGENTS.md`. The native `CLAUDE.md` fallback is what makes a cross-provider universal substrate feasible — OpenCode and Codex both read `AGENTS.md`, and OpenCode additionally reads `CLAUDE.md`.
+
 ## How global-plugins uses this
 
 The OpenCode projection ships the baseline (agents/skills/commands verbatim + compiled `dist/`). The programmatic harness above is **opt-in**: author it in the canonical source so it round-trips; the compiled `dist/` is re-derived by the build step and is not itself round-trippable on adapt. A child whose briefing does not call for it stays at the clean baseline.

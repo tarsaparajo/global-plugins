@@ -54,6 +54,10 @@ Codex governs which commands run outside the sandbox via **rules written in Star
 - **Interop (validated, June 2026):** the documented interoperability runs **Claude Code → Codex**: an official plugin (`codex@openai-codex`) lets Claude Code delegate tasks to the local Codex CLI/app server, reusing your existing Codex auth/config/MCP. `[unverified]` The reverse claim — that Codex natively reuses Claude Code's plugin format via `CLAUDE_PLUGIN_ROOT` — was NOT confirmed; `CLAUDE_PLUGIN_ROOT` is a Claude Code variable. Do not assert Codex↔Claude plugin-format compatibility without checking the official docs.
 - **Permission-as-code:** Codex DOES have one — the Starlark Exec Policy (see above), validated against `docs/execpolicy.md`. Declarative, not in-process.
 
+## Rules / instructions distribution — validated
+
+Codex instructions live in `AGENTS.md` (its CLAUDE.md analogue), committed to the repo and discovered automatically — so there is **no Claude-Code-style "rules not distributable" gap** for instruction content. Note the two distinct "rules" senses: `AGENTS.md` = instruction rules (distributed normally); the Starlark `.rules` files = the Exec Policy permission system (above). The cross-provider convergence on `AGENTS.md` (Codex native; OpenCode reads it; Claude Code uses `CLAUDE.md`) is the anchor for the opt-in universal-substrate capability.
+
 ## How global-plugins uses this
 
 The Codex projection: agents → `.toml` role files; skills/commands → sibling files indexed in `AGENTS.md`; the Prompt Defense Baseline carried as a string field in `config.toml`. When enriching a child's Codex version, prefer the documented surfaces (agent TOML roles, MCP, prompts, skills) and treat undocumented areas (full hook API, plugin marketplace mechanics) as fallback/uncertain — verify against https://developers.openai.com/codex.
