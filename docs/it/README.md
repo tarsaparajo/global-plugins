@@ -61,7 +61,12 @@ Il registro è aperto. È possibile aggiungere nuovi provider estendendo il regi
 
 ## Installazione
 
-Installa da un marketplace di plugin oppure manualmente copiando questa directory nella tua posizione dei plugin. Le cartelle dotfolder dei provider versionate sono artefatti reali, rigenerati tramite ri-proiezione: non modificarle mai a mano.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+Oppure installa manualmente copiando questa directory nella tua posizione dei plugin. Le cartelle dotfolder dei provider versionate sono artefatti reali, rigenerati tramite ri-proiezione: non modificarle mai a mano.
 
 ## Utilizzo
 
@@ -72,8 +77,10 @@ Installa da un marketplace di plugin oppure manualmente copiando questa director
 | `/global-plugins:audit <path>` | Audit approfondito e in sola lettura di un plugin. |
 | `/global-plugins:validate <path>` | Gate di validazione rapido con esito pass/fail. |
 | `/global-plugins:harness-lens <idea>` | Esplora come verrebbe composta un'idea di plugin. |
+| `/global-plugins:evolve <change>` | Rispecchia una modifica canonica su ogni provider, con parità, incremento di versione, changelog e una migrazione condizionale. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Applica la catena di migrazioni in sospeso a una copia già installata. |
 
-I plugin generati forniscono inoltre `/<plugin>:evolve` e `/<plugin>:migrate` per l'auto-evoluzione.
+Global Plugins è auto-ospitante: fornisce la propria superficie evolve e migrate, e rispecchia gli stessi `/<plugin>:evolve` e `/<plugin>:migrate` in ogni plugin che genera.
 
 ## Architettura interna
 

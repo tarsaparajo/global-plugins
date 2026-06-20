@@ -61,7 +61,12 @@
 
 ## 설치
 
-플러그인 마켓플레이스에서 설치하거나, 이 디렉터리를 플러그인 위치로 복사해 수동으로 설치할 수 있습니다. 커밋된 프로바이더 도트 폴더는 실제 산출물이며 재투영을 통해 다시 생성됩니다. 절대 직접 손으로 수정하지 마세요.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+또는 이 디렉터리를 플러그인 위치로 복사해 수동으로 설치할 수 있습니다. 커밋된 프로바이더 도트 폴더는 실제 산출물이며 재투영을 통해 다시 생성됩니다. 절대 직접 손으로 수정하지 마세요.
 
 ## 사용법
 
@@ -72,8 +77,10 @@
 | `/global-plugins:audit <path>` | 플러그인을 읽기 전용으로 심층 감사합니다. |
 | `/global-plugins:validate <path>` | 빠른 합격/불합격 검증 게이트를 실행합니다. |
 | `/global-plugins:harness-lens <idea>` | 플러그인 아이디어가 어떻게 구성될지 탐색합니다. |
+| `/global-plugins:evolve <change>` | 정규 변경 사항을 모든 프로바이더에 반영하며, 패리티 검증, 버전 상향, 체인지로그, 조건부 마이그레이션을 함께 수행합니다. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | 이미 설치된 사본에 대기 중인 마이그레이션 체인을 적용합니다. |
 
-생성된 플러그인에는 자가 진화를 위한 `/<plugin>:evolve`와 `/<plugin>:migrate`가 추가로 제공됩니다.
+Global Plugins는 자가 호스팅(self-hosting) 방식입니다. 자체 evolve 및 migrate 인터페이스를 제공하며, 자신이 생성하는 모든 플러그인에 동일한 `/<plugin>:evolve`와 `/<plugin>:migrate`를 그대로 반영합니다.
 
 ## 내부 아키텍처
 

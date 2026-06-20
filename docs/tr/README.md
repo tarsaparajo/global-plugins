@@ -61,7 +61,12 @@ Kayıt defteri (registry) açıktır. Kayıt defterini gerçek bir girdi, bir sa
 
 ## Kurulum
 
-Bir eklenti pazar yerinden kurun ya da bu dizini eklentilerinizin bulunduğu konuma kopyalayarak elle kurun. Commit edilen sağlayıcı nokta klasörleri gerçek yapıtlardır ve yeniden yansıtmayla üretilir; bunları asla elle düzenlemeyin.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+Ya da bu dizini eklentilerinizin bulunduğu konuma kopyalayarak elle kurun. Commit edilen sağlayıcı nokta klasörleri gerçek yapıtlardır ve yeniden yansıtmayla üretilir; bunları asla elle düzenlemeyin.
 
 ## Kullanım
 
@@ -72,8 +77,10 @@ Bir eklenti pazar yerinden kurun ya da bu dizini eklentilerinizin bulunduğu kon
 | `/global-plugins:audit <path>` | Bir eklentinin derinlemesine, salt okunur denetimini yapar. |
 | `/global-plugins:validate <path>` | Hızlı geçti/kaldı doğrulama kapısı. |
 | `/global-plugins:harness-lens <idea>` | Bir eklenti fikrinin nasıl kurgulanacağını keşfeder. |
+| `/global-plugins:evolve <change>` | Kanonik bir değişikliği her sağlayıcıya yansıtır; eşlik (parity), bir sürüm artışı, changelog ve koşullu bir geçiş (migration) ile birlikte. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Bekleyen geçiş (migration) zincirini halihazırda kurulu bir kopyaya uygular. |
 
-Üretilen eklentiler, kendi kendini geliştirme için ayrıca `/<plugin>:evolve` ve `/<plugin>:migrate` ile birlikte gelir.
+Global Plugins kendi kendine barındırılır (self-hosting): kendi evolve ve migrate yüzeyiyle birlikte gelir ve aynı `/<plugin>:evolve` ve `/<plugin>:migrate`'i ürettiği her eklentiye yansıtır.
 
 ## İç Mimari
 

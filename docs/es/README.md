@@ -61,7 +61,12 @@ El registro es abierto. Se pueden añadir nuevos proveedores ampliando el regist
 
 ## Instalación
 
-Instálalo desde un marketplace de plugins, o manualmente copiando este directorio en la ubicación de tus plugins. Las carpetas de configuración por proveedor que se incluyen versionadas son artefactos reales, regenerados mediante reproyección: nunca las edites a mano.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+O instálalo manualmente copiando este directorio en la ubicación de tus plugins. Las carpetas de configuración por proveedor que se incluyen versionadas son artefactos reales, regenerados mediante reproyección: nunca las edites a mano.
 
 ## Uso
 
@@ -72,8 +77,10 @@ Instálalo desde un marketplace de plugins, o manualmente copiando este director
 | `/global-plugins:audit <path>` | Auditoría profunda y de solo lectura de un plugin. |
 | `/global-plugins:validate <path>` | Verificación rápida de aprobado/rechazado. |
 | `/global-plugins:harness-lens <idea>` | Explora cómo se compondría una idea de plugin. |
+| `/global-plugins:evolve <change>` | Refleja un cambio canónico en cada proveedor, con paridad, un incremento de versión, changelog y una migración condicional. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Aplica la cadena de migración pendiente a una copia ya instalada. |
 
-Los plugins generados incluyen además `/<plugin>:evolve` y `/<plugin>:migrate` para la autoevolución.
+Global Plugins es autohospedado: incluye su propia superficie de evolve y migrate, y refleja los mismos `/<plugin>:evolve` y `/<plugin>:migrate` en cada plugin que genera.
 
 ## Arquitectura interna
 

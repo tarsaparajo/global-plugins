@@ -61,7 +61,12 @@
 
 ## 安裝
 
-可從外掛市集安裝，或手動將此目錄複製到你的外掛存放位置。已納入版本控制的供應商 dotfolder 都是真實的產物，會透過重新投影重新產生——切勿手動編輯它們。
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+或手動將此目錄複製到你的外掛存放位置進行安裝。已納入版本控制的供應商 dotfolder 都是真實的產物，會透過重新投影重新產生——切勿手動編輯它們。
 
 ## 使用方式
 
@@ -72,8 +77,10 @@
 | `/global-plugins:audit <path>` | 對外掛進行深入、唯讀的稽核。 |
 | `/global-plugins:validate <path>` | 快速的通過／失敗驗證關卡。 |
 | `/global-plugins:harness-lens <idea>` | 探索某個外掛構想會如何被組構而成。 |
+| `/global-plugins:evolve <change>` | 將一項標準變更鏡射到每個供應商，並附帶對等性、版本號遞增、changelog 與條件式遷移。 |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | 對已安裝的副本套用待處理的遷移鏈。 |
 
-產生的外掛還會額外隨附 `/<plugin>:evolve` 與 `/<plugin>:migrate`，以支援自我演進。
+Global Plugins 具有自我承載（self-hosting）能力：它隨附自己的 evolve 與 migrate 介面，並將相同的 `/<plugin>:evolve` 與 `/<plugin>:migrate` 鏡射到它所產生的每個外掛中。
 
 ## 內部架構
 

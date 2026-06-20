@@ -61,7 +61,12 @@ O registry é aberto. Novos provedores podem ser adicionados estendendo o regist
 
 ## Instalação
 
-Instale a partir de um marketplace de plugins ou manualmente, copiando este diretório para o local dos seus plugins. As pastas-ponto de provedor versionadas são artefatos reais, regenerados por reprojeção — nunca as edite à mão.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+Ou instale manualmente, copiando este diretório para o local dos seus plugins. As pastas-ponto de provedor versionadas são artefatos reais, regenerados por reprojeção — nunca as edite à mão.
 
 ## Uso
 
@@ -72,8 +77,10 @@ Instale a partir de um marketplace de plugins ou manualmente, copiando este dire
 | `/global-plugins:audit <path>` | Auditoria profunda e somente leitura de um plugin. |
 | `/global-plugins:validate <path>` | Portão de validação rápido (passa/falha). |
 | `/global-plugins:harness-lens <idea>` | Explora como uma ideia de plugin seria composta. |
+| `/global-plugins:evolve <change>` | Espelha uma mudança canônica para cada provedor, com paridade, incremento de versão, changelog e uma migração condicional. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Aplica a cadeia de migração pendente a uma cópia já instalada. |
 
-Os plugins gerados ainda incluem `/<plugin>:evolve` e `/<plugin>:migrate` para autoevolução.
+O Global Plugins é autoexecutável: ele inclui sua própria superfície de evolução e migração e espelha os mesmos `/<plugin>:evolve` e `/<plugin>:migrate` em cada plugin que gera.
 
 ## Arquitetura interna
 

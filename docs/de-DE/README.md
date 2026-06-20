@@ -61,7 +61,12 @@ Die Registry ist offen. Neue Provider lassen sich hinzufügen, indem man die Reg
 
 ## Installation
 
-Installiere das Plugin über einen Plugin-Marktplatz oder manuell, indem du dieses Verzeichnis an deinen Plugin-Speicherort kopierst. Die versionierten Provider-Dotfolder sind echte Artefakte, die durch erneute Projektion regeneriert werden – bearbeite sie niemals von Hand.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+Oder installiere das Plugin manuell, indem du dieses Verzeichnis an deinen Plugin-Speicherort kopierst. Die versionierten Provider-Dotfolder sind echte Artefakte, die durch erneute Projektion regeneriert werden – bearbeite sie niemals von Hand.
 
 ## Verwendung
 
@@ -72,8 +77,10 @@ Installiere das Plugin über einen Plugin-Marktplatz oder manuell, indem du dies
 | `/global-plugins:audit <path>` | Tiefgehendes, schreibgeschütztes Audit eines Plugins. |
 | `/global-plugins:validate <path>` | Schnelles Pass/Fail-Validierungsgate. |
 | `/global-plugins:harness-lens <idea>` | Erkundet, wie eine Plugin-Idee zusammengesetzt würde. |
+| `/global-plugins:evolve <change>` | Spiegelt eine kanonische Änderung auf jeden Provider, mit Parität, einer Versionsanhebung, einem Changelog und einer bedingten Migration. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Wendet die ausstehende Migrationskette auf eine bereits installierte Kopie an. |
 
-Erzeugte Plugins liefern zusätzlich `/<plugin>:evolve` und `/<plugin>:migrate` zur Selbstevolution mit.
+Global Plugins ist selbsttragend: Es liefert seine eigene evolve- und migrate-Oberfläche mit und spiegelt dieselben `/<plugin>:evolve` und `/<plugin>:migrate` in jedes Plugin, das es erzeugt.
 
 ## Interne Architektur
 

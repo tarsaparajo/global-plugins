@@ -61,7 +61,12 @@ Le registre est ouvert. De nouveaux fournisseurs peuvent être ajoutés en éten
 
 ## Installation
 
-Installez depuis une place de marché de plugins, ou manuellement en copiant ce répertoire dans votre emplacement de plugins. Les dossiers de configuration versionnés (dotfolders) des fournisseurs sont de véritables artefacts, régénérés par re-projection — ne les modifiez jamais à la main.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+Ou installez manuellement en copiant ce répertoire dans votre emplacement de plugins. Les dossiers de configuration versionnés (dotfolders) des fournisseurs sont de véritables artefacts, régénérés par re-projection — ne les modifiez jamais à la main.
 
 ## Utilisation
 
@@ -72,8 +77,10 @@ Installez depuis une place de marché de plugins, ou manuellement en copiant ce 
 | `/global-plugins:audit <path>` | Audit approfondi d'un plugin, en lecture seule. |
 | `/global-plugins:validate <path>` | Contrôle rapide de validation réussite/échec. |
 | `/global-plugins:harness-lens <idea>` | Explore la façon dont une idée de plugin serait composée. |
+| `/global-plugins:evolve <change>` | Répercute un changement canonique sur chaque fournisseur, avec la parité, un incrément de version, un changelog et une migration conditionnelle. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Applique la chaîne de migration en attente à une copie déjà installée. |
 
-Les plugins générés sont en plus livrés avec `/<plugin>:evolve` et `/<plugin>:migrate` pour l'auto-évolution.
+Global Plugins est auto-hébergé : il est livré avec sa propre surface evolve et migrate, et répercute les mêmes `/<plugin>:evolve` et `/<plugin>:migrate` dans chaque plugin qu'il génère.
 
 ## Architecture interne
 

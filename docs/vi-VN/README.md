@@ -61,7 +61,12 @@ Registry là mở. Có thể bổ sung nhà cung cấp mới bằng cách mở r
 
 ## Cài đặt
 
-Cài từ một marketplace plugin, hoặc thủ công bằng cách sao chép thư mục này vào vị trí plugin của bạn. Các dotfolder nhà cung cấp đã được commit là những artifact thực sự, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay chúng.
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+Hoặc cài thủ công bằng cách sao chép thư mục này vào vị trí plugin của bạn. Các dotfolder nhà cung cấp đã được commit là những artifact thực sự, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay chúng.
 
 ## Cách dùng
 
@@ -72,8 +77,10 @@ Cài từ một marketplace plugin, hoặc thủ công bằng cách sao chép th
 | `/global-plugins:audit <path>` | Kiểm toán sâu, chỉ đọc, một plugin. |
 | `/global-plugins:validate <path>` | Cổng kiểm định pass/fail nhanh gọn. |
 | `/global-plugins:harness-lens <idea>` | Khám phá cách một ý tưởng plugin sẽ được cấu thành. |
+| `/global-plugins:evolve <change>` | Phản chiếu một thay đổi chính tắc sang mọi nhà cung cấp, kèm theo parity, nâng phiên bản, changelog và một bản di trú có điều kiện. |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | Áp dụng chuỗi di trú đang chờ vào một bản đã cài đặt sẵn. |
 
-Các plugin được tạo ra còn đi kèm `/<plugin>:evolve` và `/<plugin>:migrate` để tự tiến hóa.
+Global Plugins tự lưu trữ (self-hosting): nó đi kèm bề mặt evolve và migrate của riêng mình, và phản chiếu cùng `/<plugin>:evolve` và `/<plugin>:migrate` vào mọi plugin mà nó tạo ra.
 
 ## Kiến trúc nội bộ
 

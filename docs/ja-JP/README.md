@@ -61,7 +61,12 @@
 
 ## インストール
 
-プラグインマーケットプレイスからインストールするか、このディレクトリをプラグイン格納場所へコピーして手動でインストールします。コミット済みのプロバイダー用ドットフォルダは実際の成果物であり、再投影によって再生成されます。手作業で編集しないでください。
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+または、このディレクトリをプラグイン格納場所へコピーして手動でインストールすることもできます。コミット済みのプロバイダー用ドットフォルダは実際の成果物であり、再投影によって再生成されます。手作業で編集しないでください。
 
 ## 使い方
 
@@ -72,8 +77,10 @@
 | `/global-plugins:audit <path>` | プラグインを深く読み取り専用で監査します。 |
 | `/global-plugins:validate <path>` | 高速な合否判定ゲートで検証します。 |
 | `/global-plugins:harness-lens <idea>` | プラグインのアイデアがどのように構成されるかを探索します。 |
+| `/global-plugins:evolve <change>` | 正規ソースの変更をすべてのプロバイダーへ反映し、整合性の検証、バージョンの繰り上げ、変更履歴、条件付きマイグレーションを行います。 |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | 保留中のマイグレーションチェーンを、すでにインストール済みのコピーへ適用します。 |
 
-生成されたプラグインには、さらに自己進化用の `/<plugin>:evolve` と `/<plugin>:migrate` が付属します。
+Global Plugins は自己ホスト型です。それ自身の進化 (evolve) とマイグレーション (migrate) のインターフェースを備えるとともに、生成するすべてのプラグインに同じ `/<plugin>:evolve` と `/<plugin>:migrate` を反映します。
 
 ## 内部アーキテクチャ
 

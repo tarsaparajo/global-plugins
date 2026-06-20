@@ -61,7 +61,12 @@
 
 ## 安装
 
-可从插件市场安装，也可手动将本目录复制到你的插件位置。已纳入版本管理的各服务商点目录（dotfolder）都是真实产物，由重新投影自动生成——切勿手工编辑。
+```
+/plugin marketplace add tarsaparajo/global-plugins
+/plugin install tarsaparajo@global-plugins
+```
+
+或手动将本目录复制到你的插件位置。已纳入版本管理的各服务商点目录（dotfolder）都是真实产物，由重新投影自动生成——切勿手工编辑。
 
 ## 用法
 
@@ -72,8 +77,10 @@
 | `/global-plugins:audit <path>` | 对插件进行深入、只读的审计。 |
 | `/global-plugins:validate <path>` | 快速的通过/不通过校验关卡。 |
 | `/global-plugins:harness-lens <idea>` | 探索某个插件构想会如何被组合而成。 |
+| `/global-plugins:evolve <change>` | 将一处规范源改动镜像到每一个服务商，并附带一致性校验、版本号递增、变更日志与条件式迁移。 |
+| `/global-plugins:migrate [--dry-run \| --apply \| --rollback]` | 对已安装的副本应用待处理的迁移链。 |
 
-生成的插件还额外附带 `/<plugin>:evolve` 与 `/<plugin>:migrate`，用于自我演进。
+Global Plugins 是自托管的：它自身就附带 evolve 与 migrate 能力，并将同样的 `/<plugin>:evolve` 与 `/<plugin>:migrate` 镜像到它生成的每一个插件中。
 
 ## 内部架构
 
