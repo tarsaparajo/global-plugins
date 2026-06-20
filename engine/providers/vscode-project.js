@@ -8,15 +8,17 @@
 const path = require('path');
 const { planFromModules, opScaffold } = require('./_base');
 
+// Copilot reads a single .github/copilot-instructions.md. Emit it once as a
+// capability index plus heading-addressable bodies (the generator derives its
+// content from the whole canonical source), not an empty per-dir append.
 function consolidate(ctx) {
   return [opScaffold({
     moduleId: ctx.module.id,
-    sourceRelativePath: ctx.sourceRelativePath,
+    sourceRelativePath: null,
     destinationPath: path.join(ctx.targetRoot, 'copilot-instructions.md'),
     generator: 'vscode:copilot-instructions',
-    section: String(ctx.sourceRelativePath).split('/')[0],
     carriesPromptDefense: true,
-    append: true,
+    append: false,
   })];
 }
 

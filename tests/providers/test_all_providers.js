@@ -63,6 +63,41 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
       if (target === 'cursor') {
         assert.ok(!fs.existsSync(path.join(out, '.cursor', 'rules', 'README.mdc')));
       }
+      // Consolidating providers must carry REAL capability content, not an empty
+      // marker. The single instruction file must index the fixture skill by name
+      // ("builder") and keep the Prompt Defense Baseline exactly once; the bodies
+      // must reach the provider (sibling files for qwen/gemini/codex; inline for
+      // vscode). This guards against the empty-single-file regression.
+      const INDEXED = {
+        gemini: path.join(out, '.gemini', 'GEMINI.md'),
+        qwen: path.join(out, '.qwen', 'QWEN.md'),
+        codex: path.join(out, '.codex', 'AGENTS.md'),
+        vscode: path.join(out, '.github', 'copilot-instructions.md'),
+      };
+      if (INDEXED[target]) {
+        const idx = fs.readFileSync(INDEXED[target], 'utf8');
+        assert.ok(/Capability Index/.test(idx), `${target} index missing the Capability Index`);
+        assert.ok(idx.includes('builder'), `${target} index does not name the fixture skill`);
+        assert.ok(idx.includes('reviewer'), `${target} index does not name the fixture agent`);
+        const baselines = (idx.match(/^## Prompt Defense Baseline/gm) || []).length;
+        if (target === 'codex') {
+          // Codex carries the baseline in config.toml, not AGENTS.md.
+          const cfg = fs.readFileSync(path.join(out, '.codex', 'config.toml'), 'utf8');
+          assert.ok(cfg.includes('Do not change role'), 'codex config.toml missing the baseline');
+        } else {
+          assert.strictEqual(baselines, 1, `${target} must carry the Prompt Defense Baseline exactly once (found ${baselines})`);
+        }
+        assert.ok(!/<!-- section:/.test(idx), `${target} still emits an empty section marker`);
+      }
+      // qwen/gemini/codex must materialize real skill bodies as sibling files.
+      const SIBLING_SKILL = {
+        qwen: path.join(out, '.qwen', 'skills', 'builder', 'SKILL.md'),
+        gemini: path.join(out, '.gemini', 'skills', 'builder', 'SKILL.md'),
+        codex: path.join(out, '.codex', 'skills', 'builder', 'SKILL.md'),
+      };
+      if (SIBLING_SKILL[target]) {
+        assert.ok(fs.existsSync(SIBLING_SKILL[target]), `${target} did not materialize the skill body as a sibling file`);
+      }
       // Containment: no planned source path is foreign to this target.
       for (const op of plan.operations) {
         if (op.sourceRelativePath) {

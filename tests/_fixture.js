@@ -14,7 +14,9 @@ function makeCanonicalFixture() {
     fs.mkdirSync(path.dirname(abs), { recursive: true });
     fs.writeFileSync(abs, content);
   };
-  w('agents/reviewer.md', '---\nname: reviewer\n---\n# Reviewer\n\nReview code.\n');
+  w('agents/reviewer.md', '---\nname: reviewer\ndescription: Review code for issues.\n---\n# Reviewer\n\nReview code.\n');
+  w('skills/builder/SKILL.md', '---\nname: builder\ndescription: Build things from a spec.\n---\n# Builder\n\nBuild from spec.\n');
+  w('commands/run.md', '---\ndescription: Run the thing.\n---\n# Run\n\nRun it.\n');
   w('rules/style.md', '# Style\n\nAlways test.\n');
   w('rules/README.md', '# Rules\n');
   w('mcp/servers.json', JSON.stringify({ mcpServers: { demo: { command: 'demo' } } }, null, 2));
@@ -27,7 +29,7 @@ function cleanup(root) {
 
 // Standard single module covering the fixture dirs.
 function fixtureModules() {
-  return [{ id: 'm1', paths: ['agents', 'rules', 'mcp'], targets: [] }];
+  return [{ id: 'm1', paths: ['agents', 'skills', 'commands', 'rules', 'mcp'], targets: [] }];
 }
 
 module.exports = { makeCanonicalFixture, cleanup, fixtureModules };

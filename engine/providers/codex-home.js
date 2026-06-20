@@ -5,7 +5,7 @@
 // carried as a string field inside config.toml.
 
 const path = require('path');
-const { planFromModules, flattenDir, opScaffold } = require('./_base');
+const { planFromModules, defaultCopy, flattenDir, opScaffold } = require('./_base');
 
 function toToml(fileName) {
   return fileName.endsWith('.md') ? `${fileName.slice(0, -3)}.toml` : fileName;
@@ -14,11 +14,12 @@ function toToml(fileName) {
 function planOperations(planInput, adapter) {
   const targetRoot = adapter.resolveRoot(planInput);
   const ops = planFromModules(planInput, adapter, {
+    // Agents become native Codex role TOML files; skills and commands keep their
+    // real bodies as sibling files, indexed from AGENTS.md.
     agents: (ctx) => flattenDir(ctx, 'agents', 'file', toToml),
-    // rules/skills/commands fold into the consolidated context model below.
+    skills: defaultCopy,
+    commands: defaultCopy,
     rules: () => [],
-    skills: () => [],
-    commands: () => [],
     hooks: () => [],
     mcp: () => [],
   });

@@ -5,6 +5,7 @@
 // turns a module's paths[] into operations, filtering foreign platform paths.
 
 const path = require('path');
+const fs = require('fs');
 
 const {
   isForeignPlatformPath,
@@ -16,6 +17,63 @@ const {
   opScaffold,
   opBuildStep,
 } = require('../helpers');
+
+// Read the leading YAML frontmatter of a markdown file and return { name,
+// description } when present. Used to build capability indexes for the
+// single-file providers without embedding the whole body.
+function readFrontmatter(absFile) {
+  let text = '';
+  try {
+    text = fs.readFileSync(absFile, 'utf8');
+  } catch {
+    return {};
+  }
+  const match = /^---\n([\s\S]*?)\n---/.exec(text);
+  if (!match) {
+    return {};
+  }
+  const out = {};
+  for (const line of match[1].split('\n')) {
+    const kv = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
+    if (!kv) {
+      continue;
+    }
+    let value = kv[2].trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    out[kv[1]] = value;
+  }
+  return out;
+}
+
+// Walk a canonical component dir (agents/skills/commands) and return one entry
+// per primary file with its derived name + description. Skills live one level
+// deep as <id>/SKILL.md; agents/commands are flat <name>.md. _knowledge docs and
+// non-primary files are skipped so the index lists real capabilities only.
+function collectComponents(repoRoot, sourceRelativeDir) {
+  const absDir = path.join(repoRoot, sourceRelativeDir);
+  const out = [];
+  for (const rel of listRelativeFiles(absDir)) {
+    const base = path.posix.basename(rel);
+    const top = rel.split('/')[0];
+    if (top === '_knowledge') {
+      continue;
+    }
+    const isSkill = base === 'SKILL.md';
+    if (!base.endsWith('.md') || (sourceRelativeDir === 'skills' && !isSkill)) {
+      continue;
+    }
+    const fm = readFrontmatter(path.join(absDir, rel));
+    const name = fm.name || (isSkill ? rel.split('/')[0] : base.replace(/\.md$/, ''));
+    out.push({
+      name,
+      description: fm.description || '',
+      sourceRelativePath: path.posix.join(sourceRelativeDir, rel),
+    });
+  }
+  return out;
+}
 
 // Expand a canonical mcp/ directory into one merge-json operation per JSON file,
 // each merged into the single destination MCP file the provider expects.
@@ -110,4 +168,6 @@ module.exports = {
   flattenDir,
   mcpMergeOps,
   opScaffold,
+  collectComponents,
+  readFrontmatter,
 };
