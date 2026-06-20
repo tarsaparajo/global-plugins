@@ -1,0 +1,40 @@
+{
+  "name": "global-plugins",
+  "owner": {
+    "name": "Tarsa",
+    "email": "tarsaparajo@gmail.com"
+  },
+  "metadata": {
+    "description": "One canonical source, every provider. Generate, adapt, and evolve AI coding plugins."
+  },
+  "plugins": [
+    {
+      "name": "global-plugins",
+      "source": "./",
+      "description": "Generate a multi-provider plugin from a briefing, adapt a single-provider plugin to all providers, and ship self-evolving products.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Tarsa",
+        "email": "tarsaparajo@gmail.com",
+        "url": "https://buymeacoffee.com/tarsaparajo"
+      },
+      "homepage": "https://buymeacoffee.com/tarsaparajo",
+      "license": "MIT",
+      "keywords": [
+        "plugin-generator",
+        "multi-provider",
+        "projection",
+        "self-evolution"
+      ],
+      "category": "developer-tools",
+      "tags": [
+        "generator",
+        "multi-provider",
+        "canonical",
+        "projection",
+        "evolution"
+      ],
+      "strict": true
+    }
+  ]
+}

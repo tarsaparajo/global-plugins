@@ -1,0 +1,29 @@
+{
+  "name": "global-plugins",
+  "version": "0.1.0",
+  "description": "Generate and adapt multi-provider AI coding plugins from a single canonical source, projected to every supported provider with self-evolution built in.",
+  "author": {
+    "name": "Tarsa",
+    "email": "tarsaparajo@gmail.com",
+    "url": "https://buymeacoffee.com/tarsaparajo"
+  },
+  "homepage": "https://buymeacoffee.com/tarsaparajo",
+  "license": "MIT",
+  "keywords": [
+    "plugin-generator",
+    "multi-provider",
+    "canonical-source",
+    "projection",
+    "self-evolution",
+    "claude-code",
+    "codex",
+    "cursor",
+    "opencode",
+    "gemini"
+  ],
+  "mcpServers": {},
+  "skills": ["./skills/"],
+  "commands": ["./commands/"],
+  "agents": ["./agents/"],
+  "hooks": "./hooks/hooks.json"
+}

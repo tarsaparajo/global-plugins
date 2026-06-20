@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvolutionLedgerEntry",
+  "type": "object",
+  "required": ["id", "fromVersion", "toVersion", "semver", "parity"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^EV-[0-9]{4,}$" },
+    "fromVersion": { "type": "string" },
+    "toVersion": { "type": "string" },
+    "date": { "type": "string" },
+    "semver": { "enum": ["major", "minor", "patch"] },
+    "changeset": { "type": "array" },
+    "targets": { "type": "array", "items": { "type": "string" } },
+    "parity": { "enum": ["pass", "fail"] },
+    "parityReport": { "type": ["string", "null"] },
+    "breaking": { "type": "boolean" },
+    "migration": { "type": ["string", "null"] },
+    "changelog": { "type": "string" },
+    "operator": { "type": "string" },
+    "gateConfirmed": { "type": "boolean" }
+  }
+}

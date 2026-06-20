@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "description": "Install profiles. A profile is a named set of modules; the resolver expands it (with transitive dependencies) into the concrete module set to project.",
+  "profiles": {
+    "minimal": {
+      "description": "The engine, agents, and surface skills only — enough to generate and adapt plugins.",
+      "modules": ["engine-core", "agents-core", "skills-core", "manifests-core"]
+    },
+    "core": {
+      "description": "Default install: engine, agents, skills, commands, manifests, child templates, and the validation hook.",
+      "modules": ["engine-core", "agents-core", "skills-core", "commands-core", "manifests-core", "child-templates", "hooks-runtime"]
+    },
+    "full": {
+      "description": "Everything, including localized documentation.",
+      "modules": ["engine-core", "agents-core", "skills-core", "commands-core", "manifests-core", "child-templates", "hooks-runtime", "docs-i18n"]
+    }
+  }
+}

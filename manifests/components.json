@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "description": "Fine-grained components. Each component is a stable, individually addressable unit (an agent, a skill, a command) that resolves to one or more modules. The componentId is the unit of change the evolution delta engine keys off.",
+  "components": [
+    { "id": "agent:plugin-architect", "family": "agent", "description": "Briefing to architecture; hosts the compositional harness lens.", "modules": ["agents-core"] },
+    { "id": "agent:provider-detector", "family": "agent", "description": "Resolve target providers; fingerprint a source plugin for ADAPT.", "modules": ["agents-core"] },
+    { "id": "agent:capability-extractor", "family": "agent", "description": "Lift a single-provider plugin into canonical capabilities.", "modules": ["agents-core"] },
+    { "id": "agent:canonical-projector", "family": "agent", "description": "Project canonical onto every provider; the only writer agent.", "modules": ["agents-core"] },
+    { "id": "agent:compliance-validator", "family": "agent", "description": "Audit governance, parity, prompt-defense, and self-sufficiency.", "modules": ["agents-core"] },
+
+    { "id": "skill:generate", "family": "skill", "description": "Generate a multi-provider plugin from a briefing.", "modules": ["skills-core"] },
+    { "id": "skill:adapt", "family": "skill", "description": "Adapt a single-provider plugin to all providers.", "modules": ["skills-core"] },
+    { "id": "skill:audit", "family": "skill", "description": "Deep methodology and governance audit.", "modules": ["skills-core"] },
+    { "id": "skill:validate", "family": "skill", "description": "Fast pre-ship structural validation gate.", "modules": ["skills-core"] },
+    { "id": "skill:harness-lens", "family": "skill", "description": "Opt-in exploration of the compositional harness lens.", "modules": ["skills-core"] },
+
+    { "id": "command:generate", "family": "command", "description": "Slash shim for generate.", "modules": ["commands-core"] },
+    { "id": "command:adapt", "family": "command", "description": "Slash shim for adapt.", "modules": ["commands-core"] },
+    { "id": "command:audit", "family": "command", "description": "Slash shim for audit.", "modules": ["commands-core"] },
+    { "id": "command:validate", "family": "command", "description": "Slash shim for validate.", "modules": ["commands-core"] },
+    { "id": "command:harness-lens", "family": "command", "description": "Slash shim for harness-lens.", "modules": ["commands-core"] },
+
+    { "id": "engine:projection", "family": "engine", "description": "Registry, resolver, projector, executor, builder.", "modules": ["engine-core"] },
+    { "id": "engine:governance", "family": "engine", "description": "SemVer sync, parity, compliance, prompt-defense.", "modules": ["engine-core"] },
+
+    { "id": "template:evolution", "family": "template", "description": "Child-injected self-evolution engine.", "modules": ["child-templates"] },
+    { "id": "template:migration", "family": "template", "description": "Child-injected conditional migration engine.", "modules": ["child-templates"] },
+    { "id": "template:governance", "family": "template", "description": "Child-injected governance and i18n scaffolding.", "modules": ["child-templates"] }
+  ]
+}

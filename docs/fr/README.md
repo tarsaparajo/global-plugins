@@ -1,0 +1,76 @@
+**Language:** [English](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../zh-CN/README.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | [Español](../es/README.md) | Français | [Italiano](../it/README.md)
+
+# Global Plugins
+
+**Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
+
+[English](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../zh-CN/README.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | [Español](../es/README.md) | Français | [Italiano](../it/README.md)
+
+---
+
+## Vue d'ensemble
+
+**Global Plugins** crée et maintient des plugins d'IA pour l'assistance au code, compatibles avec plusieurs fournisseurs. Vous écrivez un plugin une seule fois dans une **source canonique** indépendante de tout fournisseur ; un moteur déterministe la **projette** vers le format natif de chaque fournisseur pris en charge. Ces projections sont des artefacts versionnés — jamais modifiés à la main, toujours régénérés depuis la source canonique. Le résultat : une seule vérité, plusieurs fournisseurs, en synchronisation parfaite.
+
+C'est l'outil idéal pour quiconque souhaite qu'un plugin fonctionne partout sans avoir à maintenir une copie distincte par outil — le tout décrit en langage clair, sans exiger de connaissances techniques poussées.
+
+## Fonctionnalités
+
+### GENERATE (générer)
+
+Décrivez un plugin en langage naturel et Global Plugins en conçoit l'architecture complète — skills, agents, hooks, commandes, permissions — puis le projette vers chaque fournisseur sélectionné, avec l'auto-évolution intégrée d'emblée.
+
+### ADAPT (adapter)
+
+Pointez vers un plugin conçu pour un seul fournisseur et Global Plugins l'élève à sa forme canonique puis le projette vers tous les fournisseurs, en préservant 100 % de ses fonctionnalités d'origine.
+
+### EVOLVE (faire évoluer)
+
+Chaque plugin produit est livré avec son propre moteur d'évolution : modifiez la source canonique une seule fois, et le changement est répercuté sur chaque fournisseur — avec validation de la parité, incrément de version, entrée au changelog et au registre, ainsi qu'une migration conditionnelle pour les copies déjà installées. Une seule confirmation avant la moindre écriture.
+
+## Matrice des fournisseurs
+
+| Fournisseur | Portée | Racine | Transformation notable | Build |
+|----------|-------|------|-------------------|-------|
+| claude | poste utilisateur | `.claude` | copie ; fusion MCP | — |
+| claude (projet) | projet | `.claude` | copie ; fusion MCP | — |
+| codex | poste utilisateur | `.codex` | agents en TOML ; `AGENTS.md` + `config.toml` | — |
+| opencode | poste utilisateur | `.opencode` | copie ; plugin compilé sous `dist/` | oui |
+| cursor | projet | `.cursor` | règles en `.mdc` ; fusion MCP | — |
+| kiro | projet | `.kiro` | agents en `.md` + `.json` ; fusion MCP | — |
+| gemini | projet | `.gemini` | fichier unique `GEMINI.md` | — |
+| qwen | poste utilisateur | `.qwen` | fichier unique `QWEN.md` | — |
+| zed | projet | `.zed` | règles à plat ; fusion `settings.json` | — |
+| codebuddy | projet | `.codebuddy` | règles à plat ; script d'installation | — |
+| joycode | projet | `.joycode` | règles à plat ; script d'installation | — |
+| antigravity | projet | `.agent` | remappe commandes/agents vers workflows/skills | — |
+| trae | projet | `.trae` | règles à plat ; script d'installation | — |
+| vscode | projet | `.github` | `copilot-instructions.md` consolidé + `.vscode/settings.json` | — |
+
+**Portée :** les fournisseurs de type *poste utilisateur* conservent une configuration globale par utilisateur (une CLI) ; les fournisseurs de type *projet* conservent leur configuration au sein du dépôt (un IDE/éditeur).
+
+Le registre est ouvert. De nouveaux fournisseurs peuvent être ajoutés en étendant le registre avec une entrée réelle, un contrat de fournisseur, un module d'adaptateur et un test.
+
+## Installation
+
+Installez depuis une place de marché de plugins, ou manuellement en copiant ce répertoire dans votre emplacement de plugins. Les dossiers de configuration versionnés (dotfolders) des fournisseurs sont de véritables artefacts, régénérés par re-projection — ne les modifiez jamais à la main.
+
+## Utilisation
+
+| Commande | Ce qu'elle fait |
+|---------|--------------|
+| `/global-plugins:generate <briefing>` | Génère un plugin multi-fournisseurs à partir d'une description. |
+| `/global-plugins:adapt <path>` | Adapte un plugin mono-fournisseur à tous les fournisseurs. |
+| `/global-plugins:audit <path>` | Audit approfondi d'un plugin, en lecture seule. |
+| `/global-plugins:validate <path>` | Contrôle rapide de validation réussite/échec. |
+| `/global-plugins:harness-lens <idea>` | Explore la façon dont une idée de plugin serait composée. |
+
+Les plugins générés sont en plus livrés avec `/<plugin>:evolve` et `/<plugin>:migrate` pour l'auto-évolution.
+
+## Architecture interne
+
+Source canonique → **résolveur** (registre des fournisseurs + manifestes à 3 niveaux : profils → modules → composants) → modules de **projection** par fournisseur → **exécuteur** de projection. Une lentille de conception compositionnelle façonne le harness d'un plugin à partir d'une requête en langage naturel. La gouvernance (synchronisation SemVer, changelog, parité, défense des prompts, conformité) est intégrée au moteur.
+
+## Licence
+
+MIT — Tarsa · [buymeacoffee.com/tarsaparajo](https://buymeacoffee.com/tarsaparajo)

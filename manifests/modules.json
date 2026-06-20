@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "description": "Installable modules. Each module lists the canonical paths it owns, the provider targets[] it can project to (the per-provider compatibility registry), its transitive dependencies, cost, and stability.",
+  "modules": [
+    {
+      "id": "engine-core",
+      "kind": "engine",
+      "description": "The deterministic projection engine: registry, resolver, projector, executor, builder, parity, semver, prompt-defense, compliance, and per-provider adapter modules.",
+      "paths": [
+        "engine",
+        "adapters"
+      ],
+      "targets": [
+        "claude",
+        "claude-project"
+      ],
+      "dependencies": [],
+      "defaultInstall": true,
+      "cost": "light",
+      "stability": "stable"
+    },
+    {
+      "id": "agents-core",
+      "kind": "agents",
+      "description": "The five engine agents that drive generate, adapt, audit, and validate.",
+      "paths": [
+        "agents"
+      ],
+      "targets": [
+        "claude",
+        "claude-project",
+        "cursor",
+        "codex",
+        "opencode",
+        "gemini",
+        "qwen",
+        "zed",
+        "kiro",
+        "codebuddy",
+        "joycode",
+        "antigravity",
+        "trae",
+        "vscode"
+      ],
+      "dependencies": [],
+      "defaultInstall": true,
+      "cost": "light",
+      "stability": "stable"
+    },
+    {
+      "id": "skills-core",
+      "kind": "skills",
+      "description": "The surface skills: generate, adapt, audit, validate, and the opt-in harness-lens explorer.",
+      "paths": [
+        "skills"
+      ],
+      "targets": [
+        "claude",
+        "claude-project",
+        "cursor",
+        "codex",
+        "opencode",
+        "gemini",
+        "qwen",
+        "zed",
+        "kiro",
+        "codebuddy",
+        "joycode",
+        "antigravity",
+        "trae",
+        "vscode"
+      ],
+      "dependencies": [
+        "agents-core",
+        "engine-core"
+      ],
+      "defaultInstall": true,
+      "cost": "medium",
+      "stability": "stable"
+    },
+    {
+      "id": "commands-core",
+      "kind": "commands",
+      "description": "Thin slash-command shims that expose the surface skills.",
+      "paths": [
+        "commands"
+      ],
+      "targets": [
+        "claude",
+        "claude-project",
+        "cursor",
+        "codex",
+        "opencode",
+        "zed",
+        "kiro",
+        "codebuddy",
+        "joycode",
+        "antigravity",
+        "trae",
+        "vscode"
+      ],
+      "dependencies": [
+        "skills-core"
+      ],
+      "defaultInstall": true,
+      "cost": "light",
+      "stability": "stable"
+    },
+    {
+      "id": "manifests-core",
+      "kind": "platform",
+      "description": "The 3-tier manifests and the provider registry the engine resolves against.",
+      "paths": [
+        "manifests",
+        "config"
+      ],
+      "targets": [
+        "claude",
+        "claude-project"
+      ],
+      "dependencies": [
+        "engine-core"
+      ],
+      "defaultInstall": true,
+      "cost": "light",
+      "stability": "stable"
+    },
+    {
+      "id": "child-templates",
+      "kind": "templates",
+      "description": "Everything injected into a generated plugin: the evolution and migration engine, governance templates, and the Prompt Defense Baseline.",
+      "paths": [
+        "templates"
+      ],
+      "targets": [
+        "claude",
+        "claude-project"
+      ],
+      "dependencies": [
+        "engine-core"
+      ],
+      "defaultInstall": true,
+      "cost": "medium",
+      "stability": "stable"
+    },
+    {
+      "id": "hooks-runtime",
+      "kind": "hooks",
+      "description": "Post-generation validation hook configuration.",
+      "paths": [
+        "hooks"
+      ],
+      "targets": [
+        "claude",
+        "claude-project",
+        "cursor",
+        "opencode",
+        "trae",
+        "vscode"
+      ],
+      "dependencies": [],
+      "defaultInstall": true,
+      "cost": "light",
+      "stability": "stable"
+    },
+    {
+      "id": "docs-i18n",
+      "kind": "docs",
+      "description": "Localized README documents under docs/<locale>/.",
+      "paths": [
+        "docs"
+      ],
+      "targets": [
+        "claude",
+        "claude-project"
+      ],
+      "dependencies": [],
+      "defaultInstall": false,
+      "cost": "heavy",
+      "stability": "stable"
+    }
+  ]
+}

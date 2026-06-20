@@ -1,0 +1,21 @@
+{
+  "name": "global-plugins",
+  "version": "0.1.0",
+  "description": "Generate and adapt multi-provider AI coding plugins from a single canonical source, projected to every supported provider with self-evolution built in.",
+  "license": "MIT",
+  "author": {
+    "name": "Tarsa",
+    "email": "tarsaparajo@gmail.com",
+    "url": "https://buymeacoffee.com/tarsaparajo"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node tests/run-all.js",
+    "validate": "node -e \"const c=require('./engine/compliance');const r=c.audit(process.cwd());console.log(JSON.stringify(r,null,2));process.exit(r.ok?0:1)\"",
+    "sync-version": "node -e \"console.log(require('./engine/semver').sync(process.cwd()))\""
+  },
+  "private": true
+}
