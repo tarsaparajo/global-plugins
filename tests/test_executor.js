@@ -45,11 +45,11 @@ test('executor is idempotent — re-applying yields identical bytes', () => {
   const root = makeCanonicalFixture();
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'gp-out-'));
   try {
-    const plan = planScaffold({ target: 'cursor', repoRoot: root, projectRoot: out, homeDir: out, modules: fixtureModules() });
+    const plan = planScaffold({ target: 'claude', repoRoot: root, projectRoot: out, homeDir: out, modules: fixtureModules() });
     executor.applyPlan(plan, { repoRoot: root, generators });
-    const ruleFirst = fs.readFileSync(path.join(out, '.cursor', 'rules', 'style.mdc'), 'utf8');
+    const ruleFirst = fs.readFileSync(path.join(out, '.claude', 'agents', 'reviewer.md'), 'utf8');
     executor.applyPlan(plan, { repoRoot: root, generators });
-    const ruleSecond = fs.readFileSync(path.join(out, '.cursor', 'rules', 'style.mdc'), 'utf8');
+    const ruleSecond = fs.readFileSync(path.join(out, '.claude', 'agents', 'reviewer.md'), 'utf8');
     assert.strictEqual(ruleFirst, ruleSecond);
   } finally {
     cleanup(root); cleanup(out);

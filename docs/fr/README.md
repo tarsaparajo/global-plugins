@@ -41,27 +41,16 @@ Chaque plugin produit est livré avec son propre moteur d'évolution : modifiez 
 | Fournisseur | Portée | Racine | Transformation notable | Build |
 |----------|-------|------|-------------------|-------|
 | claude | poste utilisateur | `.claude` | copie ; fusion MCP | — |
-| claude (projet) | projet | `.claude` | copie ; fusion MCP | — |
-| codex | poste utilisateur | `.codex` | agents en TOML ; `AGENTS.md` + `config.toml` | — |
+| codex | poste utilisateur | `.codex` | agents en TOML ; index `AGENTS.md` + fichiers frères skills/commands + `config.toml` | — |
 | opencode | poste utilisateur | `.opencode` | copie ; plugin compilé sous `dist/` | oui |
-| cursor | projet | `.cursor` | règles en `.mdc` ; fusion MCP | — |
-| kiro | projet | `.kiro` | agents en `.md` + `.json` ; fusion MCP | — |
-| gemini | projet | `.gemini` | fichier unique `GEMINI.md` | — |
-| qwen | poste utilisateur | `.qwen` | fichier unique `QWEN.md` | — |
-| zed | projet | `.zed` | règles à plat ; fusion `settings.json` | — |
-| codebuddy | projet | `.codebuddy` | règles à plat ; script d'installation | — |
-| joycode | projet | `.joycode` | règles à plat ; script d'installation | — |
-| antigravity | projet | `.agent` | remappe commandes/agents vers workflows/skills | — |
-| trae | projet | `.trae` | règles à plat ; script d'installation | — |
-| vscode | projet | `.github` | `copilot-instructions.md` consolidé + `.vscode/settings.json` | — |
 
-**Portée :** les fournisseurs de type *poste utilisateur* conservent une configuration globale par utilisateur (une CLI) ; les fournisseurs de type *projet* conservent leur configuration au sein du dépôt (un IDE/éditeur).
+**Portée :** les trois sont des fournisseurs de type *poste utilisateur* (CLI) — chacun conserve une configuration globale par utilisateur dans votre répertoire personnel.
 
 Le registre est ouvert. De nouveaux fournisseurs peuvent être ajoutés en étendant le registre avec une entrée réelle, un contrat de fournisseur, un module d'adaptateur et un test.
 
 ## Installation
 
-Le dossier de configuration (dotfolder) versionné de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Les fournisseurs *poste utilisateur* (CLI) s'installent dans votre répertoire personnel (`~/`) ; les fournisseurs *projet* (IDE/éditeurs) s'installent à la racine du dépôt. Choisissez votre fournisseur ci-dessous.
+Le dossier de configuration (dotfolder) versionné de chaque fournisseur est un artefact réel, prêt à l'emploi, régénéré par re-projection — ne le modifiez jamais à la main. Les trois sont des fournisseurs *poste utilisateur* (CLI) et s'installent dans votre répertoire personnel (`~/`). Choisissez votre fournisseur ci-dessous.
 
 ### Claude Code
 
@@ -70,7 +59,7 @@ Le dossier de configuration (dotfolder) versionné de chaque fournisseur est un 
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ou bien copiez `.claude` dans `~/.claude` (global) ou `<repo>/.claude` (par projet). Les commandes `/plugin` sont propres à Claude Code.
+Ou bien copiez `.claude` dans `~/.claude`. Les commandes `/plugin` sont propres à Claude Code.
 
 ### Codex
 
@@ -78,7 +67,7 @@ Ou bien copiez `.claude` dans `~/.claude` (global) ou `<repo>/.claude` (par proj
 cp -r .codex ~/.codex
 ```
 
-Configuration globale de la CLI. `AGENTS.md` + `config.toml` et `.codex/agents/*.toml` sont détectés automatiquement lorsque vous lancez `codex` dans le projet.
+Configuration globale de la CLI. L'index `AGENTS.md`, `config.toml`, les fichiers frères skills/commands et `.codex/agents/*.toml` sont détectés automatiquement lorsque vous lancez `codex` dans le projet.
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 Configuration globale de la CLI. L'étape de build produit `.opencode/dist/` et est requise avant utilisation.
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-Configuration globale de la CLI. Tout le contexte d'instructions tient dans le fichier unique `QWEN.md`.
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-Configuration projet de l'IDE. Cursor charge automatiquement `.cursor/rules/*.mdc`, `.cursor/agents/`, et fusionne `.cursor/mcp.json`.
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-Configuration projet. Fournisseur à fichier unique — tout le contexte est consolidé dans `.gemini/GEMINI.md`.
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-Configuration projet de l'IDE. Les agents sont livrés en `.md` + `.json` ; `.kiro/mcp.json` est fusionné.
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-Configuration projet de l'éditeur. Les règles sont mises à plat ; `.zed/settings.json` est fusionné.
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # copilot-instructions.md consolidé
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-Configuration projet. Tout le contexte d'instructions est consolidé dans `.github/copilot-instructions.md`.
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-Configuration projet de l'IDE. Les commandes/agents sont remappés vers les workflows et skills d'Antigravity.
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-Configuration projet. Commandes, agents, skills et règles mises à plat ; livré avec un script d'installation.
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-Configuration projet. Commandes, agents, skills et règles mises à plat ; livré avec un script d'installation.
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-Configuration projet de l'IDE. Commandes, agents, skills et règles mises à plat ; livré avec un script d'installation.
 
 Consultez la [Matrice des fournisseurs](#provider-matrix) pour connaître la transformation exacte qu'applique chaque fournisseur.
 

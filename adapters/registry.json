@@ -6,35 +6,18 @@
       "id": "claude-home",
       "target": "claude",
       "kind": "home",
-      "rootSegments": [".claude"],
-      "installStatePathSegments": ["global-plugins", "install-state.json"],
+      "rootSegments": [
+        ".claude"
+      ],
+      "installStatePathSegments": [
+        "global-plugins",
+        "install-state.json"
+      ],
       "nativeRootRelativePath": ".claude-plugin",
-      "transforms": ["copy-path", "merge-json:.mcp.json", "resolve-hooks-plugin-root", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "claude-project",
-      "target": "claude-project",
-      "kind": "project",
-      "rootSegments": [".claude"],
-      "installStatePathSegments": ["global-plugins", "install-state.json"],
-      "nativeRootRelativePath": ".claude-plugin",
-      "transforms": ["copy-path", "merge-json:.mcp.json", "resolve-hooks-plugin-root", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "cursor-project",
-      "target": "cursor",
-      "kind": "project",
-      "rootSegments": [".cursor"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".cursor",
       "transforms": [
-        "flat-rule:md->mdc:drop-readme",
-        "flat-file:agents:mangle-agent-name",
-        "merge-json:.mcp.json->mcp.json",
-        "skip:AGENTS.md",
-        "dedupe-destinations",
+        "copy-path",
+        "merge-json:.mcp.json",
+        "resolve-hooks-plugin-root",
         "inject-prompt-defense"
       ],
       "stability": "stable"
@@ -43,115 +26,45 @@
       "id": "codex-home",
       "target": "codex",
       "kind": "home",
-      "rootSegments": [".codex"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
+      "rootSegments": [
+        ".codex"
+      ],
+      "installStatePathSegments": [
+        "global-plugins-install-state.json"
+      ],
       "nativeRootRelativePath": ".codex",
-      "transforms": ["agents->toml", "emit:AGENTS.md", "emit:config.toml", "inject-prompt-defense:string-field"],
-      "stability": "stable"
-    },
-    {
-      "id": "gemini-project",
-      "target": "gemini",
-      "kind": "project",
-      "rootSegments": [".gemini"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".gemini",
-      "transforms": ["single-file:GEMINI.md", "inject-prompt-defense:single-file"],
-      "stability": "stable"
-    },
-    {
-      "id": "qwen-home",
-      "target": "qwen",
-      "kind": "home",
-      "rootSegments": [".qwen"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".qwen",
-      "transforms": ["single-file:QWEN.md", "inject-prompt-defense:single-file"],
+      "transforms": [
+        "agents->toml",
+        "emit:AGENTS.md",
+        "emit:config.toml",
+        "inject-prompt-defense:string-field"
+      ],
       "stability": "stable"
     },
     {
       "id": "opencode-home",
       "target": "opencode",
       "kind": "home",
-      "rootSegments": [".opencode"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
+      "rootSegments": [
+        ".opencode"
+      ],
+      "installStatePathSegments": [
+        "global-plugins-install-state.json"
+      ],
       "nativeRootRelativePath": ".opencode",
       "buildStep": {
         "command": "node engine/build-opencode.js",
-        "requires": [".opencode/dist/index.js", ".opencode/dist/plugins/", ".opencode/dist/tools/"]
+        "requires": [
+          ".opencode/dist/index.js",
+          ".opencode/dist/plugins/",
+          ".opencode/dist/tools/"
+        ]
       },
-      "transforms": ["copy-path", "compiled-plugin:dist", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "zed-project",
-      "target": "zed",
-      "kind": "project",
-      "rootSegments": [".zed"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".zed",
-      "transforms": ["flat-rule", "merge-json:settings.json", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "kiro-project",
-      "target": "kiro",
-      "kind": "project",
-      "rootSegments": [".kiro"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".kiro",
-      "transforms": ["agents:md+json", "merge-json:settings/mcp.json", "flat-rule", "inject-prompt-defense"],
-      "stability": "beta"
-    },
-    {
-      "id": "codebuddy-project",
-      "target": "codebuddy",
-      "kind": "project",
-      "rootSegments": [".codebuddy"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".codebuddy",
-      "transforms": ["flat-rule", "copy-path", "emit:install-script", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "joycode-project",
-      "target": "joycode",
-      "kind": "project",
-      "rootSegments": [".joycode"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".joycode",
-      "transforms": ["flat-rule", "copy-path", "emit:install-script", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "antigravity-project",
-      "target": "antigravity",
-      "kind": "project",
-      "rootSegments": [".agent"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".agent",
-      "supportsModule": "non-empty-paths",
-      "transforms": ["flat-rule", "remap:commands->workflows", "remap:agents->skills", "copy-path", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "trae-project",
-      "target": "trae",
-      "kind": "project",
-      "rootSegments": [".trae"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".trae",
-      "transforms": ["flat-rule", "copy-path", "emit:install-script", "inject-prompt-defense"],
-      "stability": "stable"
-    },
-    {
-      "id": "vscode-project",
-      "target": "vscode",
-      "kind": "project",
-      "rootSegments": [".github"],
-      "installStatePathSegments": ["global-plugins-install-state.json"],
-      "nativeRootRelativePath": ".github",
-      "transforms": ["consolidate:copilot-instructions", "emit:vscode-settings", "inject-prompt-defense:single-file"],
+      "transforms": [
+        "copy-path",
+        "compiled-plugin:dist",
+        "inject-prompt-defense"
+      ],
       "stability": "stable"
     }
   ]

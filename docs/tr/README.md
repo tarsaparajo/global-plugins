@@ -41,27 +41,16 @@ Tek bir sağlayıcı için yazılmış bir eklentiyi gösterin; Global Plugins o
 | Sağlayıcı | Kapsam | Kök | Dikkat çeken dönüşüm | Derleme |
 |----------|-------|------|-------------------|-------|
 | claude | home | `.claude` | kopyalama; MCP birleştirme | — |
-| claude (proje) | proje | `.claude` | kopyalama; MCP birleştirme | — |
-| codex | home | `.codex` | agent'ları TOML'a; `AGENTS.md` + `config.toml` | — |
+| codex | home | `.codex` | agent'ları TOML'a; `AGENTS.md` indeksi + skill/komut kardeş dosyaları + `config.toml` | — |
 | opencode | home | `.opencode` | kopyalama; `dist/` altında derlenmiş eklenti | evet |
-| cursor | proje | `.cursor` | kurallar `.mdc`'ye; MCP birleştirme | — |
-| kiro | proje | `.kiro` | agent'lar `.md` + `.json` olarak; MCP birleştirme | — |
-| gemini | proje | `.gemini` | tek dosyalık `GEMINI.md` | — |
-| qwen | home | `.qwen` | tek dosyalık `QWEN.md` | — |
-| zed | proje | `.zed` | düz kurallar; `settings.json` birleştirme | — |
-| codebuddy | proje | `.codebuddy` | düz kurallar; kurulum betiği | — |
-| joycode | proje | `.joycode` | düz kurallar; kurulum betiği | — |
-| antigravity | proje | `.agent` | komutları/agent'ları workflow'lara/skill'lere yeniden eşleme | — |
-| trae | proje | `.trae` | düz kurallar; kurulum betiği | — |
-| vscode | proje | `.github` | birleştirilmiş `copilot-instructions.md` + `.vscode/settings.json` | — |
 
-**Kapsam:** *home* sağlayıcıları, kullanıcı başına genel bir yapılandırma tutar (bir CLI); *project* sağlayıcıları ise yapılandırmayı deponun içinde tutar (bir IDE/editör).
+**Kapsam:** üçünün de *home* sağlayıcısı olması (CLI'lar) — her biri ev dizininizde kullanıcı başına genel bir yapılandırma tutar.
 
 Kayıt defteri (registry) açıktır. Kayıt defterini gerçek bir girdi, bir sağlayıcı sözleşmesi (contract), bir adaptör modülü ve bir testle genişleterek yeni sağlayıcılar eklenebilir.
 
 ## Kurulum
 
-Her sağlayıcının commit edilmiş nokta klasörü, yeniden yansıtmayla üretilen gerçek, kullanıma hazır bir yapıttır; asla elle düzenlemeyin. *home* sağlayıcıları (CLI'lar) ev dizininize (`~/`) kurulur; *project* sağlayıcıları (IDE'ler/editörler) depo köküne kurulur. Aşağıdan sağlayıcınızı seçin.
+Her sağlayıcının commit edilmiş nokta klasörü, yeniden yansıtmayla üretilen gerçek, kullanıma hazır bir yapıttır; asla elle düzenlemeyin. Üçü de *home* sağlayıcısıdır (CLI'lar) ve ev dizininize (`~/`) kurulur. Aşağıdan sağlayıcınızı seçin.
 
 ### Claude Code
 
@@ -70,7 +59,7 @@ Her sağlayıcının commit edilmiş nokta klasörü, yeniden yansıtmayla üret
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ya da `.claude` klasörünü `~/.claude` (genel) veya `<repo>/.claude` (proje başına) konumuna kopyalayın. `/plugin` komutları yalnızca Claude Code içindir.
+Ya da `.claude` klasörünü `~/.claude` konumuna kopyalayın. `/plugin` komutları yalnızca Claude Code içindir.
 
 ### Codex
 
@@ -78,7 +67,7 @@ Ya da `.claude` klasörünü `~/.claude` (genel) veya `<repo>/.claude` (proje ba
 cp -r .codex ~/.codex
 ```
 
-CLI genel yapılandırması. Projede `codex` komutunu çalıştırdığınızda `AGENTS.md` + `config.toml` ve `.codex/agents/*.toml` otomatik olarak algılanır.
+CLI genel yapılandırması. Projede `codex` komutunu çalıştırdığınızda `AGENTS.md` indeksi, `config.toml`, kardeş skill/komut dosyaları ve `.codex/agents/*.toml` otomatik olarak algılanır.
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 CLI genel yapılandırması. Derleme adımı `.opencode/dist/` klasörünü üretir ve kullanımdan önce gereklidir.
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-CLI genel yapılandırması. Tüm yönerge bağlamı tek bir `QWEN.md` dosyasında bulunur.
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-Proje IDE yapılandırması. Cursor, `.cursor/rules/*.mdc`, `.cursor/agents/` öğelerini otomatik yükler ve `.cursor/mcp.json` dosyasını birleştirir.
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-Proje yapılandırması. Tek dosyalık sağlayıcı — tüm bağlam `.gemini/GEMINI.md` içinde toplanır.
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-Proje IDE yapılandırması. Agent'lar `.md` + `.json` olarak gelir; `.kiro/mcp.json` birleştirilir.
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-Proje editör yapılandırması. Kurallar düzleştirilir; `.zed/settings.json` birleştirilir.
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # birleştirilmiş copilot-instructions.md
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-Proje yapılandırması. Tüm yönerge bağlamı `.github/copilot-instructions.md` içinde toplanır.
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-Proje IDE yapılandırması. Komutlar/agent'lar Antigravity workflow'larına ve skill'lerine yeniden eşlenir.
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-Proje yapılandırması. Komutlar, agent'lar, skill'ler ve düzleştirilmiş kurallar; bir kurulum betiğiyle birlikte gelir.
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-Proje yapılandırması. Komutlar, agent'lar, skill'ler ve düzleştirilmiş kurallar; bir kurulum betiğiyle birlikte gelir.
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-Proje IDE yapılandırması. Komutlar, agent'lar, skill'ler ve düzleştirilmiş kurallar; bir kurulum betiğiyle birlikte gelir.
 
 Her sağlayıcının uyguladığı tam dönüşüm için [Sağlayıcı Matrisi](#provider-matrix) bölümüne bakın.
 

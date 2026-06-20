@@ -16,7 +16,7 @@ The harness lens is the plugin-architect's internal, compositional tool. It comp
 | # | Dimension | Plugin meaning | Maps to | Dropped (does not fit a plugin) |
 |---|-----------|----------------|---------|--------------------------------|
 | 1 | Identity | Agent persona, command namespace | agents frontmatter, commands, plugin.json | UI/brand chrome; multi-persona (opt-in) |
-| 2 | Context | Project signal ingestion, scope | skill references/, repo-scan scripts, home/project scope | conversational history; org KB (MCP opt-in) |
+| 2 | Context | Project signal ingestion, scope | skill references/, repo-scan scripts, home scope | conversational history; org KB (MCP opt-in) |
 | 3 | Memory | Settings, ledgers, state files | .local.md settings, EVOLUTION.md, CHANGELOG, VERSION, migrations | vector memory; cloud sync (opt-in) |
 | 4 | Skills | The verbs | skills, agents, scripts | (none structural; flag runtime-dependent capabilities) |
 | 5 | Protocols | Gates, ordering, primitives | hooks, compliance/parity scripts, step contracts | wire/RPC (MCP); external approval flows (opt-in) |
@@ -32,7 +32,7 @@ Prompt Defense Baseline in every model-facing `.md`; SemVer/CHANGELOG governance
 ## Worked compositions
 
 - **"Review my PRs, flag risk, never push."** → Skills + Permission + Observability + Communication + Control. A review skill + reviewer agent (tools limited to read/grep/git-diff, no push), a risk-report script + report hook, a ranked-risk output contract, a Stop-hook gate. Identity/Context/Memory offered as opt-in.
-- **"Make my Cursor plugin work everywhere, warn before overwriting."** → Skills + Context + Protocols + Control + Observability + Communication (the adapt capability): source ingest, operation primitives + foreign-path guard, propagation-plan gate + dry-run + rollback, parity validator, plan + CHANGELOG entry.
+- **"Make my Codex plugin work everywhere, warn before overwriting."** → Skills + Context + Protocols + Control + Observability + Communication (the adapt capability): source ingest, operation primitives + foreign-path guard, propagation-plan gate + dry-run + rollback, parity validator, plan + CHANGELOG entry.
 - **"Build a deploy assistant from this briefing, ask once then do it all, keep version history, speak my language."** → all nine, at full amplitude (the generate capability), including the injected evolve surface and the README selector.
 
 ## Invariants

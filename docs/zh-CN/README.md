@@ -41,27 +41,16 @@
 | 服务商 | 范围 | 根目录 | 关键转换 | 需构建 |
 |----------|-------|------|-------------------|-------|
 | claude | home | `.claude` | 复制；MCP 合并 | — |
-| claude (project) | project | `.claude` | 复制；MCP 合并 | — |
-| codex | home | `.codex` | 智能体转 TOML；`AGENTS.md` + `config.toml` | — |
+| codex | home | `.codex` | 智能体转 TOML；`AGENTS.md` 索引 + 同级的 skills/commands 文件 + `config.toml` | — |
 | opencode | home | `.opencode` | 复制；编译后的插件置于 `dist/` 下 | 是 |
-| cursor | project | `.cursor` | 规则转 `.mdc`；MCP 合并 | — |
-| kiro | project | `.kiro` | 智能体以 `.md` + `.json` 形式；MCP 合并 | — |
-| gemini | project | `.gemini` | 单文件 `GEMINI.md` | — |
-| qwen | home | `.qwen` | 单文件 `QWEN.md` | — |
-| zed | project | `.zed` | 规则平铺；`settings.json` 合并 | — |
-| codebuddy | project | `.codebuddy` | 规则平铺；安装脚本 | — |
-| joycode | project | `.joycode` | 规则平铺；安装脚本 | — |
-| antigravity | project | `.agent` | 将命令/智能体重映射为工作流/技能 | — |
-| trae | project | `.trae` | 规则平铺；安装脚本 | — |
-| vscode | project | `.github` | 合并为 `copilot-instructions.md` + `.vscode/settings.json` | — |
 
-**范围：** *home* 类服务商保留一份全局的、按用户区分的配置（命令行工具）；*project* 类服务商将配置保留在仓库内部（IDE/编辑器）。
+**范围：** 三家全部为 *home* 类服务商（命令行工具）——每一家都在你的主目录中保留一份全局的、按用户区分的配置。
 
 注册表是开放的。要新增服务商，只需在注册表中扩展一个真实条目、一份服务商契约、一个适配器模块以及一个测试。
 
 ## 安装
 
-每个服务商已纳入版本管理的点目录（dotfolder）都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。*home* 类服务商（命令行工具）安装到你的主目录（`~/`）；*project* 类服务商（IDE/编辑器）安装到仓库根目录。请在下方选择你的服务商。
+每个服务商已纳入版本管理的点目录（dotfolder）都是真实、开箱即用的产物，由重新投影自动生成——切勿手工编辑。三家全部为 *home* 类服务商（命令行工具），均安装到你的主目录（`~/`）。请在下方选择你的服务商。
 
 ### Claude Code
 
@@ -70,7 +59,7 @@
 /plugin install tarsaparajo@global-plugins
 ```
 
-或将 `.claude` 复制到 `~/.claude`（全局）或 `<repo>/.claude`（按项目）。`/plugin` 命令仅适用于 Claude Code。
+或将 `.claude` 复制到 `~/.claude`。`/plugin` 命令仅适用于 Claude Code。
 
 ### Codex
 
@@ -78,7 +67,7 @@
 cp -r .codex ~/.codex
 ```
 
-命令行工具的全局配置。当你在项目中运行 `codex` 时，`AGENTS.md` + `config.toml` 以及 `.codex/agents/*.toml` 会被自动检测。
+命令行工具的全局配置。当你在项目中运行 `codex` 时，`AGENTS.md` 索引、`config.toml`、同级的 skills/commands 文件以及 `.codex/agents/*.toml` 会被自动检测。
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 命令行工具的全局配置。构建步骤会生成 `.opencode/dist/`，使用前必须先执行。
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-命令行工具的全局配置。所有指令上下文都集中在单个 `QWEN.md` 文件中。
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-项目级 IDE 配置。Cursor 会自动加载 `.cursor/rules/*.mdc`、`.cursor/agents/`，并合并 `.cursor/mcp.json`。
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-项目级配置。单文件服务商——所有上下文都整合到 `.gemini/GEMINI.md` 中。
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-项目级 IDE 配置。智能体以 `.md` + `.json` 形式提供；`.kiro/mcp.json` 会被合并。
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-项目级编辑器配置。规则被平铺；`.zed/settings.json` 会被合并。
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # 整合后的 copilot-instructions.md
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-项目级配置。所有指令上下文都整合到 `.github/copilot-instructions.md` 中。
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-项目级 IDE 配置。命令/智能体被重映射为 Antigravity 的工作流与技能。
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-项目级配置。命令、智能体、技能以及平铺后的规则；附带安装脚本。
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-项目级配置。命令、智能体、技能以及平铺后的规则；附带安装脚本。
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-项目级 IDE 配置。命令、智能体、技能以及平铺后的规则；附带安装脚本。
 
 请参阅[服务商矩阵](#provider-matrix)，了解每个服务商应用的具体转换。
 

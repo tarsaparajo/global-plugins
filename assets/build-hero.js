@@ -170,7 +170,7 @@ svg += `<text x="438" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3"
 // Version pill — right edge anchored at the content edge (2336), sized to fit
 // the text with comfortable padding on both sides.
 (function versionPill() {
-  const label = 'v0.1.2 · Jun 2026';
+  const label = 'v0.2.0 · Jun 2026';
   const fontSize = 26;
   const letterSpacing = 1;
   // mono glyph advance ~0.6em; add letter-spacing per gap.
@@ -195,22 +195,13 @@ svg += `<text x="62" y="546" font-family="${SANS}" font-size="106" font-weight="
 svg += `<text x="64" y="620" font-family="${SANS}" font-size="33" fill="${MUTED}">Author once in a canonical source. Project it everywhere —</text>`;
 svg += `<text x="64" y="666" font-family="${SANS}" font-size="33" fill="${MUTED}">with self-evolution built in, <tspan fill="${TEXT}" font-weight="bold">not a copy per tool</tspan>.</text>`;
 svg += `<text x="64" y="755" font-family="${MONO}" font-size="22" letter-spacing="5" fill="#6b7682">PROJECTS TO</text>`;
-// Provider pills, three rows + a "+ more" chip
-svg += pillRow(64, 783, ['Claude Code', 'Codex', 'Cursor', 'OpenCode', 'Gemini', 'Kiro'], true);
-svg += pillRow(64, 853, ['Zed', 'Qwen', 'CodeBuddy', 'JoyCode', 'Antigravity', 'Trae'], false);
-(function lastRow() {
-  let cx = 64;
-  let p = pill(cx, 923, 'VS Code', false); svg += p.svg; cx = p.next;
-  // "+ more" chip (muted)
-  const w = 150;
-  svg += `<rect x="${cx}" y="923" width="${w}" height="52" rx="12" fill="rgba(238,242,246,0.02)" stroke="rgba(238,242,246,0.10)" stroke-width="1.5" stroke-dasharray="3 4"/>`;
-  svg += `<text x="${cx + w / 2}" y="957" text-anchor="middle" font-family="${MONO}" font-size="24" fill="#6b7682">+ more</text>`;
-})();
+// Provider pills — the three CLI providers, all active.
+svg += pillRow(64, 783, ['Claude Code', 'Codex', 'OpenCode'], true);
 
 // Cards (SKILLS shows the 5 surface skills; evolve/migrate are child-injected)
 svg += card(1064, 'AGENTS', 7, ['plugin-architect', 'provider-detector', 'capability-extractor', 'canonical-projector', 'compliance-validator', 'evolution-propagator', 'migration-analyzer']);
 svg += card(1497, 'SKILLS', 7, ['generate', 'adapt', 'audit', 'validate', 'harness-lens', 'evolve', 'migrate']);
-svg += card(1930, 'PROVIDERS', 14, ['claude', 'codex', 'cursor', 'opencode', 'gemini', 'kiro', 'zed', 'qwen', 'codebuddy', 'joycode', 'antigravity', 'trae', 'vscode']);
+svg += card(1930, 'PROVIDERS', 3, ['claude', 'codex', 'opencode']);
 
 // Footer: five groups justified (space-between) across the full content width,
 // with vertical separators centered in each gap.
@@ -220,7 +211,7 @@ svg += `<line x1="64" y1="1232" x2="2336" y2="1232" stroke="rgba(238,242,246,0.0
   const R = 2336;
   // Each group: estimated rendered width (for gap distribution).
   const groups = [
-    { kind: 'num', big: '14', label: 'PROVIDERS', w: 14 * 2 + 9 * 13 + 30 },
+    { kind: 'num', big: '3', label: 'PROVIDERS', w: 1 * 28 + 9 * 9 + 30 },
     { kind: 'num', big: '2', label: 'MODES (Generate · Adapt)', w: 1 * 28 + 24 * 12.5 + 30 },
     { kind: 'grad', big: 'SELF-EVOLVING', w: 13 * 25 },
     { kind: 'grad', big: 'MIT', w: 3 * 27 },

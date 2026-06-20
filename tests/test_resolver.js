@@ -22,17 +22,17 @@ test('resolver pulls in transitive dependencies', () => {
   assert.ok(ids.includes('engine-core'), 'skills-core depends on engine-core');
 });
 
-test('resolver resolves all fourteen provider targets', () => {
+test('resolver resolves all three provider targets', () => {
   const r = resolve(PLUGIN_ROOT, { targets: ['all'] });
-  assert.strictEqual(r.targets.length, 14);
-  for (const t of ['claude', 'claude-project', 'cursor', 'codex', 'opencode', 'gemini', 'qwen', 'zed', 'kiro', 'codebuddy', 'joycode', 'antigravity', 'trae', 'vscode']) {
+  assert.strictEqual(r.targets.length, 3);
+  for (const t of ['claude', 'codex', 'opencode']) {
     assert.ok(r.targets.includes(t), `missing target ${t}`);
   }
 });
 
 test('resolver filters targets when a subset is requested', () => {
-  const r = resolve(PLUGIN_ROOT, { targets: ['cursor', 'codex'] });
-  assert.deepStrictEqual(r.targets.sort(), ['codex', 'cursor']);
+  const r = resolve(PLUGIN_ROOT, { targets: ['opencode', 'codex'] });
+  assert.deepStrictEqual(r.targets.sort(), ['codex', 'opencode']);
 });
 
 test('resolver throws on an unknown profile', () => {

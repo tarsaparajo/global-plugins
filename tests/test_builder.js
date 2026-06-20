@@ -6,8 +6,8 @@ const assert = require('node:assert');
 const { listProviders, planScaffold } = require('../engine/registry');
 const { makeCanonicalFixture, cleanup, fixtureModules } = require('./_fixture');
 
-test('registry loads exactly fourteen adapters', () => {
-  assert.strictEqual(listProviders().length, 14);
+test('registry loads exactly three adapters', () => {
+  assert.strictEqual(listProviders().length, 3);
 });
 
 test('every adapter declares installStatePathSegments', () => {
@@ -16,14 +16,11 @@ test('every adapter declares installStatePathSegments', () => {
   }
 });
 
-test('adapter kinds match the home/project contract', () => {
+test('adapter kinds match the home contract', () => {
   const byTarget = Object.fromEntries(listProviders().map(a => [a.target, a.kind]));
+  assert.strictEqual(byTarget.claude, 'home');
   assert.strictEqual(byTarget.codex, 'home');
-  assert.strictEqual(byTarget.qwen, 'home');
   assert.strictEqual(byTarget.opencode, 'home');
-  assert.strictEqual(byTarget.cursor, 'project');
-  assert.strictEqual(byTarget.zed, 'project');
-  assert.strictEqual(byTarget.antigravity, 'project');
 });
 
 test('planScaffold produces operations for the fixture', () => {

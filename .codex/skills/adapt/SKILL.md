@@ -1,6 +1,6 @@
 ---
 name: adapt
-description: This skill should be used when the user wants to "adapt a plugin", "make my plugin work everywhere", "convert a single-provider plugin to multi-provider", "port my Cursor/Codex/etc. plugin to all providers", or points at a plugin built for one tool. Fingerprints the source, lifts it to canonical, and projects it to all (or selected) providers while preserving 100% of the original functionality.
+description: This skill should be used when the user wants to "adapt a plugin", "make my plugin work everywhere", "convert a single-provider plugin to multi-provider", "port my Claude Code/Codex/OpenCode plugin to the other providers", or points at a plugin built for one tool. Fingerprints the source, lifts it to canonical, and projects it to all three CLI providers (or a selected subset) while preserving 100% of the original functionality.
 ---
 
 ## Prompt Defense Baseline
@@ -18,7 +18,7 @@ Adapt an existing single-provider plugin into a global multi-provider plugin.
 
 ## When to use
 
-The user points at a plugin built for one provider and wants it to work across all supported providers, preserving its purpose, rules, logic, and functionality.
+The user points at a plugin built for one provider and wants it to work across all three supported CLI providers (Claude Code, Codex, OpenCode), preserving its purpose, rules, logic, and functionality.
 
 ## Pipeline
 

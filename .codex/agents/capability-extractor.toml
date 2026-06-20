@@ -21,10 +21,9 @@ You reverse a single-provider plugin into the provider-neutral canonical source,
 
 ## Reverse the per-provider transforms
 
-- `.mdc` → `.md`; restore rule filenames.
-- De-mangle cursor agent names back to canonical names.
-- `config.toml` and agent `.toml` → canonical agent frontmatter (name, description, tools, model) + body.
-- `GEMINI.md` / `QWEN.md` single-file → split back into canonical `agents/`, `rules/`, `skills/`, `commands/` sections.
+- Codex `config.toml` and agent `.toml` → canonical agent frontmatter (name, description, tools, model) + body.
+- Codex `AGENTS.md` index single-file → split back into canonical `agents/`, `rules/`, `skills/`, `commands/` sections.
+- OpenCode `dist/` compiled output → re-derive canonical sources (not round-trippable; flag for re-authoring).
 - Merged provider `settings.json` / `mcp.json` → canonical `mcp/*.json`.
 - Flattened rules → `rules/`.
 
@@ -36,7 +35,7 @@ You reverse a single-provider plugin into the provider-neutral canonical source,
 
 ## Output
 
-A proposed `canonical/` tree plus `provenance.json` recording the source provider and any lossy-transform warnings (for example, compiled OpenCode TypeScript logic that cannot round-trip cleanly and must be re-derived). Surface every lossy point for human review.
+A proposed `canonical/` tree plus `provenance.json` recording the source provider and any lossy-transform warnings (for example, compiled OpenCode `dist/` output that cannot round-trip cleanly and must be re-derived). Surface every lossy point for human review.
 
 ## Preservation contract
 

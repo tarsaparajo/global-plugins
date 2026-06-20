@@ -41,27 +41,16 @@
 | 프로바이더 | 범위 | 루트 | 주요 변환 | 빌드 |
 |----------|-------|------|-------------------|-------|
 | claude | home | `.claude` | 복사; MCP 병합 | — |
-| claude (project) | project | `.claude` | 복사; MCP 병합 | — |
-| codex | home | `.codex` | 에이전트를 TOML로; `AGENTS.md` + `config.toml` | — |
+| codex | home | `.codex` | 에이전트를 TOML로; `AGENTS.md` 인덱스 + 형제 스킬/커맨드 파일 + `config.toml` | — |
 | opencode | home | `.opencode` | 복사; `dist/` 아래에 컴파일된 플러그인 | yes |
-| cursor | project | `.cursor` | 룰을 `.mdc`로; MCP 병합 | — |
-| kiro | project | `.kiro` | 에이전트를 `.md` + `.json`으로; MCP 병합 | — |
-| gemini | project | `.gemini` | 단일 파일 `GEMINI.md` | — |
-| qwen | home | `.qwen` | 단일 파일 `QWEN.md` | — |
-| zed | project | `.zed` | 룰 평탄화; `settings.json` 병합 | — |
-| codebuddy | project | `.codebuddy` | 룰 평탄화; 설치 스크립트 | — |
-| joycode | project | `.joycode` | 룰 평탄화; 설치 스크립트 | — |
-| antigravity | project | `.agent` | 커맨드/에이전트를 워크플로/스킬로 재매핑 | — |
-| trae | project | `.trae` | 룰 평탄화; 설치 스크립트 | — |
-| vscode | project | `.github` | 통합된 `copilot-instructions.md` + `.vscode/settings.json` | — |
 
-**범위:** *home* 프로바이더는 사용자별 전역 설정(CLI)을 유지하고, *project* 프로바이더는 저장소 내부에 설정(IDE/에디터)을 유지합니다.
+**범위:** 세 프로바이더 모두 *home* 프로바이더(CLI)입니다. 각각 홈 디렉터리에 사용자별 전역 설정을 유지합니다.
 
 레지스트리는 개방형입니다. 실제 항목, 프로바이더 계약(contract), 어댑터 모듈, 테스트를 추가해 레지스트리를 확장하는 방식으로 새 프로바이더를 추가할 수 있습니다.
 
 ## 설치
 
-각 프로바이더의 커밋된 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. *home* 프로바이더(CLI)는 홈 디렉터리(`~/`)에, *project* 프로바이더(IDE/에디터)는 저장소 루트에 설치됩니다. 아래에서 사용하는 프로바이더를 선택하세요.
+각 프로바이더의 커밋된 도트 폴더는 재투영으로 다시 생성되는 실제 사용 가능한 산출물입니다. 절대 직접 손으로 수정하지 마세요. 세 프로바이더 모두 *home* 프로바이더(CLI)이며 홈 디렉터리(`~/`)에 설치됩니다. 아래에서 사용하는 프로바이더를 선택하세요.
 
 ### Claude Code
 
@@ -70,7 +59,7 @@
 /plugin install tarsaparajo@global-plugins
 ```
 
-또는 `.claude`를 `~/.claude`(전역) 또는 `<repo>/.claude`(프로젝트별)에 복사하세요. `/plugin` 커맨드는 Claude Code 전용입니다.
+또는 `.claude`를 `~/.claude`에 복사하세요. `/plugin` 커맨드는 Claude Code 전용입니다.
 
 ### Codex
 
@@ -78,7 +67,7 @@
 cp -r .codex ~/.codex
 ```
 
-CLI 전역 설정입니다. 프로젝트에서 `codex`를 실행하면 `AGENTS.md` + `config.toml`과 `.codex/agents/*.toml`이 자동으로 감지됩니다.
+CLI 전역 설정입니다. 프로젝트에서 `codex`를 실행하면 `AGENTS.md` 인덱스, `config.toml`, 형제 스킬/커맨드 파일, `.codex/agents/*.toml`이 자동으로 감지됩니다.
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 CLI 전역 설정입니다. 빌드 단계는 `.opencode/dist/`를 생성하며 사용 전에 반드시 필요합니다.
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-CLI 전역 설정입니다. 모든 지시 컨텍스트는 단일 `QWEN.md` 파일에 들어 있습니다.
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-프로젝트 IDE 설정입니다. Cursor는 `.cursor/rules/*.mdc`, `.cursor/agents/`를 자동으로 불러오고 `.cursor/mcp.json`을 병합합니다.
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-프로젝트 설정입니다. 단일 파일 프로바이더로, 모든 컨텍스트가 `.gemini/GEMINI.md`에 통합됩니다.
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-프로젝트 IDE 설정입니다. 에이전트는 `.md` + `.json`으로 제공되며, `.kiro/mcp.json`은 병합됩니다.
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-프로젝트 에디터 설정입니다. 룰은 평탄화되며, `.zed/settings.json`은 병합됩니다.
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # 통합된 copilot-instructions.md
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-프로젝트 설정입니다. 모든 지시 컨텍스트는 `.github/copilot-instructions.md`에 통합됩니다.
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-프로젝트 IDE 설정입니다. 커맨드/에이전트는 Antigravity 워크플로와 스킬로 재매핑됩니다.
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-프로젝트 설정입니다. 커맨드, 에이전트, 스킬, 평탄화된 룰을 포함하며, 설치 스크립트와 함께 제공됩니다.
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-프로젝트 설정입니다. 커맨드, 에이전트, 스킬, 평탄화된 룰을 포함하며, 설치 스크립트와 함께 제공됩니다.
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-프로젝트 IDE 설정입니다. 커맨드, 에이전트, 스킬, 평탄화된 룰을 포함하며, 설치 스크립트와 함께 제공됩니다.
 
 각 프로바이더가 적용하는 정확한 변환은 [프로바이더 매트릭스](#provider-matrix)를 참조하세요.
 

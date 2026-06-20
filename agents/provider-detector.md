@@ -33,19 +33,15 @@ Return the resolved adapters plus per-module compatibility, flagging any module 
 
 Fingerprint the source plugin's dotfolders to identify its single source provider with a confidence score. Signals:
 
-- `.cursor/` with `*.mdc` rule files → cursor (project scope).
-- `.codex/` with `AGENTS.md` + `config.toml`, agents as `.toml` → codex (home scope).
-- `.claude/` with `agents/`, `skills/`, `.mcp.json` → claude.
-- `GEMINI.md` / `QWEN.md` single context file → gemini / qwen.
-- `.opencode/` with `dist/` compiled payload → opencode (build step).
-- `.kiro/` with `settings/mcp.json`, agents as `.md` + `.json` → kiro.
-- `.zed/settings.json` → zed; `.codebuddy/` / `.joycode/` install scripts; `.agent/` with `skills/` + `workflows/` → antigravity.
+- `.claude/` with `agents/`, `skills/`, and `.mcp.json` → claude.
+- `.codex/` with `AGENTS.md` + `config.toml`, agents as `.toml` (e.g. `agents.toml`) → codex.
+- `.opencode/` with a `dist/` compiled payload → opencode (build step).
 
 Report the detected provider, the confidence, and which native shapes you observed.
 
 ## Scope awareness
 
-Always report each adapter's `kind`: **home** means the provider keeps a global per-user config (a CLI — e.g. codex, qwen, opencode); **project** means config lives inside the repository (an IDE/editor — e.g. cursor, zed, kiro, antigravity). Getting `kind` wrong writes files to the wrong root.
+Always report each adapter's `kind`. All three supported providers are CLI-based, so every adapter is **home**: the provider keeps a global per-user config root (claude `~/.claude`, codex `~/.codex`, opencode `~/.opencode`). Getting `kind` wrong writes files to the wrong root.
 
 ## Boundaries
 

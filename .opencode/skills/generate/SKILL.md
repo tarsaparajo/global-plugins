@@ -30,10 +30,17 @@ The user describes a plugin they want to build, in any language and at any level
 6. **Validate.** Invoke `compliance-validator` for the full consistency and self-sufficiency audit.
 7. **Initialize governance.** Set `VERSION` to `0.1.0`, seed the CHANGELOG `## [Unreleased]` section, and write the README with the 14-language selector. Return a summary plus the report path.
 
+## Provider harness enrichment (opt-in)
+
+The three CLI providers differ in harness depth. After the baseline projection, offer the user an opt-in to deepen a specific provider's version of the generated plugin, drawing on the per-provider harness references below. OpenCode is the deepest (npm/TS plugins with an SDK client, event bus, code-defined tools with Zod schemas, and context-compaction control); Claude Code is the richest instruction-and-tool surface (progressive-disclosure skills, subagents, the broadest hook set); Codex is TOML-driven agents + MCP + prompts. Keep enrichment behind a clear opt-in — a plugin whose briefing does not call for it stays at the clean baseline projection.
+
 ## Reference
 
 - `skills/_knowledge/harness-lens.md` — the compositional lens.
-- `skills/_knowledge/provider-matrix.md` — per-provider transforms and scope.
+- `skills/_knowledge/provider-matrix.md` — per-provider transforms and scope (3 CLI providers).
+- `skills/_knowledge/claude-code-harness.md` — Claude Code plugin API (official docs cited).
+- `skills/_knowledge/codex-harness.md` — Codex plugin API (official docs + flagged fallbacks).
+- `skills/_knowledge/opencode-harness.md` — OpenCode advanced harness (npm/TS, official docs cited).
 - `skills/_knowledge/governance.md` — SemVer and CHANGELOG rules.
 
 ## Invariants

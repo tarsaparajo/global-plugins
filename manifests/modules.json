@@ -11,8 +11,7 @@
         "adapters"
       ],
       "targets": [
-        "claude",
-        "claude-project"
+        "claude"
       ],
       "dependencies": [],
       "defaultInstall": true,
@@ -28,19 +27,8 @@
       ],
       "targets": [
         "claude",
-        "claude-project",
-        "cursor",
         "codex",
-        "opencode",
-        "gemini",
-        "qwen",
-        "zed",
-        "kiro",
-        "codebuddy",
-        "joycode",
-        "antigravity",
-        "trae",
-        "vscode"
+        "opencode"
       ],
       "dependencies": [],
       "defaultInstall": true,
@@ -56,19 +44,8 @@
       ],
       "targets": [
         "claude",
-        "claude-project",
-        "cursor",
         "codex",
-        "opencode",
-        "gemini",
-        "qwen",
-        "zed",
-        "kiro",
-        "codebuddy",
-        "joycode",
-        "antigravity",
-        "trae",
-        "vscode"
+        "opencode"
       ],
       "dependencies": [
         "agents-core",
@@ -87,17 +64,8 @@
       ],
       "targets": [
         "claude",
-        "claude-project",
-        "cursor",
         "codex",
-        "opencode",
-        "zed",
-        "kiro",
-        "codebuddy",
-        "joycode",
-        "antigravity",
-        "trae",
-        "vscode"
+        "opencode"
       ],
       "dependencies": [
         "skills-core"
@@ -115,8 +83,7 @@
         "config"
       ],
       "targets": [
-        "claude",
-        "claude-project"
+        "claude"
       ],
       "dependencies": [
         "engine-core"
@@ -133,8 +100,7 @@
         "templates"
       ],
       "targets": [
-        "claude",
-        "claude-project"
+        "claude"
       ],
       "dependencies": [
         "engine-core"
@@ -151,8 +117,7 @@
         "docs"
       ],
       "targets": [
-        "claude",
-        "claude-project"
+        "claude"
       ],
       "dependencies": [],
       "defaultInstall": false,

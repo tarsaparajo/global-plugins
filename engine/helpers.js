@@ -16,22 +16,11 @@ const PLATFORM_SOURCE_PATH_OWNERS = Object.freeze({
   '.claude': 'claude',
   '.claude-plugin': 'claude',
   '.codex': 'codex',
-  '.cursor': 'cursor',
-  '.gemini': 'gemini',
-  '.qwen': 'qwen',
   '.opencode': 'opencode',
-  '.zed': 'zed',
-  '.kiro': 'kiro',
-  '.codebuddy': 'codebuddy',
-  '.joycode': 'joycode',
-  '.agent': 'antigravity',
-  '.trae': 'trae',
 });
 
-// claude and claude-project share the "claude" ownership space.
-const TARGET_OWNERSHIP_ALIASES = Object.freeze({
-  'claude-project': 'claude',
-});
+// Reserved for target-name ownership aliases (none currently).
+const TARGET_OWNERSHIP_ALIASES = Object.freeze({});
 
 function ownershipFor(target) {
   return TARGET_OWNERSHIP_ALIASES[target] || target;

@@ -41,27 +41,16 @@
 | プロバイダー | スコープ | ルート | 主な変換 | ビルド |
 |----------|-------|------|-------------------|-------|
 | claude | home | `.claude` | コピー、MCP マージ | — |
-| claude (project) | project | `.claude` | コピー、MCP マージ | — |
-| codex | home | `.codex` | エージェントを TOML 化、`AGENTS.md` + `config.toml` | — |
+| codex | home | `.codex` | エージェントを TOML 化、`AGENTS.md` インデックス + skills／commands の同階層ファイル + `config.toml` | — |
 | opencode | home | `.opencode` | コピー、`dist/` 配下にコンパイル済みプラグイン | あり |
-| cursor | project | `.cursor` | ルールを `.mdc` 化、MCP マージ | — |
-| kiro | project | `.kiro` | エージェントを `.md` + `.json` 化、MCP マージ | — |
-| gemini | project | `.gemini` | 単一ファイル `GEMINI.md` | — |
-| qwen | home | `.qwen` | 単一ファイル `QWEN.md` | — |
-| zed | project | `.zed` | ルールをフラット化、`settings.json` マージ | — |
-| codebuddy | project | `.codebuddy` | ルールをフラット化、インストールスクリプト | — |
-| joycode | project | `.joycode` | ルールをフラット化、インストールスクリプト | — |
-| antigravity | project | `.agent` | コマンド／エージェントをワークフロー／スキルへ再マッピング | — |
-| trae | project | `.trae` | ルールをフラット化、インストールスクリプト | — |
-| vscode | project | `.github` | 統合された `copilot-instructions.md` + `.vscode/settings.json` | — |
 
-**スコープ:** *home* プロバイダーはユーザーごとのグローバル設定（CLI）を保持し、*project* プロバイダーは設定をリポジトリ内（IDE／エディタ）に保持します。
+**スコープ:** 3 つすべてが *home* プロバイダー（CLI）です。それぞれがホームディレクトリにユーザーごとのグローバル設定を保持します。
 
 レジストリは拡張可能です。実エントリ、プロバイダー契約 (provider contract)、アダプターモジュール、テストを追加してレジストリを拡張すれば、新しいプロバイダーを追加できます。
 
 ## インストール
 
-各プロバイダーのコミット済みドットフォルダは、再投影によって再生成される、実際にすぐ使える成果物です。手作業で編集しないでください。*home* プロバイダー（CLI）はホームディレクトリ（`~/`）へインストールされ、*project* プロバイダー（IDE／エディタ）はリポジトリのルートへインストールされます。以下からお使いのプロバイダーを選択してください。
+各プロバイダーのコミット済みドットフォルダは、再投影によって再生成される、実際にすぐ使える成果物です。手作業で編集しないでください。3 つすべてが *home* プロバイダー（CLI）であり、ホームディレクトリ（`~/`）へインストールされます。以下からお使いのプロバイダーを選択してください。
 
 ### Claude Code
 
@@ -70,7 +59,7 @@
 /plugin install tarsaparajo@global-plugins
 ```
 
-または `.claude` を `~/.claude`（グローバル）あるいは `<repo>/.claude`（プロジェクトごと）へコピーします。`/plugin` コマンドは Claude Code 専用です。
+または `.claude` を `~/.claude` へコピーします。`/plugin` コマンドは Claude Code 専用です。
 
 ### Codex
 
@@ -78,7 +67,7 @@
 cp -r .codex ~/.codex
 ```
 
-CLI のグローバル設定です。`AGENTS.md` + `config.toml` と `.codex/agents/*.toml` は、プロジェクトで `codex` を実行すると自動検出されます。
+CLI のグローバル設定です。`AGENTS.md` インデックス、`config.toml`、skills／commands の同階層ファイル、`.codex/agents/*.toml` は、プロジェクトで `codex` を実行すると自動検出されます。
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 CLI のグローバル設定です。ビルド手順は `.opencode/dist/` を生成し、使用前に必須です。
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-CLI のグローバル設定です。すべての指示コンテキストは単一の `QWEN.md` ファイルに収められています。
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-プロジェクトの IDE 設定です。Cursor は `.cursor/rules/*.mdc` と `.cursor/agents/` を自動読み込みし、`.cursor/mcp.json` をマージします。
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-プロジェクト設定です。単一ファイル方式のプロバイダーで、すべてのコンテキストは `.gemini/GEMINI.md` に統合されます。
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-プロジェクトの IDE 設定です。エージェントは `.md` + `.json` として提供され、`.kiro/mcp.json` はマージされます。
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-プロジェクトのエディタ設定です。ルールはフラット化され、`.zed/settings.json` はマージされます。
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # 統合された copilot-instructions.md
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-プロジェクト設定です。すべての指示コンテキストは `.github/copilot-instructions.md` に統合されます。
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-プロジェクトの IDE 設定です。コマンド／エージェントは Antigravity のワークフローとスキルへ再マッピングされます。
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-プロジェクト設定です。コマンド、エージェント、スキル、フラット化されたルールを含み、インストールスクリプトが付属します。
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-プロジェクト設定です。コマンド、エージェント、スキル、フラット化されたルールを含み、インストールスクリプトが付属します。
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-プロジェクトの IDE 設定です。コマンド、エージェント、スキル、フラット化されたルールを含み、インストールスクリプトが付属します。
 
 各プロバイダーが適用する正確な変換については、[プロバイダーマトリクス](#provider-matrix)を参照してください。
 

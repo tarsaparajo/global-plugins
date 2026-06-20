@@ -41,27 +41,16 @@ Todo plugin que ele produz vem com seu próprio motor de evolução: edite a fon
 | Provedor | Escopo | Raiz | Transformação notável | Build |
 |----------|--------|------|-----------------------|-------|
 | claude | home | `.claude` | cópia; merge de MCP | — |
-| claude (projeto) | projeto | `.claude` | cópia; merge de MCP | — |
-| codex | home | `.codex` | agents para TOML; `AGENTS.md` + `config.toml` | — |
+| codex | home | `.codex` | agents para TOML; índice `AGENTS.md` + arquivos irmãos de skills/commands + `config.toml` | — |
 | opencode | home | `.opencode` | cópia; plugin compilado em `dist/` | sim |
-| cursor | projeto | `.cursor` | regras para `.mdc`; merge de MCP | — |
-| kiro | projeto | `.kiro` | agents como `.md` + `.json`; merge de MCP | — |
-| gemini | projeto | `.gemini` | arquivo único `GEMINI.md` | — |
-| qwen | home | `.qwen` | arquivo único `QWEN.md` | — |
-| zed | projeto | `.zed` | regras planas; merge de `settings.json` | — |
-| codebuddy | projeto | `.codebuddy` | regras planas; script de instalação | — |
-| joycode | projeto | `.joycode` | regras planas; script de instalação | — |
-| antigravity | projeto | `.agent` | remapeia comandos/agents para workflows/skills | — |
-| trae | projeto | `.trae` | regras planas; script de instalação | — |
-| vscode | projeto | `.github` | `copilot-instructions.md` consolidado + `.vscode/settings.json` | — |
 
-**Escopo:** provedores *home* mantêm uma configuração global por usuário (uma CLI); provedores *project* mantêm a configuração dentro do repositório (uma IDE/editor).
+**Escopo:** os três são provedores *home* (CLIs) — cada um mantém uma configuração global por usuário no seu diretório home.
 
 O registry é aberto. Novos provedores podem ser adicionados estendendo o registry com uma entrada real, um contrato de provedor, um módulo adaptador e um teste.
 
 ## Instalação
 
-A pasta-ponto versionada de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Provedores *home* (CLIs) são instalados no seu diretório home (`~/`); provedores *project* (IDEs/editores) são instalados na raiz do repositório. Escolha o seu provedor abaixo.
+A pasta-ponto versionada de cada provedor é um artefato real, pronto para uso, regenerado por reprojeção — nunca a edite à mão. Os três são provedores *home* (CLIs) e são instalados no seu diretório home (`~/`). Escolha o seu provedor abaixo.
 
 ### Claude Code
 
@@ -70,7 +59,7 @@ A pasta-ponto versionada de cada provedor é um artefato real, pronto para uso, 
 /plugin install tarsaparajo@global-plugins
 ```
 
-Ou copie `.claude` para `~/.claude` (global) ou `<repo>/.claude` (por projeto). Os comandos `/plugin` são exclusivos do Claude Code.
+Ou copie `.claude` para `~/.claude`. Os comandos `/plugin` são exclusivos do Claude Code.
 
 ### Codex
 
@@ -78,7 +67,7 @@ Ou copie `.claude` para `~/.claude` (global) ou `<repo>/.claude` (por projeto). 
 cp -r .codex ~/.codex
 ```
 
-Configuração global da CLI. `AGENTS.md` + `config.toml` e `.codex/agents/*.toml` são detectados automaticamente quando você executa `codex` no projeto.
+Configuração global da CLI. O índice `AGENTS.md`, o `config.toml`, os arquivos irmãos de skills/commands e os `.codex/agents/*.toml` são detectados automaticamente quando você executa `codex` no projeto.
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 Configuração global da CLI. O passo de build gera `.opencode/dist/` e é obrigatório antes do uso.
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-Configuração global da CLI. Todo o contexto de instruções fica no único arquivo `QWEN.md`.
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-Configuração de IDE por projeto. O Cursor carrega automaticamente `.cursor/rules/*.mdc`, `.cursor/agents/` e mescla `.cursor/mcp.json`.
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-Configuração por projeto. Provedor de arquivo único — todo o contexto é consolidado em `.gemini/GEMINI.md`.
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-Configuração de IDE por projeto. Os agents vêm como `.md` + `.json`; `.kiro/mcp.json` é mesclado.
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-Configuração de editor por projeto. As regras são achatadas; `.zed/settings.json` é mesclado.
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # copilot-instructions.md consolidado
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-Configuração por projeto. Todo o contexto de instruções é consolidado em `.github/copilot-instructions.md`.
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-Configuração de IDE por projeto. Comandos/agents são remapeados para workflows e skills do Antigravity.
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-Configuração por projeto. Comandos, agents, skills e regras achatadas; acompanha um script de instalação.
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-Configuração por projeto. Comandos, agents, skills e regras achatadas; acompanha um script de instalação.
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-Configuração de IDE por projeto. Comandos, agents, skills e regras achatadas; acompanha um script de instalação.
 
 Consulte a [Matriz de provedores](#provider-matrix) para a transformação exata que cada provedor aplica.
 

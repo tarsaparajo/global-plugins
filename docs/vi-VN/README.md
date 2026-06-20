@@ -41,27 +41,16 @@ Mọi plugin do nó tạo ra đều đi kèm engine tiến hóa riêng: chỉnh 
 | Nhà cung cấp | Phạm vi | Thư mục gốc | Phép biến đổi đáng chú ý | Build |
 |----------|-------|------|-------------------|-------|
 | claude | home | `.claude` | sao chép; gộp MCP | — |
-| claude (project) | project | `.claude` | sao chép; gộp MCP | — |
-| codex | home | `.codex` | agent sang TOML; `AGENTS.md` + `config.toml` | — |
+| codex | home | `.codex` | agent sang TOML; chỉ mục `AGENTS.md` + các file skill/command đồng cấp + `config.toml` | — |
 | opencode | home | `.opencode` | sao chép; plugin đã biên dịch nằm trong `dist/` | có |
-| cursor | project | `.cursor` | rule sang `.mdc`; gộp MCP | — |
-| kiro | project | `.kiro` | agent dưới dạng `.md` + `.json`; gộp MCP | — |
-| gemini | project | `.gemini` | gộp về một file `GEMINI.md` | — |
-| qwen | home | `.qwen` | gộp về một file `QWEN.md` | — |
-| zed | project | `.zed` | rule để phẳng; gộp `settings.json` | — |
-| codebuddy | project | `.codebuddy` | rule để phẳng; script cài đặt | — |
-| joycode | project | `.joycode` | rule để phẳng; script cài đặt | — |
-| antigravity | project | `.agent` | ánh xạ lại command/agent thành workflow/skill | — |
-| trae | project | `.trae` | rule để phẳng; script cài đặt | — |
-| vscode | project | `.github` | hợp nhất `copilot-instructions.md` + `.vscode/settings.json` | — |
 
-**Phạm vi:** các nhà cung cấp *home* giữ một config toàn cục theo từng người dùng (một CLI); các nhà cung cấp *project* giữ config bên trong repository (một IDE/editor).
+**Phạm vi:** cả ba đều là nhà cung cấp *home* (CLI) — mỗi nhà cung cấp giữ một config toàn cục theo từng người dùng trong thư mục home của bạn.
 
 Registry là mở. Có thể bổ sung nhà cung cấp mới bằng cách mở rộng registry với một entry thực sự, một provider contract, một module adapter, và một bài test.
 
 ## Cài đặt
 
-Dotfolder được commit của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Các nhà cung cấp *home* (CLI) cài đặt vào thư mục home của bạn (`~/`); các nhà cung cấp *project* (IDE/editor) cài đặt vào thư mục gốc của repository. Hãy chọn nhà cung cấp của bạn bên dưới.
+Dotfolder được commit của mỗi nhà cung cấp là một artifact thực sự, sẵn sàng sử dụng, được tái tạo qua quá trình chiếu lại — đừng bao giờ chỉnh tay nó. Cả ba đều là nhà cung cấp *home* (CLI) và cài đặt vào thư mục home của bạn (`~/`). Hãy chọn nhà cung cấp của bạn bên dưới.
 
 ### Claude Code
 
@@ -70,7 +59,7 @@ Dotfolder được commit của mỗi nhà cung cấp là một artifact thực 
 /plugin install tarsaparajo@global-plugins
 ```
 
-Hoặc sao chép `.claude` vào `~/.claude` (toàn cục) hoặc `<repo>/.claude` (theo từng dự án). Các lệnh `/plugin` chỉ dành cho Claude Code.
+Hoặc sao chép `.claude` vào `~/.claude`. Các lệnh `/plugin` chỉ dành cho Claude Code.
 
 ### Codex
 
@@ -78,7 +67,7 @@ Hoặc sao chép `.claude` vào `~/.claude` (toàn cục) hoặc `<repo>/.claude
 cp -r .codex ~/.codex
 ```
 
-Config toàn cục của CLI. `AGENTS.md` + `config.toml` và `.codex/agents/*.toml` được tự động phát hiện khi bạn chạy `codex` trong dự án.
+Config toàn cục của CLI. Chỉ mục `AGENTS.md`, `config.toml`, các file skill/command đồng cấp, và `.codex/agents/*.toml` được tự động phát hiện khi bạn chạy `codex` trong dự án.
 
 ### opencode
 
@@ -88,87 +77,6 @@ cp -r .opencode ~/.opencode
 ```
 
 Config toàn cục của CLI. Bước build tạo ra `.opencode/dist/` và là bắt buộc trước khi sử dụng.
-
-### Qwen
-
-```
-cp -r .qwen ~/.qwen
-```
-
-Config toàn cục của CLI. Toàn bộ ngữ cảnh chỉ dẫn nằm trong một file `QWEN.md` duy nhất.
-
-### Cursor
-
-```
-cp -r .cursor <repo>/.cursor
-```
-
-Config IDE theo dự án. Cursor tự động nạp `.cursor/rules/*.mdc`, `.cursor/agents/`, và gộp `.cursor/mcp.json`.
-
-### Gemini
-
-```
-cp -r .gemini <repo>/.gemini
-```
-
-Config theo dự án. Nhà cung cấp dùng một file duy nhất — mọi ngữ cảnh được gộp vào `.gemini/GEMINI.md`.
-
-### Kiro
-
-```
-cp -r .kiro <repo>/.kiro
-```
-
-Config IDE theo dự án. Các agent được phát hành dưới dạng `.md` + `.json`; `.kiro/mcp.json` được gộp.
-
-### Zed
-
-```
-cp -r .zed <repo>/.zed
-```
-
-Config editor theo dự án. Các rule được để phẳng; `.zed/settings.json` được gộp.
-
-### VS Code (GitHub Copilot)
-
-```
-cp -r .github <repo>/.github   # copilot-instructions.md đã hợp nhất
-cp -r .vscode <repo>/.vscode   # settings.json
-```
-
-Config theo dự án. Toàn bộ ngữ cảnh chỉ dẫn được hợp nhất vào `.github/copilot-instructions.md`.
-
-### Antigravity
-
-```
-cp -r .agent <repo>/.agent
-```
-
-Config IDE theo dự án. Command/agent được ánh xạ lại thành workflow và skill của Antigravity.
-
-### CodeBuddy
-
-```
-cp -r .codebuddy <repo>/.codebuddy
-```
-
-Config theo dự án. Command, agent, skill và các rule đã để phẳng; đi kèm một script cài đặt.
-
-### JoyCode
-
-```
-cp -r .joycode <repo>/.joycode
-```
-
-Config theo dự án. Command, agent, skill và các rule đã để phẳng; đi kèm một script cài đặt.
-
-### Trae
-
-```
-cp -r .trae <repo>/.trae
-```
-
-Config IDE theo dự án. Command, agent, skill và các rule đã để phẳng; đi kèm một script cài đặt.
 
 Xem [Ma trận nhà cung cấp](#provider-matrix) để biết chính xác phép biến đổi mà mỗi nhà cung cấp áp dụng.
 
