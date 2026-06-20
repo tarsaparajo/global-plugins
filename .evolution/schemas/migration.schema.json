@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Migration",
+  "type": "object",
+  "required": ["migration", "from", "reversible", "steps"],
+  "properties": {
+    "migration": { "type": "string" },
+    "from": { "type": "string" },
+    "breakingFor": { "type": "array", "items": { "enum": ["products", "projects", "substrates"] } },
+    "appliesWhen": { "type": "array" },
+    "reversible": { "type": "boolean" },
+    "estimatedRisk": { "enum": ["low", "medium", "high"] },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "forward", "rollback"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "detect": { "type": "string" },
+          "forward": { "type": "array" },
+          "rollback": { "type": "array" },
+          "verify": { "type": "string" }
+        }
+      }
+    }
+  }
+}
