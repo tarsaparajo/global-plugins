@@ -4,6 +4,12 @@
 
 ![Global Plugins](../../assets/hero.png)
 
+Una única fuente canónica, todos los proveedores. Genera, adapta y evoluciona plugins de IA para programar a partir de una sola descripción.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](../../VERSION)
+[![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
+
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
 
 [English](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../zh-CN/README.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | Español | [Français](../fr/README.md) | [Italiano](../it/README.md)

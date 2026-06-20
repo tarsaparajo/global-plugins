@@ -4,6 +4,12 @@
 
 ![Global Plugins](../../assets/hero.png)
 
+แหล่งข้อมูลแบบ canonical เดียว ครอบคลุมทุกผู้ให้บริการ สร้าง ปรับ และพัฒนาปลั๊กอินเขียนโค้ด AI จากคำอธิบายเดียว
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](../../VERSION)
+[![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
+
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
 
 [English](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../zh-CN/README.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | ไทย | [Deutsch](../de-DE/README.md) | [Español](../es/README.md) | [Français](../fr/README.md) | [Italiano](../it/README.md)
