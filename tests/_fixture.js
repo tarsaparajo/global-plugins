@@ -14,7 +14,22 @@ function makeCanonicalFixture() {
     fs.mkdirSync(path.dirname(abs), { recursive: true });
     fs.writeFileSync(abs, content);
   };
-  w('agents/reviewer.md', '---\nname: reviewer\ndescription: Review code for issues.\n---\n# Reviewer\n\nReview code.\n');
+  // Agent carries Claude-native frontmatter — an array `tools`, a keyword
+  // `color`, and a bare `model` alias — the exact shape providers like OpenCode
+  // and Codex reject if copied verbatim.
+  w('agents/reviewer.md', [
+    '---',
+    'name: reviewer',
+    'description: Review code for issues.',
+    'tools: ["Read", "Grep", "Glob", "Bash"]',
+    'model: sonnet',
+    'color: cyan',
+    '---',
+    '# Reviewer',
+    '',
+    'Review code.',
+    '',
+  ].join('\n'));
   w('skills/builder/SKILL.md', '---\nname: builder\ndescription: Build things from a spec.\n---\n# Builder\n\nBuild from spec.\n');
   w('commands/run.md', '---\ndescription: Run the thing.\n---\n# Run\n\nRun it.\n');
   w('rules/style.md', '# Style\n\nAlways test.\n');

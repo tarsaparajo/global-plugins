@@ -5,6 +5,19 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-06-20
+
+### Fixed
+
+- OpenCode agent projection emitted Claude-native frontmatter (an array `tools`, a keyword `color`, a bare `model` alias) that OpenCode's schema rejects, failing install with `Configuration is invalid` on `.opencode/agents/*.md`. Agents are now rewritten into OpenCode's agent shape: `tools` as an object map, `mode: subagent`, a provider-prefixed `model`, and no `color`.
+- Codex agent projection renamed `*.md` to `*.toml` but copied the markdown body verbatim, producing invalid TOML. Per-agent files are now emitted as real TOML (`name`/`description`/`tools` keys plus a multi-line `instructions` block); the `AGENTS.md` capability index and the `config.toml` baseline are unchanged.
+
+### Added
+
+- `engine/frontmatter.js`: a dependency-free YAML-subset frontmatter parser/serializer plus per-provider agent mappers (`toOpenCodeAgent`, `toCodexAgentToml`).
+- A `transform-agent` projection operation and a `transformAgents` planning helper, so adapters rewrite agent frontmatter/format for their target instead of copying bytes verbatim. Generated child plugins inherit the fix automatically (they bundle the engine whole); the child `project.mjs` now fails loudly if a required engine module — including `frontmatter.js` — is missing from the bundled copy.
+- Tests covering the frontmatter transforms and schema-validity assertions for the OpenCode and Codex agent outputs.
+
 ## [0.4.1] - 2026-06-20
 
 ### Fixed

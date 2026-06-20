@@ -143,6 +143,14 @@ function opScaffold(args) {
   return createOperation({ kind: 'scaffold', strategy: 'generated', ...args });
 }
 
+// transform-agent: emit an agent file whose frontmatter/format is rewritten for
+// the target provider (e.g. Claude-native frontmatter -> OpenCode object tools,
+// or markdown -> Codex TOML). `transform` names a function in the frontmatter
+// module; the executor applies it to the source content before writing.
+function opTransformAgent(args) {
+  return createOperation({ kind: 'transform-agent', strategy: 'transform', ...args });
+}
+
 // build-step: invoke a provider build (e.g. compile the OpenCode TS plugin).
 function opBuildStep(args) {
   return createOperation({
@@ -202,6 +210,7 @@ module.exports = {
   opFlatRule,
   opFlatFile,
   opScaffold,
+  opTransformAgent,
   opBuildStep,
   opSymlink,
   deepMergeJson,

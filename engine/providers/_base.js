@@ -15,6 +15,7 @@ const {
   opFlatRule,
   opFlatFile,
   opScaffold,
+  opTransformAgent,
   opBuildStep,
 } = require('../helpers');
 
@@ -141,6 +142,29 @@ function defaultCopy({ repoRoot, targetRoot, module, sourceRelativePath }) {
   }));
 }
 
+// Emit one transform-agent op per agent file under a canonical agents dir,
+// rewriting its frontmatter/format for the target provider via the named
+// transform (resolved in the executor against the frontmatter module). destDir
+// is where the rewritten agents land under targetRoot; nameTransform optionally
+// renames each file (e.g. .md -> .toml for Codex) or returns null to skip it.
+function transformAgents({ repoRoot, targetRoot, module, sourceRelativePath }, transform, destDir, nameTransform) {
+  const absSource = path.join(repoRoot, sourceRelativePath);
+  const ops = [];
+  for (const rel of listRelativeFiles(absSource)) {
+    const newName = nameTransform ? nameTransform(rel) : rel;
+    if (newName == null) {
+      continue;
+    }
+    ops.push(opTransformAgent({
+      moduleId: module.id,
+      sourceRelativePath: path.posix.join(sourceRelativePath, rel),
+      destinationPath: path.join(targetRoot, destDir, newName),
+      transform,
+    }));
+  }
+  return ops;
+}
+
 // Flatten a dir of files into <targetRoot>/<destDir>, applying nameTransform.
 // nameTransform(fileName, sourceRelFile) => newName | null (null = skip).
 function flattenDir({ repoRoot, targetRoot, module, sourceRelativePath }, destDir, kind, nameTransform) {
@@ -166,6 +190,7 @@ module.exports = {
   planFromModules,
   defaultCopy,
   flattenDir,
+  transformAgents,
   mcpMergeOps,
   opScaffold,
   collectComponents,

@@ -34,7 +34,7 @@
       ],
       "nativeRootRelativePath": ".codex",
       "transforms": [
-        "agents->toml",
+        "agents->toml:frontmatter-rewrite",
         "emit:AGENTS.md",
         "emit:config.toml",
         "inject-prompt-defense:string-field"
@@ -61,6 +61,7 @@
         ]
       },
       "transforms": [
+        "agents:frontmatter-rewrite",
         "copy-path",
         "compiled-plugin:dist",
         "inject-prompt-defense"

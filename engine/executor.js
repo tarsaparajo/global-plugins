@@ -10,6 +10,14 @@ const path = require('path');
 
 const { deepMergeJson, readJsonFile } = require('./helpers');
 const promptDefense = require('./prompt-defense');
+const frontmatter = require('./frontmatter');
+
+// Named agent transforms a transform-agent op may reference. Each takes the raw
+// canonical agent content and returns the provider-native representation.
+const AGENT_TRANSFORMS = Object.freeze({
+  'opencode-agent': frontmatter.toOpenCodeAgent,
+  'codex-agent-toml': frontmatter.toCodexAgentToml,
+});
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -52,6 +60,22 @@ function applyOperation(op, ctx) {
       }
       fs.writeFileSync(op.destinationPath, content);
       return { wrote: op.destinationPath };
+    }
+    case 'transform-agent': {
+      const source = path.join(repoRoot, op.sourceRelativePath);
+      const transform = AGENT_TRANSFORMS[op.transform];
+      if (typeof transform !== 'function') {
+        throw new Error(`Unknown agent transform: ${op.transform}`);
+      }
+      let content = transform(fs.readFileSync(source, 'utf8'));
+      // Carry the Prompt Defense Baseline into model-facing markdown agents
+      // (OpenCode). Non-markdown agent formats (Codex TOML) are not injected
+      // here; those providers carry the baseline in their config scaffold.
+      if (isModelFacingMarkdown(op.destinationPath)) {
+        content = promptDefense.inject(content);
+      }
+      fs.writeFileSync(op.destinationPath, content);
+      return { transformed: op.destinationPath };
     }
     case 'merge-json': {
       const source = path.join(repoRoot, op.sourceRelativePath);

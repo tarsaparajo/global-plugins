@@ -14,6 +14,7 @@ const { planScaffold, getAdapter } = require('../../engine/registry');
 const executor = require('../../engine/executor');
 const { generators } = require('../../engine/builder');
 const { isForeignPlatformPath } = require('../../engine/helpers');
+const frontmatter = require('../../engine/frontmatter');
 const { makeCanonicalFixture, cleanup, fixtureModules } = require('../_fixture');
 
 function projectTo(target) {
@@ -67,6 +68,25 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         assert.ok(/Conventions \/ Rules/.test(idx), 'codex AGENTS.md did not fold the rules section');
         assert.ok(idx.includes('Always test'), 'codex AGENTS.md did not fold the rule body');
         assert.ok(!fs.existsSync(path.join(out, '.codex', 'rules')), 'codex must not emit a separate rules dir (rules fold into AGENTS.md)');
+        // The per-agent TOML must be REAL TOML, not markdown copied into a
+        // .toml file — no YAML fences, with a real instructions block. This
+        // guards the reported Codex agent defect.
+        const agentToml = fs.readFileSync(path.join(out, '.codex', 'agents', 'reviewer.toml'), 'utf8');
+        assert.ok(!agentToml.includes('---'), 'codex agent must be TOML, not YAML-fenced markdown');
+        assert.ok(/instructions = """/.test(agentToml), 'codex agent must carry an instructions block');
+        assert.ok(!agentToml.includes('color'), 'codex agent must not carry the Claude-only color field');
+      }
+      // OpenCode agents must NOT receive Claude-native frontmatter (array tools,
+      // keyword color, bare model). These guard the reported install failure.
+      if (target === 'opencode') {
+        const { data } = frontmatter.parse(fs.readFileSync(path.join(out, '.opencode', 'agents', 'reviewer.md'), 'utf8'));
+        assert.ok(data.tools && !Array.isArray(data.tools) && typeof data.tools === 'object',
+          'opencode agent tools must be an object');
+        assert.ok(!('color' in data), 'opencode agent must not carry color');
+        if ('model' in data) {
+          assert.ok(String(data.model).includes('/'), 'opencode agent model must be provider/model');
+        }
+        assert.strictEqual(data.mode, 'subagent', 'opencode agent must declare mode: subagent');
       }
       // Containment: no planned source path is foreign to this target.
       for (const op of plan.operations) {
