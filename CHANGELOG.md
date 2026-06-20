@@ -5,6 +5,15 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-20
+
+### Changed
+
+- Install section rewritten with per-provider, one-by-one steps: Claude Code first (`/plugin` marketplace + install), then each other provider with its real copy command and auto-detection note.
+- Usage table now surfaces the self-hosted `/global-plugins:evolve` and `/global-plugins:migrate` commands.
+- Added the `/plugin marketplace add` + `/plugin install` snippet for Claude Code.
+- All Install, Usage, and badge updates propagated across the English README and all thirteen locales.
+
 ## [0.1.0] - 2026-06-20
 
 ### Added
