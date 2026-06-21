@@ -37,6 +37,10 @@ function makeCanonicalFixture() {
   // owner-identity projections (description prefix, OpenCode name prefix, Codex
   // index grouping). FIXTURE_PLUGIN_NAME is exported for assertions.
   w('.claude-plugin/plugin.json', JSON.stringify({ name: FIXTURE_PLUGIN_NAME }, null, 2));
+  // A minimal `engine/` source so the runtime-payload channel (payloadCopy) has
+  // something to ship into the private bundle `_<slug>/_engine/` — exercises the
+  // non-standard-folder namespacing for codex/opencode payload targets.
+  w('engine/resolver.js', "'use strict';\nmodule.exports = {};\n");
   return root;
 }
 
@@ -44,9 +48,14 @@ function cleanup(root) {
   fs.rmSync(root, { recursive: true, force: true });
 }
 
-// Standard single module covering the fixture dirs.
+// Standard single module covering the fixture dirs, plus a payload module that
+// ships the fixture `engine/` into the codex/opencode private bundle (so tests
+// exercise the non-standard-folder namespacing, not just the capability surface).
 function fixtureModules() {
-  return [{ id: 'm1', paths: ['agents', 'skills', 'commands', 'rules', 'mcp'], targets: [] }];
+  return [
+    { id: 'm1', paths: ['agents', 'skills', 'commands', 'rules', 'mcp'], targets: [] },
+    { id: 'engine-payload', paths: ['engine'], targets: ['claude'], payloadTargets: ['codex', 'opencode'] },
+  ];
 }
 
 module.exports = { makeCanonicalFixture, cleanup, fixtureModules, FIXTURE_PLUGIN_NAME };

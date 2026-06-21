@@ -27,10 +27,14 @@ const { planScaffold, getAdapter } = require('../engine/registry');
 const executor = require('../engine/executor');
 const { generators } = require('../engine/builder');
 const { OPENCODE_THEME_TOKENS } = require('../engine/frontmatter');
+const { pluginLabel, payloadBasePath, privateBundleDir } = require('../engine/helpers');
 const { cleanup } = require('./_fixture');
 
 const ROOT = path.join(__dirname, '..');
 const FIX = 'node scripts/evolve/project.mjs --apply';
+// The plugin's private bundle dir name inside a provider dotfolder (e.g.
+// `_global-plugins`), holding the namespaced runtime payload + (opencode) dist.
+const BUNDLE = privateBundleDir(ROOT);
 
 // Project the real canonical source for one target into a fresh temp root and
 // return the plan (so we can walk the planned destinations) plus that root.
@@ -38,9 +42,11 @@ function projectReal(target) {
   const { modules } = resolve(ROOT, { targets: ['all'] });
   const out = fs.mkdtempSync(path.join(os.tmpdir(), `gp-drift-${target}-`));
   // OpenCode validation requires its compiled payload to exist first — the real
-  // projector runs the build step into the output root before projecting.
+  // projector runs the build step into the output root before projecting. Pass the
+  // slug so the build lands in the namespaced private bundle (`_<slug>/dist/`) and
+  // emits the discovery loader, matching the committed layout.
   if (target === 'opencode') {
-    require('../engine/build-opencode').build(out);
+    require('../engine/build-opencode').build(out, pluginLabel(ROOT));
   }
   const plan = planScaffold({ target, repoRoot: ROOT, projectRoot: out, homeDir: out, modules });
   const res = executor.applyPlan(plan, { repoRoot: ROOT, generators });
@@ -150,7 +156,7 @@ test('committed OpenCode agents carry only valid colors (QUOTED hex or theme tok
 // (that would be the 0.7.0 bloat regression). It is allowed ONLY inside the
 // reserved `_engine/` runtime-payload subdir. This guards the 0.7.0 capability
 // guard while permitting the additive payload channel.
-test('no infrastructure dir leaks into the capability surface (only _engine/ may hold it)', () => {
+test('no infrastructure dir leaks into the capability surface (only the private bundle may hold it)', () => {
   const FORBIDDEN = ['engine', 'adapters', 'manifests', 'config', 'templates', 'docs'];
   for (const dot of ['.claude', '.codex', '.opencode']) {
     const base = path.join(ROOT, dot);
@@ -163,8 +169,16 @@ test('no infrastructure dir leaks into the capability surface (only _engine/ may
     for (const dir of FORBIDDEN) {
       assert.ok(
         !top.includes(dir),
-        `${dot}/${dir}/ leaked into the capability surface — infrastructure belongs only under ${dot}/_engine/. Run: ${FIX}`,
+        `${dot}/${dir}/ leaked into the capability surface — infrastructure belongs only under the private bundle ${dot}/${BUNDLE}/_engine/. Run: ${FIX}`,
       );
+    }
+    // No flat (un-namespaced) `_engine`/`dist` at the dotfolder root: they must
+    // live inside the private bundle `_<slug>/` so installs never collide.
+    if (dot !== '.claude') {
+      assert.ok(!top.includes('_engine'),
+        `${dot}/_engine/ is flat (un-namespaced) — it must live under ${dot}/${BUNDLE}/_engine/. Run: ${FIX}`);
+      assert.ok(!top.includes('dist'),
+        `${dot}/dist/ is flat (un-namespaced) — it must live under ${dot}/${BUNDLE}/dist/. Run: ${FIX}`);
     }
   }
 });
@@ -173,24 +187,32 @@ test('no infrastructure dir leaks into the capability surface (only _engine/ may
 // under _engine/ so they can generate/adapt/evolve themselves (Claude carries it
 // via the whole-repo install, so no _engine/ there). A partial payload would fail
 // at re-projection time on the user's machine — catch it here instead.
-test('codex and opencode ship a complete _engine runtime payload', () => {
+test('codex and opencode ship a complete _engine runtime payload in the private bundle', () => {
   const REQUIRED = [
     'engine/resolver.js', 'engine/projector.js', 'engine/executor.js', 'engine/builder.js',
     'engine/frontmatter.js', 'engine/helpers.js', 'engine/registry.js',
     'scripts/evolve/project.mjs', 'manifests/modules.json', 'adapters/registry.json',
   ];
   for (const dot of ['.codex', '.opencode']) {
-    const payload = path.join(ROOT, dot, '_engine');
-    assert.ok(fs.existsSync(payload), `${dot}/_engine/ missing — install cannot run the projection engine. Run: ${FIX}`);
+    const payload = payloadBasePath(path.join(ROOT, dot), ROOT);
+    assert.ok(fs.existsSync(payload), `${dot}/${BUNDLE}/_engine/ missing — install cannot run the projection engine. Run: ${FIX}`);
     for (const rel of REQUIRED) {
       assert.ok(
         fs.existsSync(path.join(payload, rel)),
-        `${dot}/_engine/${rel} missing — incomplete runtime payload. Run: ${FIX}`,
+        `${dot}/${BUNDLE}/_engine/${rel} missing — incomplete runtime payload. Run: ${FIX}`,
       );
     }
   }
+  // The OpenCode compiled plugin lives in the same private bundle, with a per-slug
+  // discovery loader in the shared plugins/ dir.
+  assert.ok(fs.existsSync(path.join(ROOT, '.opencode', BUNDLE, 'dist', 'index.js')),
+    `.opencode/${BUNDLE}/dist/index.js missing — compiled plugin not in the private bundle. Run: ${FIX}`);
+  assert.ok(fs.existsSync(path.join(ROOT, '.opencode', 'plugins', `${pluginLabel(ROOT)}.js`)),
+    `.opencode/plugins/${pluginLabel(ROOT)}.js missing — OpenCode discovery loader absent. Run: ${FIX}`);
   // Claude carries the engine at the repo root (whole-repo install), NOT in a
   // dotfolder payload.
   assert.ok(!fs.existsSync(path.join(ROOT, '.claude', '_engine')),
     '.claude/_engine/ should not exist — Claude carries the engine via the whole-repo install');
+  assert.ok(!fs.existsSync(path.join(ROOT, '.claude', BUNDLE)),
+    `.claude/${BUNDLE}/ should not exist — Claude carries the engine via the whole-repo install`);
 });

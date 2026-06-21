@@ -9,7 +9,7 @@
 One canonical source, every provider. Generate, adapt, and evolve AI coding plugins from a single description.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.0-green.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -87,12 +87,12 @@ opencode has no marketplace install for this plugin, so clone the repo, build th
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
+node engine/build-opencode.js . global-plugins   # build the compiled plugin into its private bundle
 mkdir -p ~/.config/opencode
 cp -R .opencode/. ~/.config/opencode/
 ```
 
-opencode reads its global config from `~/.config/opencode/` (not `~/.opencode/`). The build step is required before use; it produces `.opencode/dist/`.
+opencode reads its global config from `~/.config/opencode/` (not `~/.opencode/`). The build step is required before use; it produces the compiled plugin under the private bundle `.opencode/_global-plugins/dist/` plus a discovery loader at `.opencode/plugins/global-plugins.js`. All non-standard infrastructure lives under `.opencode/_global-plugins/` (and `.codex/_global-plugins/`), so this plugin installs cleanly beside any other plugin in the same config.
 
 See the [Provider Matrix](#provider-matrix) for the exact transform each provider applies.
 
@@ -110,7 +110,7 @@ See the [Provider Matrix](#provider-matrix) for the exact transform each provide
 
 Global Plugins is self-hosting: it ships its own `evolve` and `migrate` surface, and mirrors the same `/<plugin>:evolve` and `/<plugin>:migrate` into every plugin it generates.
 
-**Generate from any provider — not only Claude Code.** The projection engine travels with every install as a runtime payload, so an installed plugin can itself create/adapt/evolve multi-provider child plugins from all three CLIs. Claude Code carries it via its whole-repo install; **Codex** and **opencode** carry it under a reserved `_engine/` subdir (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). On Codex the agent runs the bundled engine with Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, one approval prompt per run); on opencode the compiled `dist/` plugin exposes native `generate`/`adapt`/`evolve`/`validate`/`migrate` tools backed by the same payload. Every generated child also ships the engine, so it is self-sufficient and re-projectable on its own.
+**Generate from any provider — not only Claude Code.** The projection engine travels with every install as a runtime payload, so an installed plugin can itself create/adapt/evolve multi-provider child plugins from all three CLIs. Claude Code carries it via its whole-repo install; **Codex** and **opencode** carry it inside the plugin's private bundle (`~/.codex/_global-plugins/_engine/`, `~/.config/opencode/_global-plugins/_engine/`) — namespaced by plugin so many installed plugins never overwrite each other's payload, while standard surfaces (agents/skills/commands, `plugins/`, `config.toml`) stay shared at the config root. On Codex the agent runs the bundled engine with Node (`cd ~/.codex/_global-plugins/_engine && node scripts/evolve/project.mjs`, one approval prompt per run); on opencode the compiled plugin (under `_global-plugins/dist/`, discovered via `plugins/global-plugins.js`) exposes native `global-plugins-{generate,adapt,evolve,validate,migrate}` tools backed by the same payload. Every generated child also ships the engine in its own `_<name>/` bundle, so it is self-sufficient, re-projectable, and collision-free on its own.
 
 ## Internal Architecture
 

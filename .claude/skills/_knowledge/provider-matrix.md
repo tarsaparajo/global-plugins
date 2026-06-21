@@ -57,6 +57,16 @@ The engine applies **keep/rewrite/drop** mechanically for the fields above (`eng
 
 `isForeignPlatformPath` blocks one provider's dotfolder shape from projecting into another's. Each dotfolder prefix is owned by exactly one target; `.claude` and `.claude-plugin` both belong to claude.
 
+## Non-standard folder placement (anti-collision)
+
+Capability NAMES are owner-prefixed (above), which keeps `agents/skills/commands` entries collision-free across installed plugins. Non-standard FOLDERS are namespaced instead: every plugin's non-standard infrastructure groups under one private bundle `_<slug>/` at the provider root. The full protocol — PRIVATE (`_engine/`, OpenCode `dist/`, `install-state.json`) vs SHARED (kept at root: `agents/`/`skills/`/`commands/`, `plugins/` + its per-slug loader, `opencode.json`, `AGENTS.md`/`CLAUDE.md`, Codex `config.toml`), the `dist`↔`_engine` sibling invariant, the OpenCode discovery loader, and the reserved-slug guard — is in **`skills/_knowledge/namespacing.md`**. Engine: `helpers.privateBundleDir`/`payloadBasePath`, `_base.payloadCopy`, `build-opencode.js`.
+
+| Provider | Standard/shared (root) | Private bundle `_<slug>/` |
+|---|---|---|
+| claude | whole-repo install model | (n/a — Claude installs the whole repo) |
+| codex | `config.toml`, `AGENTS.md`, `skills/`, `commands/` | `_engine/`, `install-state.json` |
+| opencode | `agents/`, `skills/`, `commands/`, `plugins/<slug>.js`, `opencode.json` | `_engine/`, `dist/`, `install-state.json` |
+
 ## Reverse transforms (adapt)
 
 The capability-extractor inverts each transform back to canonical (Claude-shaped) frontmatter:

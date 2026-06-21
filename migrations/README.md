@@ -4,4 +4,4 @@ This directory holds one `<version>.md` per breaking release. Each migration is 
 
 | Version | From | Risk | Reversible |
 |---------|------|------|------------|
-| _(none yet)_ | | | |
+| 1.0.0 | >=0.7.0 <1.0.0 | medium | yes |

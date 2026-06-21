@@ -5,6 +5,25 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-06-21
+
+### Changed
+
+- **Every plugin's non-standard folders now live in a single per-plugin private bundle `_<slug>/` inside each provider home, so many plugins install side-by-side without colliding.** Previously the runtime payload (`_engine/`), the OpenCode compiled plugin (`dist/`), and the install-state file sat LOOSE at the OpenCode/Codex config root with no namespacing — installing a second plugin overwrote the first's `_engine/`/`dist/`. Now: `~/.config/opencode/_<slug>/{_engine,dist,install-state.json}` + a per-slug discovery loader `~/.config/opencode/plugins/<slug>.js`, and `~/.codex/_<slug>/{_engine,install-state.json}`. Standard/shared surfaces are unchanged and stay at the root (`agents/`, `skills/`, `commands/`, `plugins/`, `opencode.json`, `AGENTS.md`, `config.toml`). OpenCode tool names are slug-prefixed (`<slug>-generate`, …) so two installs never shadow each other. The rule is deterministic in the engine (`engine/helpers.js` `privateBundleDir`/`payloadBasePath`, `engine/providers/_base.js` `payloadCopy`, `engine/build-opencode.js`) and documented in the new `skills/_knowledge/namespacing.md`; the `generate`/`adapt` doctrine, the `canonical-projector`/`plugin-architect` agents, and the provider-matrix/opencode-harness/codex-harness references all teach it, so every generated and adapted child inherits it.
+- OpenCode discovery is now explicit: the compiled plugin lives in the private bundle and a thin per-slug loader at the shared `plugins/<slug>.js` (a documented OpenCode auto-discovery path) re-exports it — namespacing no longer hides the plugin from OpenCode's loader.
+
+### Fixed
+
+- **Latent OpenCode payload-resolution bug.** The compiled `dist/tools/index.js` resolved the runtime payload as `path.join(__dirname, '..', '_engine')` = `dist/_engine`, which never existed (the payload was at `.opencode/_engine`, two levels up), so the OpenCode native tools could never find the engine. With `dist/` and `_engine/` now siblings inside `_<slug>/`, the loader resolves `../../_engine` correctly.
+
+### Breaking Changes
+
+- Installed copies on **codex** and **opencode** change layout: non-standard infrastructure moves from the flat config-root (`_engine/`, `dist/`) into the private bundle `_<slug>/`. A plain re-copy leaves the old flat dirs orphaned (and an orphaned old `dist/` can still be auto-loaded by OpenCode), so they must be removed. See [migrations/1.0.0.md](migrations/1.0.0.md). Claude Code installs are unaffected; a fresh install needs no migration.
+
+### Migrations
+
+- [migrations/1.0.0.md](migrations/1.0.0.md) — removes the flat `_engine/`/`dist/` and the old `global-plugins-install-state.json` from codex/opencode installs, then re-copies the namespaced layout. Dry-run / apply / rollback via `/global-plugins:migrate`.
+
 ## [0.10.0] - 2026-06-21
 
 ### Added

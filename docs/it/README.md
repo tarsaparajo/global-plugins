@@ -9,7 +9,7 @@
 Un’unica fonte canonica, ogni provider. Genera, adatta ed evolvi plugin di IA per la programmazione da una singola descrizione.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**

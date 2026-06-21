@@ -14,7 +14,8 @@ const executor = require('../../engine/executor');
 const projector = require('../../engine/projector');
 const parity = require('../../engine/parity');
 const { generators } = require('../../engine/builder');
-const { makeCanonicalFixture, cleanup, fixtureModules } = require('../_fixture');
+const { pluginLabel } = require('../../engine/helpers');
+const { makeCanonicalFixture, cleanup, fixtureModules, FIXTURE_PLUGIN_NAME } = require('../_fixture');
 
 test('every provider projects and passes parity', () => {
   const root = makeCanonicalFixture();
@@ -22,9 +23,10 @@ test('every provider projects and passes parity', () => {
   try {
     for (const adapter of listProviders()) {
       const target = adapter.target;
-      // OpenCode needs its compiled payload before validation; build it first.
+      // OpenCode needs its compiled payload before validation; build it first
+      // into the namespaced bundle using the fixture slug.
       if (target === 'opencode') {
-        require('../../engine/build-opencode').build(out);
+        require('../../engine/build-opencode').build(out, pluginLabel(root));
       }
       const opts = { repoRoot: root, projectRoot: out, homeDir: out, modules: fixtureModules() };
       const plan = planScaffold({ target, ...opts });
@@ -47,11 +49,14 @@ test('opencode build step produces the required dist artefacts', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'gp-oc-'));
   try {
     const { build } = require('../../engine/build-opencode');
-    const res = build(out);
+    const slug = FIXTURE_PLUGIN_NAME;
+    const bundle = `_${slug}`;
+    const res = build(out, slug);
     assert.ok(res.ok);
-    assert.ok(fs.existsSync(path.join(out, '.opencode', 'dist', 'index.js')));
-    assert.ok(fs.existsSync(path.join(out, '.opencode', 'dist', 'plugins')));
-    assert.ok(fs.existsSync(path.join(out, '.opencode', 'dist', 'tools')));
+    assert.ok(fs.existsSync(path.join(out, '.opencode', bundle, 'dist', 'index.js')));
+    assert.ok(fs.existsSync(path.join(out, '.opencode', bundle, 'dist', 'plugins')));
+    assert.ok(fs.existsSync(path.join(out, '.opencode', bundle, 'dist', 'tools')));
+    assert.ok(fs.existsSync(path.join(out, '.opencode', 'plugins', `${slug}.js`)));
   } finally {
     cleanup(out);
   }
