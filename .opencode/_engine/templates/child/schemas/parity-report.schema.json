@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParityReport",
+  "type": "object",
+  "required": ["version", "ok", "targets"],
+  "properties": {
+    "version": { "type": "string" },
+    "ok": { "type": "boolean" },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "checks", "ok"],
+        "properties": {
+          "id": { "type": "string" },
+          "checks": {
+            "type": "object",
+            "properties": {
+              "coverage": { "type": "boolean" },
+              "noOrphan": { "type": "boolean" },
+              "determinism": { "type": "boolean" },
+              "roundTrip": { "type": "boolean" },
+              "containment": { "type": "boolean" }
+            }
+          },
+          "ok": { "type": "boolean" }
+        }
+      }
+    },
+    "failures": { "type": "array" }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ChangeSet",
+  "type": "object",
+  "required": ["fromVersion", "operations"],
+  "properties": {
+    "fromVersion": { "type": "string" },
+    "computedAt": { "type": "string" },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["op", "componentId", "kind"],
+        "properties": {
+          "op": { "enum": ["add", "modify", "remove", "rename", "move"] },
+          "componentId": { "type": "string" },
+          "kind": { "enum": ["agent", "command", "skill", "hook", "rule", "mcp", "manifest"] },
+          "canonicalPath": { "type": "string" },
+          "fromHash": { "type": ["string", "null"] },
+          "toHash": { "type": ["string", "null"] },
+          "targets": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

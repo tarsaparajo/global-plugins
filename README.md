@@ -110,6 +110,8 @@ See the [Provider Matrix](#provider-matrix) for the exact transform each provide
 
 Global Plugins is self-hosting: it ships its own `evolve` and `migrate` surface, and mirrors the same `/<plugin>:evolve` and `/<plugin>:migrate` into every plugin it generates.
 
+**Generate from any provider — not only Claude Code.** The projection engine travels with every install as a runtime payload, so an installed plugin can itself create/adapt/evolve multi-provider child plugins from all three CLIs. Claude Code carries it via its whole-repo install; **Codex** and **opencode** carry it under a reserved `_engine/` subdir (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). On Codex the agent runs the bundled engine with Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, one approval prompt per run); on opencode the compiled `dist/` plugin exposes native `generate`/`adapt`/`evolve`/`validate`/`migrate` tools backed by the same payload. Every generated child also ships the engine, so it is self-sufficient and re-projectable on its own.
+
 ## Internal Architecture
 
 Canonical source → **resolver** (provider registry + 3-tier manifests: profiles → modules → components) → per-provider **projection** modules → projection **executor**. A compositional design lens shapes a plugin's harness from a natural-language request. Governance (SemVer sync, changelog, parity, prompt-defense, compliance) is built into the engine.

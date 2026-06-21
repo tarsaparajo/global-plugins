@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "description": "Target-adapter registry. One entry per supported provider. The engine resolves a canonical source against this registry to project it into each provider's native dotfolder. To extend support, append a real entry here plus adapters/providers/<id>.md and engine/providers/<id>.js plus tests/providers/test_<id>_provider — never add placeholder entries for unbuilt providers.",
+  "providers": [
+    {
+      "id": "claude-home",
+      "target": "claude",
+      "kind": "home",
+      "rootSegments": [
+        ".claude"
+      ],
+      "installStatePathSegments": [
+        "global-plugins",
+        "install-state.json"
+      ],
+      "nativeRootRelativePath": ".claude-plugin",
+      "transforms": [
+        "copy-path",
+        "merge-json:.mcp.json",
+        "resolve-hooks-plugin-root",
+        "inject-prompt-defense"
+      ],
+      "stability": "stable"
+    },
+    {
+      "id": "codex-home",
+      "target": "codex",
+      "kind": "home",
+      "rootSegments": [
+        ".codex"
+      ],
+      "installStatePathSegments": [
+        "global-plugins-install-state.json"
+      ],
+      "nativeRootRelativePath": ".codex",
+      "transforms": [
+        "agents->config.toml-tables",
+        "frontmatter-adapt:drop",
+        "emit:AGENTS.md",
+        "emit:config.toml",
+        "inject-prompt-defense:string-field"
+      ],
+      "stability": "stable"
+    },
+    {
+      "id": "opencode-home",
+      "target": "opencode",
+      "kind": "home",
+      "rootSegments": [
+        ".opencode"
+      ],
+      "installStatePathSegments": [
+        "global-plugins-install-state.json"
+      ],
+      "nativeRootRelativePath": ".opencode",
+      "buildStep": {
+        "command": "node engine/build-opencode.js",
+        "requires": [
+          ".opencode/dist/index.js",
+          ".opencode/dist/plugins/",
+          ".opencode/dist/tools/"
+        ]
+      },
+      "transforms": [
+        "copy-path",
+        "frontmatter-adapt:rewrite",
+        "compiled-plugin:dist",
+        "inject-prompt-defense"
+      ],
+      "stability": "stable"
+    }
+  ]
+}

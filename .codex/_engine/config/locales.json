@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "description": "Single source of truth for the README language selector, the docs/<locale>/ scaffold, and the i18n compliance check. English is the root README and is not listed as a docs locale.",
+  "root": { "label": "English", "path": "README.md" },
+  "locales": [
+    { "label": "Português (Brasil)", "dir": "pt-BR" },
+    { "label": "简体中文", "dir": "zh-CN" },
+    { "label": "繁體中文", "dir": "zh-TW" },
+    { "label": "日本語", "dir": "ja-JP" },
+    { "label": "한국어", "dir": "ko-KR" },
+    { "label": "Türkçe", "dir": "tr" },
+    { "label": "Русский", "dir": "ru" },
+    { "label": "Tiếng Việt", "dir": "vi-VN" },
+    { "label": "ไทย", "dir": "th" },
+    { "label": "Deutsch", "dir": "de-DE" },
+    { "label": "Español", "dir": "es" },
+    { "label": "Français", "dir": "fr" },
+    { "label": "Italiano", "dir": "it" }
+  ],
+  "multilingualHeader": "Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua"
+}

@@ -5,6 +5,22 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-06-21
+
+### Added
+
+- **Installed plugins are now self-generating on every provider, not only Claude Code.** Generation is a deterministic Node program (the projection engine + manifests + adapters + templates); it only ran where the engine was present on disk. Claude got it via its whole-repo install; Codex/OpenCode installs carried only the model-facing capability surface, so they could not generate/adapt/evolve. A new **runtime-payload projection channel** now ships `engine/ + scripts/evolve/ + manifests/ + adapters/ + templates/ + .evolution/baseline/` into a reserved **non-capability** subdir `_engine/` of Codex and OpenCode installs (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). This is **additive** — it does NOT weaken the 0.7.0 anti-bloat guard that keeps infrastructure out of the capability surface (a new `payloadTargets[]` on `engine-core`/`manifests-core`/`child-templates` in `manifests/modules.json`; a `payloadCopy` handler in `engine/providers/_base.js`; the full module list threaded as `allModules` so payload modules reach the planner without re-entering the capability set). Codex runs the engine via Node (`sandbox_mode = "workspace-write"`, `approval_policy = "on-request"`): `cd ~/.codex/_engine && node scripts/evolve/project.mjs --apply <child>`.
+- **OpenCode native plugin tools.** `engine/build-opencode.js` no longer emits empty stubs — it builds a real in-process `Plugin` (`@opencode-ai/plugin`) exposing `global-plugins-{generate,adapt,evolve,validate,migrate}` tools whose `execute` shells out (Bun `$`) to the bundled `_engine/` payload. `dist/` stays re-derived and drift-guarded.
+- **Generated children now actually bundle the engine they need.** The child re-projection wrappers (`templates/child/scripts/evolve/*.mjs`) require `./engine` + `./manifests` and hard-fail without them, but nothing copied the engine into a child — children could not self-evolve. The `generate`/`adapt` doctrine now seeds `engine/ + scripts/evolve/ + manifests/ + adapters/ + .evolution/baseline/` into every child's canonical root, so each child is self-sufficient and re-projectable on its own.
+
+### Fixed
+
+- **Stale `_base.js` comment** that claimed unknown dirs "fall back to a verbatim copy" — the code skips them; the comment now describes the real behavior and the separate payload channel.
+
+### Guards
+
+- The projection-drift guard (`tests/test_projection_drift.js`) now byte-checks the `_engine/` payload, asserts no infrastructure leaks into the capability surface, and asserts the payload is COMPLETE (required engine modules + scripts + manifests + adapters present). `engine/compliance.js` gains the same payload-completeness check so `validate`/`audit`/CI catch a partial payload. 60/60 tests; `npm run validate` `ok:true`; the engine is proven to run from a relocated `_engine/` payload (planned 127 ops across all three targets from a temp dir).
+
 ## [0.8.1] - 2026-06-21
 
 ### Fixed

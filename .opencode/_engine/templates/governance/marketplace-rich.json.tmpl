@@ -1,0 +1,34 @@
+{
+  "name": "{{plugin.identifier}}",
+  "owner": { "name": "{{author.name}}", "email": "{{author.email}}" },
+  "metadata": { "description": "{{plugin.description}}" },
+  "plugins": [
+    {
+      "name": "{{plugin.identifier}}",
+      "source": "./",
+      "description": "{{plugin.description}}",
+      "version": "{{plugin.version}}",
+      "author": { "name": "{{author.name}}", "email": "{{author.email}}", "url": "{{author.url}}" },
+      "homepage": "{{plugin.homepage}}",
+      "license": "{{license}}",
+      "keywords": {{keywords}},
+      "category": "{{category}}",
+      "tags": {{tags}},
+      "strict": false,
+      "interface": {
+        "displayName": "{{plugin.name}}",
+        "shortDescription": "{{plugin.shortDescription}}",
+        "longDescription": "{{plugin.longDescription}}",
+        "developerName": "{{author.name}}",
+        "category": "{{interface.category}}",
+        "capabilities": {{interface.capabilities}},
+        "websiteURL": "{{plugin.homepage}}",
+        "brandColor": "{{interface.brandColor}}",
+        "composerIcon": "./assets/icon.svg",
+        "logo": "./assets/hero.png",
+        "screenshots": [],
+        "defaultPrompt": {{interface.defaultPrompt}}
+      }
+    }
+  ]
+}
