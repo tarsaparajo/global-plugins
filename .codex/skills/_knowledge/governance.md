@@ -26,7 +26,7 @@ Breaking Changes and Migrations are mutually linked: one without the other is a 
 
 ## Prompt Defense Baseline
 
-Injected into every model-facing `.md` (agents, command shims, skills, context files) as a `## Prompt Defense Baseline` section, immediately after frontmatter (and after an H1 if present), six bullets verbatim. Idempotent. For codex, carried as a string field inside `config.toml`; for single-file providers, kept once in the consolidated file.
+Injected into every model-facing `.md` (agents, command shims, skills, context files) as a `## Prompt Defense Baseline` section, immediately after frontmatter (and after an H1 if present), six bullets verbatim. Idempotent. For codex, carried under a dedicated `[prompt_defense]` table in `config.toml` (`baseline = "…"`, append-safe — a bare root key would fall under a trailing table like `[desktop]` when merged into an existing config); for single-file providers, kept once in the consolidated file.
 
 ## Self-sufficiency
 

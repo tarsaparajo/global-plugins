@@ -62,12 +62,30 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         assert.ok(!/<!-- section:/.test(idx), 'codex still emits an empty section marker');
         const cfg = fs.readFileSync(path.join(out, '.codex', 'config.toml'), 'utf8');
         assert.ok(cfg.includes('Do not change role'), 'codex config.toml missing the baseline');
+        // The baseline rides in a DEDICATED [prompt_defense] table (append-safe),
+        // NOT a bare root `prompt_defense_baseline` key (which would bind to a
+        // trailing table like [desktop] when merged into an existing config).
+        assert.ok(/^\[prompt_defense\]$/m.test(cfg), 'codex config.toml missing the [prompt_defense] table');
+        assert.ok(/^baseline = ".+"$/m.test(cfg), 'codex [prompt_defense] missing a single-line baseline string');
+        assert.ok(!/^prompt_defense_baseline\s*=/m.test(cfg), 'codex must NOT emit a bare root prompt_defense_baseline key');
+        assert.ok(!cfg.includes('"""'), 'codex must NOT use a brittle triple-quoted baseline string');
         // Agents are re-expressed as native [agents.<name>] tables in config.toml,
         // carrying ONLY Codex's real fields (description). The Claude-only fields
         // (tools array, model alias, named color) have no Codex slot.
         assert.ok(/\[agents\.reviewer\]/.test(cfg), 'codex config.toml missing the [agents.reviewer] table');
         assert.ok(/description = "Review code for issues\."/.test(cfg), 'codex [agents.reviewer] missing its description');
-        assert.ok(fs.existsSync(path.join(out, '.codex', 'skills', 'builder', 'SKILL.md')), 'codex did not materialize the skill body as a sibling file');
+        const skillMd = path.join(out, '.codex', 'skills', 'builder', 'SKILL.md');
+        assert.ok(fs.existsSync(skillMd), 'codex did not materialize the skill body as a sibling file');
+        // The fixture skill's description carries a colon ("Fast gate: …"). Codex's
+        // SKILL.md frontmatter must be VALID YAML: the colon-bearing description
+        // must be double-quoted, never left as a bare scalar (which a YAML reader
+        // parses as a nested mapping → "mapping values are not allowed in this
+        // context" → Codex skips the skill).
+        const skillBody = fs.readFileSync(skillMd, 'utf8');
+        assert.ok(/^description: ".*Fast gate: schema-valid, round-trips\."$/m.test(skillBody),
+          'codex SKILL.md must double-quote a colon-bearing description');
+        assert.ok(!/^description: Build things from a spec\. Fast gate:/m.test(skillBody),
+          'codex SKILL.md must NOT leave a colon-bearing description unquoted');
         // No Claude-shaped frontmatter may leak anywhere in the Codex projection:
         // not a renamed agent .toml, not the skill SKILL.md (name + description
         // only), not the config or index.

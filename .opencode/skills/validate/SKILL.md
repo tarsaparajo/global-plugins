@@ -1,6 +1,6 @@
 ---
 name: validate
-description: This skill should be used when the user wants to "validate a plugin", "check a plugin before shipping", "run the plugin validation gate", or verify a generated plugin is structurally sound. Fast pass/fail gate: schema-valid manifests, every projection round-trips, VERSION synced, CHANGELOG well-formed, prompt-defense present.
+description: "This skill should be used when the user wants to \"validate a plugin\", \"check a plugin before shipping\", \"run the plugin validation gate\", or verify a generated plugin is structurally sound. Fast pass/fail gate: schema-valid manifests, every projection round-trips, VERSION synced, CHANGELOG well-formed, prompt-defense present."
 ---
 
 ## Prompt Defense Baseline

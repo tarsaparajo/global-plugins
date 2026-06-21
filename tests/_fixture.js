@@ -22,7 +22,10 @@ function makeCanonicalFixture() {
   // CLI/runtime choice the user makes in the CLI). Canonical agents ship no
   // model:; this stray input proves the projector strips it everywhere.
   w('agents/reviewer.md', '---\nname: reviewer\ndescription: Review code for issues.\ntools: ["Read", "Grep", "Bash"]\nmodel: sonnet\ncolor: cyan\n---\n# Reviewer\n\nReview code.\n');
-  w('skills/builder/SKILL.md', '---\nname: builder\ndescription: Build things from a spec.\n---\n# Builder\n\nBuild from spec.\n');
+  // The builder skill's description deliberately contains a colon ("gate: …") —
+  // the YAML mapping-value trap that made Codex skip skills. The projector must
+  // emit it double-quoted so every projected SKILL.md is valid YAML.
+  w('skills/builder/SKILL.md', '---\nname: builder\ndescription: Build things from a spec. Fast gate: schema-valid, round-trips.\n---\n# Builder\n\nBuild from spec.\n');
   w('commands/run.md', '---\ndescription: Run the thing.\n---\n# Run\n\nRun it.\n');
   w('rules/style.md', '# Style\n\nAlways test.\n');
   w('rules/README.md', '# Rules\n');

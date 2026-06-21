@@ -118,15 +118,23 @@ const generators = {
   'codex:config-toml'(op, ctx) {
     const defense = require('./prompt-defense').baselineBlock();
     const agentTables = codexAgentTables(ctx.repoRoot);
+    // The baseline is carried as `[prompt_defense] baseline = "…"` — a DEDICATED
+    // TOML table, NOT a bare root key. A bare root key is position-dependent: when
+    // this generated config is appended/merged into an existing ~/.codex/config.toml
+    // that already ends in tables (e.g. [desktop]), a trailing root key falls under
+    // the LAST table and Codex reads it as desktop.prompt_defense_baseline. A table
+    // header re-scopes everything after it, so `[prompt_defense]` is append-safe at
+    // any position. The value is one escaped basic string via tomlString() (folds
+    // newlines, escapes \\ and "), which also avoids the brittle triple-quoted form
+    // (a `"""` inside the baseline would terminate it early).
     return [
       '#:schema https://developers.openai.com/codex/config-schema.json',
       '',
       'approval_policy = "on-request"',
       'sandbox_mode = "workspace-write"',
       '',
-      'prompt_defense_baseline = """',
-      defense,
-      '"""',
+      '[prompt_defense]',
+      `baseline = ${tomlString(defense)}`,
       agentTables,
     ].join('\n');
   },

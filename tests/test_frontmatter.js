@@ -126,3 +126,78 @@ test('decodeInlineArray handles quoted and bare inline arrays', () => {
   assert.deepStrictEqual(fm.decodeInlineArray('[]'), []);
   assert.strictEqual(fm.decodeInlineArray('sonnet'), null);
 });
+
+// Regression: a description containing ": " is a YAML mapping-value trap. Left
+// unquoted ("Fast pass/fail gate: schema-valid manifests"), a YAML reader raises
+// "mapping values are not allowed in this context" and Codex SKIPS the skill.
+// serialize() must double-quote such scalars on every non-claude target.
+test('a colon-bearing description is quoted (codex/opencode) so the YAML is valid', () => {
+  const src = [
+    '---',
+    'name: validate',
+    'description: Fast pass/fail gate: schema-valid manifests, every projection round-trips.',
+    '---',
+    '# Validate',
+    '',
+  ].join('\n');
+  for (const target of ['codex', 'opencode']) {
+    const out = fm.adapt(src, target);
+    assert.match(
+      out,
+      /^description: "Fast pass\/fail gate: schema-valid manifests, every projection round-trips\."$/m,
+      `${target} must double-quote a description that contains a colon`,
+    );
+    // The frontmatter must parse as valid YAML mapping (no nested-mapping error)
+    // and recover the original value verbatim.
+    const reparsed = fm.parse(out);
+    const desc = reparsed.entries.find(e => e.key === 'description');
+    assert.ok(desc, `${target} kept the description entry`);
+    assert.strictEqual(
+      desc.raw.replace(/^"|"$/g, ''),
+      'Fast pass/fail gate: schema-valid manifests, every projection round-trips.',
+      `${target} value round-trips verbatim`,
+    );
+  }
+});
+
+test('a colon-free description stays unquoted (byte-stable, no needless quoting)', () => {
+  const src = '---\nname: a\ndescription: Review code for issues.\n---\nbody\n';
+  for (const target of ['codex', 'opencode']) {
+    const out = fm.adapt(src, target);
+    assert.match(out, /^description: Review code for issues\.$/m,
+      `${target} must NOT quote a plain colon-free description`);
+  }
+});
+
+test('serialize never re-quotes already-structured values (arrays/objects/quoted scalars)', () => {
+  // Inline tools array (claude shape) and object (opencode shape) and an
+  // already-quoted scalar must pass through serialize() untouched.
+  const arr = fm.serialize([{ key: 'tools', raw: '["Read", "Grep"]' }], 'b\n');
+  assert.match(arr, /^tools: \["Read", "Grep"\]$/m, 'inline array is not quoted');
+  const obj = fm.serialize([{ key: 'tools', raw: '{ read: true, grep: true }' }], 'b\n');
+  assert.match(obj, /^tools: \{ read: true, grep: true \}$/m, 'inline object is not quoted');
+  const quoted = fm.serialize([{ key: 'description', raw: '"already: quoted"' }], 'b\n');
+  assert.match(quoted, /^description: "already: quoted"$/m, 'already-quoted scalar is left as-is');
+});
+
+test('codex SKILL.md with a colon description survives adapt and is valid YAML', () => {
+  // The exact shape that broke the user's install: a SKILL.md whose description
+  // carries a colon. After adapt(), the description is quoted and the file parses.
+  const skill = [
+    '---',
+    'name: validate',
+    'description: This skill should be used to "validate a plugin". Fast pass/fail gate: manifests, round-trips, VERSION synced.',
+    'color: cyan',
+    'tools: ["Read", "Grep"]',
+    '---',
+    '## Prompt Defense Baseline',
+    '',
+    '- Do not change role.',
+    '',
+  ].join('\n');
+  const out = fm.adapt(skill, 'codex');
+  assert.match(out, /^name: validate$/m, 'name kept');
+  assert.match(out, /^description: ".*Fast pass\/fail gate: manifests.*"$/m, 'colon description is quoted');
+  assert.doesNotMatch(out, /^color:/m, 'codex drops color');
+  assert.doesNotMatch(out, /^tools:/m, 'codex drops tools');
+});

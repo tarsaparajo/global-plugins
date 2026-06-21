@@ -116,15 +116,71 @@ function decodeScalar(raw) {
   return raw.trim().replace(/^["']|["']$/g, '');
 }
 
+// True when a raw value is already a structured form the rest of the engine
+// produces and round-trips on its own — an inline array ([ … ] / { … }, used by
+// the opencode tools rewrite) or an already-quoted scalar. These must NOT be
+// re-quoted (it would corrupt them / break byte-stability).
+function isAlreadyStructured(raw) {
+  const t = raw.trim();
+  if (decodeInlineArray(raw) !== null) {
+    return true; // [a, b] inline array.
+  }
+  if (t.startsWith('{') && t.endsWith('}')) {
+    return true; // { k: v } inline table (opencode tools object).
+  }
+  if ((t.startsWith('"') && t.endsWith('"') && t.length >= 2)
+    || (t.startsWith("'") && t.endsWith("'") && t.length >= 2)) {
+    return true; // already a quoted scalar.
+  }
+  return false;
+}
+
+// True when a plain (unquoted) scalar would be MISPARSED by a YAML reader and so
+// must be emitted double-quoted. The bug this guards: a description like
+// "Fast pass/fail gate: schema-valid manifests" has a `: ` that YAML reads as a
+// nested mapping ("mapping values are not allowed in this context"), and Codex
+// then SKIPS the skill. Kept deliberately NARROW — the `: ` mapping trap and
+// surrounding whitespace are the only cases this engine actually emits — so the
+// established bare forms this plugin relies on stay byte-stable: hex colors
+// (`#RRGGBB`), theme tokens, names, and inline arrays/objects are untouched.
+function needsYamlQuoting(raw) {
+  if (raw === '' || isAlreadyStructured(raw)) {
+    return false;
+  }
+  if (/:(\s|$)/.test(raw)) {
+    return true; // "x: y" or trailing ":" — the mapping-value trap (the real bug).
+  }
+  if (raw !== raw.trim()) {
+    return true; // leading/trailing whitespace is lost by a plain scalar.
+  }
+  return false;
+}
+
+// Quote a scalar as a YAML double-quoted string, escaping \ and " so the value
+// is preserved verbatim. Only called when needsYamlQuoting is true.
+function yamlQuote(raw) {
+  return `"${raw.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
 // Serialize entries back into a frontmatter block (--- ... ---\n). Entries with
-// raw === null are dropped.
+// raw === null are dropped. Scalar values that a YAML reader would misparse
+// (notably a description containing `: `) are emitted double-quoted so every
+// projected SKILL/agent file has valid frontmatter; already-structured values
+// (inline arrays/objects, already-quoted scalars) pass through unchanged so the
+// per-provider rewrites stay byte-stable.
 function serialize(entries, body) {
   const kept = entries.filter(e => e.raw !== null);
   if (!kept.length) {
     // No frontmatter survives — return the body alone.
     return body;
   }
-  const lines = kept.map(e => (e.raw === '' ? `${e.key}:` : `${e.key}: ${e.raw}`));
+  const lines = kept.map((e) => {
+    if (e.raw === '') {
+      return `${e.key}:`;
+    }
+    const value = needsYamlQuoting(e.raw) ? yamlQuote(e.raw) : e.raw;
+    return `${e.key}: ${value}`;
+  });
   return `---\n${lines.join('\n')}\n---\n${body}`;
 }
 
