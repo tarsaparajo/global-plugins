@@ -110,6 +110,8 @@ Siehe die [Provider-Matrix](#provider-matrix) für die genaue Transformation, di
 
 Global Plugins ist selbsttragend: Es liefert seine eigene evolve- und migrate-Oberfläche mit und spiegelt dieselben `/<plugin>:evolve` und `/<plugin>:migrate` in jedes Plugin, das es erzeugt.
 
+**Generiere von jedem Anbieter — nicht nur von Claude Code.** Die Projektions-Engine reist mit jeder Installation als Runtime-Payload mit, sodass ein installiertes Plugin selbst multi-anbieterfähige Kind-Plugins aus allen drei CLIs erstellen/anpassen/weiterentwickeln kann. Claude Code trägt sie über die Installation des gesamten Repositorys; **Codex** und **opencode** tragen sie unter einem reservierten Unterverzeichnis `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). Unter Codex führt der Agent die gebündelte Engine mit Node aus (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, mit einer Freigabe pro Ausführung); unter opencode stellt das kompilierte Plugin in `dist/` native Werkzeuge `generate`/`adapt`/`evolve`/`validate`/`migrate` bereit, die auf demselben Payload aufbauen. Auch jedes erzeugte Kind bringt die Engine mit und ist daher eigenständig und selbst neu projizierbar.
+
 ## Interne Architektur
 
 Kanonische Quelle → **Resolver** (Provider-Registry + 3-stufige Manifeste: Profile → Module → Komponenten) → providerspezifische **Projektions**-Module → Projektions-**Executor**. Eine kompositionelle Design-Lens formt das Gerüst eines Plugins aus einer Anfrage in natürlicher Sprache. Governance (SemVer-Synchronisation, Changelog, Parität, Prompt-Defense, Compliance) ist in die Engine eingebaut.

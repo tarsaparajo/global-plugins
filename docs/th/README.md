@@ -110,6 +110,8 @@ opencode อ่าน config ระดับ global ของมันจาก 
 
 Global Plugins เป็นแบบ self-hosting คือมาพร้อมพื้นผิวคำสั่ง `evolve` และ `migrate` ของตัวเอง และสะท้อน `/<plugin>:evolve` และ `/<plugin>:migrate` แบบเดียวกันนี้ไปยังทุกปลั๊กอินที่มันสร้างขึ้น
 
+**สร้างจากผู้ให้บริการใดก็ได้ — ไม่ใช่แค่ Claude Code.** เอนจินการฉาย (projection engine) เดินทางไปกับทุกการติดตั้งในรูปแบบ runtime payload ดังนั้นปลั๊กอินที่ติดตั้งแล้วสามารถสร้าง/ปรับ/วิวัฒน์ปลั๊กอินลูกแบบหลายผู้ให้บริการได้ด้วยตัวเองจากทั้งสาม CLI โดย Claude Code นำพามันไปผ่านการติดตั้งทั้งรีโพ ส่วน **Codex** และ **opencode** นำพามันไว้ใต้ไดเรกทอรีย่อยสงวน `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`) บน Codex เอเจนต์จะรันเอนจินที่บันเดิลไว้ด้วย Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs` โดยมีการอนุมัติหนึ่งครั้งต่อการรัน) ส่วนบน opencode ปลั๊กอินที่คอมไพล์แล้วใน `dist/` จะเปิดเผยเครื่องมือเนทีฟ `generate`/`adapt`/`evolve`/`validate`/`migrate` ที่อาศัย payload เดียวกัน ปลั๊กอินลูกที่สร้างขึ้นทุกตัวก็พกเอนจินไปด้วย จึงพึ่งพาตัวเองได้และฉายใหม่ได้ด้วยตัวเอง
+
 ## สถาปัตยกรรมภายใน
 
 canonical source → **resolver** (provider registry + manifest แบบ 3 ชั้น: profiles → modules → components) → โมดูล **projection** ต่อผู้ให้บริการแต่ละราย → **executor** ของการฉายภาพ เลนส์การออกแบบเชิงประกอบ (compositional design lens) จะกำหนดรูปร่าง harness ของปลั๊กอินจากคำขอที่เป็นภาษาธรรมชาติ ส่วนการกำกับดูแล (การซิงก์ SemVer, changelog, parity, prompt-defense, compliance) ถูกสร้างไว้ในเอนจินแล้ว

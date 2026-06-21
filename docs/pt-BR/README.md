@@ -110,6 +110,8 @@ Consulte a [Matriz de provedores](#provider-matrix) para a transformação exata
 
 O Global Plugins é autoexecutável: ele inclui sua própria superfície de evolução e migração e espelha os mesmos `/<plugin>:evolve` e `/<plugin>:migrate` em cada plugin que gera.
 
+**Gere a partir de qualquer provedor — não só do Claude Code.** O motor de projeção viaja com toda instalação como um runtime payload, então um plugin instalado pode ele mesmo criar/adaptar/evoluir plugins filhos multiprovedor a partir das três CLIs. O Claude Code o carrega via instalação do repositório inteiro; o **Codex** e o **opencode** o carregam sob um subdiretório reservado `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). No Codex o agente roda o motor empacotado com o Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, com uma aprovação por execução); no opencode o plugin compilado em `dist/` expõe ferramentas nativas `generate`/`adapt`/`evolve`/`validate`/`migrate` apoiadas pelo mesmo payload. Todo filho gerado também leva o motor, então é autossuficiente e reprojetável por conta própria.
+
 ## Arquitetura interna
 
 Fonte canônica → **resolver** (registry de provedores + manifestos em 3 camadas: profiles → modules → components) → módulos de **projeção** por provedor → **executor** de projeção. Uma lente de design composicional molda o harness de um plugin a partir de uma solicitação em linguagem natural. A governança (sincronização de SemVer, changelog, paridade, defesa de prompt, conformidade) é embutida no motor.

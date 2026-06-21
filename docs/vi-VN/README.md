@@ -110,6 +110,8 @@ Xem [Ma trận nhà cung cấp](#provider-matrix) để biết chính xác phép
 
 Global Plugins tự lưu trữ (self-hosting): nó đi kèm bề mặt evolve và migrate của riêng mình, và phản chiếu cùng `/<plugin>:evolve` và `/<plugin>:migrate` vào mọi plugin mà nó tạo ra.
 
+**Tạo từ bất kỳ nhà cung cấp nào — không chỉ Claude Code.** Engine chiếu (projection engine) đi theo mỗi lần cài đặt dưới dạng runtime payload, nên một plugin đã cài có thể tự tạo/điều chỉnh/tiến hóa các plugin con đa nhà cung cấp từ cả ba CLI. Claude Code mang nó qua việc cài đặt toàn bộ kho mã; **Codex** và **opencode** mang nó trong thư mục con dành riêng `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). Trên Codex, agent chạy engine đóng gói bằng Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, với một lần phê duyệt cho mỗi lần chạy); trên opencode, plugin đã biên dịch trong `dist/` cung cấp các công cụ gốc `generate`/`adapt`/`evolve`/`validate`/`migrate` được hỗ trợ bởi cùng payload đó. Mỗi plugin con được tạo ra cũng mang theo engine, nên nó tự cung tự cấp và có thể tự chiếu lại.
+
 ## Kiến trúc nội bộ
 
 Nguồn chính tắc → **resolver** (registry nhà cung cấp + manifest 3 tầng: profile → module → component) → các module **chiếu** theo từng nhà cung cấp → **executor** chiếu. Một lăng kính thiết kế theo lối tổ hợp định hình harness của plugin từ một yêu cầu bằng ngôn ngữ tự nhiên. Quản trị (đồng bộ SemVer, changelog, parity, phòng vệ prompt, tuân thủ) được tích hợp ngay trong engine.

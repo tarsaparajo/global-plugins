@@ -110,6 +110,8 @@ Her sağlayıcının uyguladığı tam dönüşüm için [Sağlayıcı Matrisi](
 
 Global Plugins kendi kendine barındırılır (self-hosting): kendi evolve ve migrate yüzeyiyle birlikte gelir ve aynı `/<plugin>:evolve` ve `/<plugin>:migrate`'i ürettiği her eklentiye yansıtır.
 
+**Herhangi bir sağlayıcıdan üretin — yalnızca Claude Code'dan değil.** Projeksiyon motoru her kuruluma bir runtime payload olarak eşlik eder; böylece kurulu bir eklenti üç CLI'nin tamamından çok sağlayıcılı alt eklentileri kendisi oluşturabilir/uyarlayabilir/evrimleştirebilir. Claude Code onu tüm depo kurulumuyla taşır; **Codex** ve **opencode** onu ayrılmış bir `_engine/` alt klasöründe taşır (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). Codex'te ajan, paketlenmiş motoru Node ile çalıştırır (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, çalıştırma başına bir onay ile); opencode'da `dist/` içindeki derlenmiş eklenti, aynı payload tarafından desteklenen yerel `generate`/`adapt`/`evolve`/`validate`/`migrate` araçlarını sunar. Üretilen her alt eklenti de motoru taşır; bu yüzden kendi kendine yeterlidir ve tek başına yeniden projeksiyonlanabilir.
+
 ## İç Mimari
 
 Kanonik kaynak → **çözümleyici (resolver)** (sağlayıcı kayıt defteri + 3 katmanlı manifestler: profiller → modüller → bileşenler) → sağlayıcı başına **yansıtma (projection)** modülleri → yansıtma **yürütücüsü (executor)**. Kompozisyonel bir tasarım merceği, doğal dildeki bir istekten bir eklentinin koşum takımını (harness) şekillendirir. Yönetişim (SemVer eşitleme, changelog, eşlik, prompt savunması, uyumluluk) motorun içine yerleşiktir.
