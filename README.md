@@ -69,15 +69,16 @@ The `/plugin` commands are Claude Code only.
 
 ### Codex
 
-Codex has no marketplace install for this plugin, so clone the repo and copy its `.codex` folder into Codex's global config directory:
+Codex has no marketplace install for this plugin, so clone the repo and copy the **contents** of its `.codex` folder into Codex's global config directory:
 
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-Codex reads `~/.codex/`: it auto-detects `~/.codex/config.toml`, the `AGENTS.md` index, the `agents/*.toml` roles, and the sibling `skills/`/`commands/` files the next time you run `codex`.
+Note the trailing `/.` — it merges the folder's contents into the existing `~/.codex/` rather than nesting a `.codex` inside it. Codex reads `~/.codex/`: it auto-detects `~/.codex/config.toml`, the `AGENTS.md` index, the `[agents.<name>]` tables in `config.toml`, and the sibling `skills/`/`commands/` files the next time you run `codex`.
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 opencode reads its global config from `~/.config/opencode/` (not `~/.opencode/`). The build step is required before use; it produces `.opencode/dist/`.

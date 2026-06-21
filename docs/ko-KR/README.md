@@ -74,10 +74,11 @@ Codex에는 이 플러그인에 대한 마켓플레이스 설치가 없으므로
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-Codex는 `~/.codex/`를 읽습니다. 다음번에 `codex`를 실행하면 `~/.codex/config.toml`, `AGENTS.md` 인덱스, `agents/*.toml` 역할, 형제 `skills/`/`commands/` 파일을 자동으로 감지합니다.
+Codex는 `~/.codex/`를 읽습니다. 다음번에 `codex`를 실행하면 `~/.codex/config.toml`, `AGENTS.md` 인덱스, `[agents.<name>]` 역할, 형제 `skills/`/`commands/` 파일을 자동으로 감지합니다.
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # 컴파일된 플러그인을 빌드합니다 (.opencode/dist/를 생성)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 opencode는 전역 설정을 `~/.config/opencode/`에서 읽습니다(`~/.opencode/`가 아님). 빌드 단계는 사용 전에 반드시 필요하며 `.opencode/dist/`를 생성합니다.

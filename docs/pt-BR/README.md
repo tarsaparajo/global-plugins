@@ -74,10 +74,11 @@ O Codex não tem instalação via marketplace para este plugin, então clone o r
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-O Codex lê `~/.codex/`: ele detecta automaticamente o `~/.codex/config.toml`, o índice `AGENTS.md`, os papéis em `agents/*.toml` e os arquivos irmãos `skills/`/`commands/` na próxima vez que você executar `codex`.
+O Codex lê `~/.codex/`: ele detecta automaticamente o `~/.codex/config.toml`, o índice `AGENTS.md`, os papéis em `[agents.<name>]` e os arquivos irmãos `skills/`/`commands/` na próxima vez que você executar `codex`.
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 O opencode lê sua configuração global de `~/.config/opencode/` (não de `~/.opencode/`). O passo de build é obrigatório antes do uso; ele produz `.opencode/dist/`.

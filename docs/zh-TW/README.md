@@ -74,10 +74,11 @@ Claude Code 從外掛 marketplace 安裝——無需 clone：
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-Codex 會讀取 `~/.codex/`：下次你執行 `codex` 時，它會自動偵測 `~/.codex/config.toml`、`AGENTS.md` 索引、`agents/*.toml` 角色，以及並列的 `skills/`／`commands/` 檔案。
+Codex 會讀取 `~/.codex/`：下次你執行 `codex` 時，它會自動偵測 `~/.codex/config.toml`、`AGENTS.md` 索引、`[agents.<name>]` 角色，以及並列的 `skills/`／`commands/` 檔案。
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 opencode 會從 `~/.config/opencode/`（而非 `~/.opencode/`）讀取其全域設定。建置步驟為使用前的必要條件；它會產生 `.opencode/dist/`。

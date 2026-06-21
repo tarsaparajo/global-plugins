@@ -74,10 +74,11 @@ Claude Code устанавливается из marketplace плагинов —
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-Codex читает `~/.codex/`: при следующем запуске `codex` он автоматически обнаруживает `~/.codex/config.toml`, индекс `AGENTS.md`, роли `agents/*.toml` и соседние файлы `skills/`/`commands/`.
+Codex читает `~/.codex/`: при следующем запуске `codex` он автоматически обнаруживает `~/.codex/config.toml`, индекс `AGENTS.md`, роли `[agents.<name>]` и соседние файлы `skills/`/`commands/`.
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # соберите скомпилированный плагин (создаёт .opencode/dist/)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 opencode читает свою глобальную конфигурацию из `~/.config/opencode/` (а не из `~/.opencode/`). Шаг сборки обязателен перед использованием; он создаёт `.opencode/dist/`.

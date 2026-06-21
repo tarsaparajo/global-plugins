@@ -1,7 +1,7 @@
 # Provider Contract — codex-home
 
 - **Target:** `codex`
-- **Scope (kind):** `home` — CLI global config (`~/.codex/`).
+- **Scope (kind):** `home` — CLI global config (`~/.codex/`); installation merges the projected `.codex/.` contents into `~/.codex/` (`mkdir -p ~/.codex && cp -R .codex/. ~/.codex/` — the trailing `/.` avoids nesting a `.codex` inside an existing `~/.codex/`).
 - **Root:** `.codex`
 - **Build step:** none
 

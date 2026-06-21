@@ -74,10 +74,11 @@ Codex không có cài đặt qua marketplace cho plugin này, vì vậy hãy clo
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-Codex đọc `~/.codex/`: nó tự động phát hiện `~/.codex/config.toml`, chỉ mục `AGENTS.md`, các role `agents/*.toml`, và các file `skills/`/`commands/` đồng cấp ở lần tiếp theo bạn chạy `codex`.
+Codex đọc `~/.codex/`: nó tự động phát hiện `~/.codex/config.toml`, chỉ mục `AGENTS.md`, các role `[agents.<name>]`, và các file `skills/`/`commands/` đồng cấp ở lần tiếp theo bạn chạy `codex`.
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # build the compiled plugin (produces .opencode/dist/)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 opencode đọc config toàn cục của nó từ `~/.config/opencode/` (không phải `~/.opencode/`). Bước build là bắt buộc trước khi sử dụng; nó tạo ra `.opencode/dist/`.

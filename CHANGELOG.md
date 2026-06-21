@@ -5,6 +5,16 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-06-21
+
+### Fixed
+
+- **Codex install command nested the dotfolder instead of merging it.** The README told Codex users to run `cp -r .codex ~/.codex`, but when `~/.codex` already exists (it always does after running Codex once) `cp -r SRC DEST` copies SRC *inside* DEST — creating `~/.codex/.codex/config.toml`, `~/.codex/.codex/skills/`, etc. — so Codex never found its config and the install silently failed. Corrected to `mkdir -p ~/.codex && cp -R .codex/. ~/.codex/` (the trailing `/.` merges contents into the existing home dotfolder), matching the OpenCode pattern fixed in 0.4.1. Applied across `README.md` and all 13 localized READMEs; also aligned the OpenCode block's `cp -r` → `cp -R` for consistency, and corrected stale prose in the Codex section (`agents/*.toml` roles → the `[agents.<name>]` tables in `config.toml`, which is how Codex actually carries agents).
+
+### Added
+
+- **Generated child plugins now ship a correct Installation section.** `templates/governance/README.md.tmpl` gains an `## Installation` section (new `{{plugin.install}}` slot), and `skills/generate/SKILL.md` step 7 composes it from the child's resolved provider targets only — Claude Code marketplace, and for Codex/OpenCode the safe `mkdir -p <home> && cp -R <dotfolder>/. <home>/` merge form (never the nesting `cp -r`). Previously the child README template had no install instructions at all. `adapters/providers/codex-home.md` now documents the install command, mirroring the OpenCode contract.
+
 ## [0.8.0] - 2026-06-21
 
 ### Fixed

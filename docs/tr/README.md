@@ -74,10 +74,11 @@ Codex'in bu eklenti için marketplace kurulumu yoktur; bu yüzden depoyu klonlay
 ```
 git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
-cp -r .codex ~/.codex
+mkdir -p ~/.codex
+cp -R .codex/. ~/.codex/
 ```
 
-Codex, `~/.codex/` dizinini okur: `codex` komutunu bir sonraki çalıştırışınızda `~/.codex/config.toml`, `AGENTS.md` indeksi, `agents/*.toml` rolleri ve kardeş `skills/`/`commands/` dosyaları otomatik olarak algılanır.
+Codex, `~/.codex/` dizinini okur: `codex` komutunu bir sonraki çalıştırışınızda `~/.codex/config.toml`, `AGENTS.md` indeksi, `[agents.<name>]` rolleri ve kardeş `skills/`/`commands/` dosyaları otomatik olarak algılanır.
 
 ### opencode
 
@@ -88,7 +89,7 @@ git clone https://github.com/tarsaparajo/global-plugins
 cd global-plugins
 node engine/build-opencode.js          # derlenmiş eklentiyi oluştur (.opencode/dist/ üretir)
 mkdir -p ~/.config/opencode
-cp -r .opencode/. ~/.config/opencode/
+cp -R .opencode/. ~/.config/opencode/
 ```
 
 opencode, genel yapılandırmasını `~/.config/opencode/` dizininden okur (`~/.opencode/` değil). Derleme adımı kullanımdan önce gereklidir; `.opencode/dist/` klasörünü üretir.
