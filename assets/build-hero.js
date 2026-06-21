@@ -170,7 +170,7 @@ svg += `<text x="438" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3"
 // Version pill — right edge anchored at the content edge (2336), sized to fit
 // the text with comfortable padding on both sides.
 (function versionPill() {
-  const label = 'v0.9.0 · Jun 2026';
+  const label = 'v0.10.0 · Jun 2026';
   const fontSize = 26;
   const letterSpacing = 1;
   // mono glyph advance ~0.6em; add letter-spacing per gap.
@@ -241,3 +241,44 @@ svg += `</svg>`;
 const out = path.join(__dirname, 'hero.svg');
 fs.writeFileSync(out, svg);
 console.log('wrote', out, '(' + svg.length + ' bytes)');
+
+// Best-effort PNG so hero.png never drifts from hero.svg. Never hard-fail:
+// try sharp, then @resvg/resvg-js, then headless Chrome; else print the manual step.
+(async () => {
+  const png = path.join(__dirname, 'hero.png');
+  try {
+    const sharp = require('sharp');
+    await sharp(Buffer.from(svg)).resize(W, H).png().toFile(png);
+    return console.log('wrote', png, '(sharp)');
+  } catch { /* not installed */ }
+  try {
+    const { Resvg } = require('@resvg/resvg-js');
+    fs.writeFileSync(png, new Resvg(svg, { fitTo: { mode: 'width', value: W } }).render().asPng());
+    return console.log('wrote', png, '(@resvg/resvg-js)');
+  } catch { /* not installed */ }
+  try {
+    const { execFileSync } = require('child_process');
+    const os = require('os');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hero-'));
+    const htmlPath = path.join(tmp, 'p.html');
+    fs.writeFileSync(path.join(tmp, 'hero.svg'), svg);
+    fs.writeFileSync(htmlPath, `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:transparent}img{display:block;width:${W}px;height:${H}px}</style><img src="hero.svg">`);
+    const candidates = [
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      '/Applications/Chromium.app/Contents/MacOS/Chromium',
+      '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+      'google-chrome', 'chromium', 'chromium-browser', 'msedge',
+    ];
+    for (const bin of candidates) {
+      try {
+        execFileSync(bin, ['--headless=new', '--disable-gpu', '--hide-scrollbars',
+          '--force-device-scale-factor=1', '--default-background-color=00000000',
+          `--window-size=${W},${H}`, `--screenshot=${png}`, `file://${htmlPath}`],
+          { stdio: 'ignore' });
+        if (fs.existsSync(png)) return console.log('wrote', png, '(headless chrome:', bin + ')');
+      } catch { /* try next browser */ }
+    }
+  } catch { /* no browser available */ }
+  console.log('hero.svg written; no SVG rasterizer found (sharp / @resvg/resvg-js / headless Chrome).');
+  console.log(`To produce hero.png: install one (npm i -D sharp) and re-run, or open hero.svg in a browser or vector editor and export hero.png at ${W}x${H}.`);
+})();

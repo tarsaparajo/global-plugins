@@ -26,9 +26,10 @@ The user points at a plugin built for one provider and wants it to work across a
 2. **Fingerprint.** Invoke `provider-detector` in adapt mode to identify the source provider and confidence from its dotfolder shape.
 3. **Lift to canonical.** Invoke `capability-extractor` to reverse the per-provider transforms into a proposed canonical tree plus `provenance.json` (lossy warnings). Run a human-gate to confirm the lift preserves everything.
 4. **Fill gaps.** Invoke `plugin-architect` in a light pass to run the Harness Lens over the lifted canonical and fill missing dimensions (for example, Observability or Control), and inject the child evolution and migration surface. **Seed the projection engine** into the adapted plugin's root (`engine/` + `scripts/evolve/` + `manifests/` + `adapters/` + a fresh `.evolution/baseline/`) so it is self-sufficient and re-projectable on any host — the same engine its Codex/OpenCode projections carry as a `_engine/` runtime payload.
-5. **Resolve targets.** Invoke `provider-detector` to resolve the full target set.
-6. **Project.** Invoke `canonical-projector`: human-gate, then execute (run the build step where needed, e.g. opencode).
-7. **Validate.** Invoke `compliance-validator` for the audit and parity check. Return the report.
+5. **README skeleton.** Author/upgrade the README to the **README skeleton standard** (`skills/_knowledge/readme-skeleton.md`): if the source plugin already has a README, **preserve its prose** but wrap it in the centered `<div align="center">` block with the hero (`![<name>](assets/hero.png)`), the three badges (License/MIT, Version=`VERSION`, support), and the dual locale switcher; otherwise author from the skeleton. Author every `docs/<dir>/README.md` from `config/locales.json` as a full translation carrying the same skeleton (hero + badges + switcher, `../../` paths). Compose `{{plugin.install}}` from the resolved targets (merge-copy form) plus a rules-install box when the adapted plugin has a rules layer. Seed the hero generator from `templates/child/assets/` (`build-hero.js`, `assets/README.md`) into the adapted plugin's `assets/`, then run `node assets/build-hero.js`.
+6. **Resolve targets.** Invoke `provider-detector` to resolve the full target set.
+7. **Project.** Invoke `canonical-projector`: human-gate, then execute (run the build step where needed, e.g. opencode).
+8. **Validate.** Invoke `compliance-validator` for the audit and parity check. Return the report.
 
 ## Preservation contract
 
@@ -37,6 +38,7 @@ Adaptation preserves 100% of the original functionality: every command, agent, r
 ## Reference
 
 - `skills/_knowledge/provider-matrix.md` — per-provider transforms and reverse transforms.
+- `skills/_knowledge/readme-skeleton.md` — the README skeleton standard applied to the adapted plugin.
 
 ## Invariants
 

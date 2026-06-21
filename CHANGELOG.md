@@ -5,6 +5,18 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-06-21
+
+### Added
+
+- **Every generated and adapted child plugin now ships a README built to a shared skeleton standard.** A new `skills/_knowledge/readme-skeleton.md` encodes the standard decontextualized: a `<div align="center">` header block above `## Overview` (the dual locale switcher from `config/locales.json`, the H1, a hero image, the tagline, and three badges — License/MIT, Version, Buy Me A Coffee/support — the multilingual header, then the repeated switcher), the **hero present in every locale README** (`../../assets/hero.png`), per-provider Install boxes for the resolved targets only (merge-copy form), and a dedicated rules-install box when the child ships a rules layer. `templates/governance/README.md.tmpl` gains the centered block, the hero line, and a `{{plugin.badges}}` slot (previously it had only a flat switcher + title + body slots).
+- **Seeded, parametrized hero generator with a per-plugin color identity.** New `templates/child/assets/build-hero.js` (+ `assets/README.md`) is seeded into every child so it can regenerate its own hero on `/evolve`. It auto-derives name/tagline/version/owner/counts from the child's own metadata, **derives the gradient palette deterministically from the plugin name** (a stable hash into a curated palette set, overridable via `assets/hero.config.json`) so heroes differ across plugins but stay stable per plugin, writes `assets/hero.svg`, and best-effort rasterizes `assets/hero.png` via `sharp`/`@resvg/resvg-js` with a documented manual fallback — zero hard dependencies, never hard-fails.
+- The `generate` (steps 4 + 7) and `adapt` (new README step) doctrines now author the root README and all 13 locale READMEs to the standard, seed the hero generator, and run it; `agents/plugin-architect` (Communication dimension) and `agents/capability-extractor` (lift README/docs/assets) treat README/docs/assets as governance artifacts.
+
+### Fixed
+
+- **Version-badge drift.** The root README and all 13 locale READMEs carried a stale `version-0.7.0` badge while `VERSION` had advanced; they now read `version-0.10.0`, matching `VERSION`, so the parent exemplifies its own new "badge value == VERSION" rule. The hero pill in `assets/build-hero.js` is `v0.10.0`.
+
 ## [0.9.0] - 2026-06-21
 
 ### Added

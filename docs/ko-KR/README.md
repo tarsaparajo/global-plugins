@@ -9,7 +9,7 @@
 하나의 정규 소스로 모든 프로바이더에. 설명 하나로 AI 코딩 플러그인을 생성하고 적응시키고 발전시킵니다.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-0.7.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-0.10.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**

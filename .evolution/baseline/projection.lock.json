@@ -1,30 +1,4 @@
 {
-  "version": "0.1.0",
-  "generatedFrom": "self-projection",
-  "files": {
-    "agents/canonical-projector.md": "sha256:135a2b7ccd856920a68f50ef910c2d0831d627176f7335177c919df8baf5ef35",
-    "agents/capability-extractor.md": "sha256:3ea25ca9fd746c122d6a94f4621d65d3e14717a79ba6c70f289579358716ade4",
-    "agents/compliance-validator.md": "sha256:848fd1046c66fc872b5f5c08bb17d57e7df53d844b66b25af2baa9a11c16bc11",
-    "agents/evolution-propagator.md": "sha256:219818cbd843a57b96ee082affc190326c734591f358e259784a214be785c3f3",
-    "agents/migration-analyzer.md": "sha256:b0a04542eb0939dacaadda7c3a1cffa3b1bb9acd84ef1946af0de273f1b4897a",
-    "agents/plugin-architect.md": "sha256:fbb741f6721d5c33173cc503bb2080d423140f082de0cacef03d16c13a686477",
-    "agents/provider-detector.md": "sha256:b4c747d23fa147c641c383491ed62c291394e67709e499342bfccf7e40a0fb91",
-    "skills/_knowledge/governance.md": "sha256:c442ce7734ec3bb1362805fd834e3d87c5720118001b76ec046a46494406ecaa",
-    "skills/_knowledge/harness-lens.md": "sha256:034cacd637275f428fa47720071e35d04ad665b0ecccb480e1dccb07fdc2d604",
-    "skills/_knowledge/provider-matrix.md": "sha256:801f2162e64525f5899024fd2af2ec54f0a8a1a7cf7543e7c377580e619f98ee",
-    "skills/adapt/SKILL.md": "sha256:20d9542ac4fa3fc38a64c18c60cba977c50a3f577e99b91e2dabc16b4a309ba9",
-    "skills/audit/SKILL.md": "sha256:ae44807f45b735cce20be1616f00d16e9da931d35590527a4c0537dc7a0e9406",
-    "skills/evolve/SKILL.md": "sha256:75ced52ef4424bce38dbf3cf99eb89c63dd83682413584c2dffbd3ff2198938a",
-    "skills/generate/SKILL.md": "sha256:e765de94bf7f0793286b68e4132c3731906502164174227d1f205cbcece93149",
-    "skills/harness-lens/SKILL.md": "sha256:ce7058509edbe5f2c7906d19a191d813c2405225cd13e764ddf88c5a995da4ae",
-    "skills/migrate/SKILL.md": "sha256:0dc8e016614872e38fd803844f27e94248acf5e1c1bc2d205293fadecbb3da71",
-    "skills/validate/SKILL.md": "sha256:431f8c6ce26860246e8f5b12bac79f8be23ae1ee3c8ac470b253361a105e26e8",
-    "commands/adapt.md": "sha256:87566ec1f446a43476ab2abe5c03f1a8670e1d02d24668441a63c2a2c8fe66df",
-    "commands/audit.md": "sha256:06e942b04169cf36f9cc031c97316d609e2b00349f7d1fd12398c07dfb5bf614",
-    "commands/evolve.md": "sha256:b2194ef2c77d50ede70ec37c12a2689e137fdd152e40533cd55dc0220909ec34",
-    "commands/generate.md": "sha256:fc5a694a7cbb8d69a45cecaaf8682c1b3e8b26bcaaf0c9412128e173cdf39515",
-    "commands/harness-lens.md": "sha256:2ae0c9e61d9965a94e0fbd9404a2f1ede87ae9451c9e7325fd8eabf321813996",
-    "commands/migrate.md": "sha256:e7d6ea0f7a21f907ddc33f24976e947869bebe9f39a0c60671cdf2aef740c4e5",
-    "commands/validate.md": "sha256:74bef20365dbdf7913fbec28ea8ce0adeab582a5d576db6052e1b8f647368e60"
-  }
+  "version": "0.10.0",
+  "files": {}
 }

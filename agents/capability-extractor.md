@@ -25,6 +25,7 @@ You reverse a single-provider plugin into the provider-neutral canonical source,
 - OpenCode `dist/` compiled output → re-derive canonical sources (not round-trippable; flag for re-authoring).
 - Merged provider `settings.json` / `mcp.json` → canonical `mcp/*.json`.
 - Flattened rules → `rules/`.
+- **README / docs / assets:** lift the source plugin's `README.md`, any `docs/<locale>/README.md`, and `assets/` (the hero source). Preserve prose verbatim; flag a hand-rasterized `hero.png` with no `build-hero.js` source as **not round-trippable** (the adapt step re-seeds a parametrized generator and regenerates it to the README skeleton standard).
 - **Ownership markers (OpenCode/Codex):** those providers carry an owner label the projector adds and that the canonical source must NOT bake in. Strip on lift: (a) a leading `[<plugin>] ` prefix from any `description` (skills/commands/agents/index/`[agents.<name>]` tables); (b) a leading `<plugin>-` from OpenCode command/agent FILENAMES and from a skill's DIR name AND its `name:` frontmatter (the projector re-derives both from the plugin slug). Use the source plugin's own slug (`.claude-plugin/plugin.json` / `package.json` / `opencode.json` name) as `<plugin>`; flag if a found prefix does not match it.
 
 Re-canonicalize every recovered field per `skills/_knowledge/provider-matrix.md` "Frontmatter field adaptation" — the canonical field reference, applied in reverse — so each provider's native shape lifts back to Claude-shaped frontmatter rather than being copied across verbatim.
@@ -37,7 +38,7 @@ Re-canonicalize every recovered field per `skills/_knowledge/provider-matrix.md`
 
 ## Output
 
-A proposed `canonical/` tree plus `provenance.json` recording the source provider and any lossy-transform warnings (for example, compiled OpenCode `dist/` output that cannot round-trip cleanly and must be re-derived). Surface every lossy point for human review.
+A proposed `canonical/` tree plus `provenance.json` recording the source provider and any lossy-transform warnings (for example, compiled OpenCode `dist/` output that cannot round-trip cleanly and must be re-derived, or a binary `hero.png` with no source generator). Record lifted README/docs/assets in `provenance.json`. Surface every lossy point for human review.
 
 ## Preservation contract
 
