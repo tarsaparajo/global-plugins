@@ -170,7 +170,7 @@ svg += `<text x="438" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3"
 // Version pill — right edge anchored at the content edge (2336), sized to fit
 // the text with comfortable padding on both sides.
 (function versionPill() {
-  const label = 'v0.4.1 · Jun 2026';
+  const label = 'v0.6.0 · Jun 2026';
   const fontSize = 26;
   const letterSpacing = 1;
   // mono glyph advance ~0.6em; add letter-spacing per gap.
