@@ -27,14 +27,42 @@
 //   name           keep                  keep                         keep
 //   description    keep                  keep                         keep
 //   tools (array)  keep                  rewrite -> {name:true} object DROP (native: openai.yaml dependencies.tools)
-//   model (alias)  keep                  rewrite -> "provider/model"   DROP (runtime/config concern)
-//   color (named)  keep (named enum)     rewrite -> hex/theme (kept)   DROP (native: openai.yaml interface.brand_color)
+//   model          DROP                  DROP                          DROP (CLI/runtime choice; never preset)
+//   color (named)  keep (named enum)     rewrite -> hex #RRGGBB         DROP (native: openai.yaml interface.brand_color)
 //   argument-hint  keep                  DROP (commands use template)  DROP (SKILL.md = name+description only)
 //   (unknown)      keep                  keep                          DROP unless name/description
 
-// Claude model alias -> OpenCode "provider/model". Anthropic models are the
-// canonical default; unknown/explicit ids pass through unchanged (already
-// provider-qualified or a full id the agentic layer can refine).
+// Claude named color -> OpenCode hex "#RRGGBB". OpenCode's `color` schema
+// accepts ONLY a hex "#RRGGBB" or one of 7 theme tokens (primary, secondary,
+// accent, success, warning, error, info) — Claude's named colors are in NEITHER
+// set, so passing them through verbatim makes OpenCode reject the agent file
+// ("Expected a string matching /^#[0-9a-fA-F]{6}$/ ... got 'cyan'"). We map each
+// Claude name to its hex equivalent so the projected file validates AND keeps the
+// agent's actual visual color (the 7 theme tokens carry no stable hue). Values
+// that are already hex or already a valid OpenCode token pass through unchanged.
+const CLAUDE_TO_OPENCODE_COLOR = Object.freeze({
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  green: '#22C55E',
+  blue: '#3B82F6',
+  cyan: '#06B6D4',
+  purple: '#A855F7',
+  magenta: '#D946EF',
+  pink: '#EC4899',
+});
+
+// OpenCode's fixed theme-token enum. A canonical color already set to one of
+// these is a deliberate, valid OpenCode value — keep it.
+const OPENCODE_THEME_TOKENS = Object.freeze([
+  'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info',
+]);
+
+// Claude model alias -> OpenCode "provider/model". RETAINED for back-compat and
+// external callers ONLY: the adapter no longer rewrites `model` — it DROPS it for
+// every target (model is a CLI/runtime choice the user makes, never preset in a
+// projection). This map is no longer consulted internally; kept so any external
+// importer keeps working and to document the historical alias→id mapping.
 const CLAUDE_TO_OPENCODE_MODEL = Object.freeze({
   opus: 'anthropic/claude-opus-4-5',
   sonnet: 'anthropic/claude-sonnet-4-5',
@@ -109,8 +137,17 @@ function rewriteEntries(entries, target) {
       continue; // keep everywhere.
     }
 
+    if (key === 'model') {
+      // Model is a CLI/runtime choice — the user selects it in the CLI. It is
+      // NEVER preset in any projection, for ANY provider (including Claude). The
+      // canonical agents carry no `model:`; this drop is defense-in-depth so a
+      // stray authored `model:` can never leak into an emitted file.
+      entry.raw = null;
+      continue;
+    }
+
     if (target === 'claude') {
-      continue; // canonical IS Claude-shaped; keep all.
+      continue; // canonical IS Claude-shaped; keep all (except model, dropped above).
     }
 
     if (target === 'opencode') {
@@ -122,17 +159,21 @@ function rewriteEntries(entries, target) {
           // permission, not here).
           entry.raw = `{ ${arr.map(n => `${camelTool(n)}: true`).join(', ')} }`;
         }
-      } else if (key === 'model') {
-        const alias = decodeScalar(entry.raw);
-        if (Object.prototype.hasOwnProperty.call(CLAUDE_TO_OPENCODE_MODEL, alias)) {
-          const mapped = CLAUDE_TO_OPENCODE_MODEL[alias];
-          entry.raw = mapped === null ? null : mapped; // inherit -> drop.
+      } else if (key === 'color') {
+        // OpenCode's color schema accepts ONLY hex "#RRGGBB" or one of 7 theme
+        // tokens. Rewrite a Claude named color to its hex; keep an already-hex
+        // value or an already-valid theme token; anything else is dropped so the
+        // file still validates (better no color than an invalid one).
+        const value = decodeScalar(entry.raw);
+        if (/^#[0-9a-fA-F]{6}$/.test(value) || OPENCODE_THEME_TOKENS.includes(value)) {
+          // Already a valid OpenCode color — keep as-is.
+        } else if (Object.prototype.hasOwnProperty.call(CLAUDE_TO_OPENCODE_COLOR, value.toLowerCase())) {
+          entry.raw = CLAUDE_TO_OPENCODE_COLOR[value.toLowerCase()];
+        } else {
+          entry.raw = null; // unknown color name -> drop rather than emit invalid.
         }
-        // Unknown / already-qualified ids pass through unchanged.
       }
-      // color: OpenCode supports a color field (hex or theme name). Named Claude
-      // colors are valid theme-style tokens, so keep. argument-hint: not part of
-      // OpenCode's command schema -> drop.
+      // argument-hint: not part of OpenCode's command schema -> drop.
       else if (key === 'argument-hint') {
         entry.raw = null;
       }
@@ -165,15 +206,21 @@ function camelTool(name) {
 }
 
 // Public: adapt a model-facing .md's frontmatter for a target provider. Claude is
-// a no-op (canonical == Claude shape). Returns the content with adapted (or
-// dropped) frontmatter fields; the body is untouched.
+// canonical == Claude shape, so it is a no-op EXCEPT that a `model:` is always
+// dropped (model is never preset on any provider — a CLI/runtime choice). To stay
+// byte-stable, claude content with no `model:` is returned untouched; only when a
+// stray `model:` is present does it get serialized through the drop. Returns the
+// content with adapted (or dropped) frontmatter fields; the body is untouched.
 function adapt(content, target) {
-  if (!target || target === 'claude') {
+  if (!target) {
     return content;
   }
   const parsed = parse(content);
   if (!parsed.hasFrontmatter) {
     return content;
+  }
+  if (target === 'claude' && !parsed.entries.some(e => e.key === 'model')) {
+    return content; // true no-op: nothing to drop, keep byte-identical.
   }
   const entries = rewriteEntries(parsed.entries, target);
   return serialize(entries, parsed.body);
@@ -186,4 +233,6 @@ module.exports = {
   decodeInlineArray,
   CLAUDE_TO_OPENCODE_MODEL,
   CLAUDE_TO_OPENCODE_TOOL,
+  CLAUDE_TO_OPENCODE_COLOR,
+  OPENCODE_THEME_TOKENS,
 };

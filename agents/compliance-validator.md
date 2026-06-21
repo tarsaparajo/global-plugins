@@ -2,7 +2,6 @@
 name: compliance-validator
 description: Validate that a generated or adapted plugin is internally consistent — adapter coverage matches manifests, every projection round-trips, docs, version, and changelog are in sync, and the Prompt Defense Baseline is present everywhere. Engine for audit and validate.
 tools: ["Read", "Grep", "Glob", "Bash"]
-model: sonnet
 color: red
 ---
 

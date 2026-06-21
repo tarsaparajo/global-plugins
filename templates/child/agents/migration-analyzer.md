@@ -2,7 +2,6 @@
 name: migration-analyzer
 description: When an evolution delta is breaking for already-materialized products, projects, or substrates, generate a versioned migration with dry-run, rollback, and its own human-gate. Writes migrations/<version>.md.
 tools: ["Read", "Grep", "Glob", "Bash", "Write"]
-model: opus
 color: orange
 ---
 

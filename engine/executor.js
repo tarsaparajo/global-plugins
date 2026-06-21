@@ -50,9 +50,11 @@ function applyOperation(op, ctx) {
       let content = fs.readFileSync(source, 'utf8');
       // Adapt frontmatter to the target provider's real schema BEFORE injecting
       // the baseline, so non-Claude providers never receive Claude-shaped fields
-      // (e.g. a tools array, a model alias, or a named color that has no slot on
-      // that provider). op.frontmatterTarget is set by the provider planner; when
-      // absent (or 'claude') this is a no-op. See engine/frontmatter.js.
+      // (e.g. a tools array or a named color that has no slot on that provider).
+      // A `model:` is dropped for every target (never preset — a CLI/runtime
+      // choice), including claude. op.frontmatterTarget is set by the provider
+      // planner for agents/skills/commands; when absent this is a no-op, and for
+      // claude with no stray model: it is byte-stable. See engine/frontmatter.js.
       if (op.frontmatterTarget && isModelFacingMarkdown(op.destinationPath)) {
         content = frontmatter.adapt(content, op.frontmatterTarget);
       }

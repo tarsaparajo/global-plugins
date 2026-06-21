@@ -74,7 +74,7 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         for (const f of listFiles(path.join(out, '.codex'))) {
           const body = fs.readFileSync(f, 'utf8');
           assert.ok(!/^color:\s/m.test(body), `codex leaked a Claude color field in ${f}`);
-          assert.ok(!/^model:\s*sonnet/m.test(body), `codex leaked a Claude model alias in ${f}`);
+          assert.ok(!/^model:/m.test(body), `codex leaked a model field in ${f} (model is never preset)`);
           assert.ok(!/^tools:\s*\[/m.test(body), `codex leaked a Claude tools array in ${f}`);
         }
         // Instruction rules fold into AGENTS.md for codex (no separate rules dir,
@@ -84,21 +84,25 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         assert.ok(idx.includes('Always test'), 'codex AGENTS.md did not fold the rule body');
         assert.ok(!fs.existsSync(path.join(out, '.codex', 'rules')), 'codex must not emit a separate rules dir (rules fold into AGENTS.md)');
       }
-      // Claude keeps the canonical frontmatter verbatim (canonical IS Claude shape).
+      // Claude keeps the canonical frontmatter verbatim (canonical IS Claude
+      // shape) EXCEPT model: the fixture carries a stray `model: sonnet` and the
+      // projector must DROP it (model is never preset — a CLI/runtime choice).
       if (target === 'claude') {
         const ag = fs.readFileSync(path.join(out, '.claude', 'agents', 'reviewer.md'), 'utf8');
         assert.ok(/^tools:\s*\["Read", "Grep", "Bash"\]/m.test(ag), 'claude must keep the tools array verbatim');
-        assert.ok(/^model:\s*sonnet/m.test(ag), 'claude must keep the model alias verbatim');
+        assert.ok(!/^model:/m.test(ag), 'claude must NOT emit a model field (dropped even on claude)');
         assert.ok(/^color:\s*cyan/m.test(ag), 'claude must keep the named color verbatim');
       }
-      // OpenCode rewrites field SHAPES: tools array -> object, model alias ->
-      // provider/model; color is kept (OpenCode supports a color field).
+      // OpenCode rewrites field SHAPES: tools array -> object; color named Claude
+      // color -> hex (a bare Claude name is not a valid OpenCode color); model is
+      // dropped (never preset).
       if (target === 'opencode') {
         const ag = fs.readFileSync(path.join(out, '.opencode', 'agents', 'reviewer.md'), 'utf8');
         assert.ok(!/^tools:\s*\[/m.test(ag), 'opencode must not keep the Claude tools array');
         assert.ok(/^tools:\s*\{[^}]*read: true[^}]*\}/m.test(ag), 'opencode must rewrite tools to an object of name:true');
-        assert.ok(/^model:\s*anthropic\/claude-/m.test(ag), 'opencode must rewrite the model alias to provider/model');
-        assert.ok(/^color:\s*cyan/m.test(ag), 'opencode keeps the color field');
+        assert.ok(!/^model:/m.test(ag), 'opencode must NOT emit a model field (dropped)');
+        assert.ok(!/^color:\s*cyan/m.test(ag), 'opencode must not keep the bare Claude color name (invalid)');
+        assert.ok(/^color:\s*#06B6D4/m.test(ag), 'opencode must rewrite cyan -> hex #06B6D4');
       }
       // Containment: no planned source path is foreign to this target.
       for (const op of plan.operations) {

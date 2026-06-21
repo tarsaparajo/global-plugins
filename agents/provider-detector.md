@@ -2,7 +2,6 @@
 name: provider-detector
 description: Detect which providers a request targets and resolve them against the adapter registry and 3-tier manifests. For adapt, fingerprint an existing single-provider plugin's dotfolders to identify its source provider.
 tools: ["Read", "Grep", "Glob", "Bash"]
-model: sonnet
 color: cyan
 ---
 

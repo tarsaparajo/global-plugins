@@ -28,8 +28,8 @@ A canonical agent/skill/command carries **Claude-shaped** YAML frontmatter (cano
 | `name` | keep | keep | keep (SKILL.md / `[agents.<name>]` key) |
 | `description` | keep | keep | keep |
 | `tools` (array of names) | **keep** (array or csv of tool names) | **rewrite** → OBJECT `{ read: true, … }` (name→bool; tool names lowercased) | **drop** → *re-express* as `dependencies.tools` (array of `{type,value,description}`) in a skill's `agents/openai.yaml` |
-| `model` (alias e.g. `sonnet`) | **keep** (alias / full id / `inherit`) | **rewrite** → `provider/model` (e.g. `anthropic/claude-sonnet-4-5`); `inherit` → drop | **drop** (runtime/config concern; lives in `config.toml`, not frontmatter) |
-| `color` (named: `cyan`…) | **keep** (named enum ONLY — red/blue/green/yellow/purple/orange/pink/cyan; **no hex**) | **rewrite/keep** → hex `#RRGGBB` or theme token (named tokens kept as-is) | **drop** per-agent → *re-express* as `interface.brand_color` (`#RRGGBB` hex) in a skill's `agents/openai.yaml` |
+| `model` | **drop** (never preset — model is a CLI/runtime choice the user makes) | **drop** | **drop** | — agents carry NO `model:` on any provider; the engine drops a stray one defensively. (OpenCode/Codex *can* set a model natively in their own config, but global-plugins never bakes one into an agent.) |
+| `color` (named: `cyan`…) | **keep** (named enum ONLY — red/blue/green/yellow/purple/orange/pink/cyan/magenta; **no hex**) | **rewrite** → hex `#RRGGBB` (Claude name → hex; OpenCode accepts ONLY hex `#RRGGBB` **or** the 7 theme tokens `primary`/`secondary`/`accent`/`success`/`warning`/`error`/`info` — a named Claude color is in NEITHER set, so it is rejected; an already-hex value or an already-valid theme token is kept; an unrecognized name is dropped) | **drop** per-agent → *re-express* as `interface.brand_color` (`#RRGGBB` hex) in a skill's `agents/openai.yaml` |
 | `argument-hint` | keep (skill/command) | **drop** (commands use `template`/`agent`/`subtask`) | **drop** (Codex SKILL.md frontmatter is `name` + `description` ONLY) |
 | `when_to_use` | keep (`when_to_use`, snake_case) | folded into `description` | drop (fold into `description`) |
 | unknown / other | keep (Claude ignores unknown top-level keys) | keep (passed through to provider) | **drop** unless `name`/`description` |
@@ -37,12 +37,12 @@ A canonical agent/skill/command carries **Claude-shaped** YAML frontmatter (cano
 ### Casing landmines (exact, schema-breaking if wrong)
 
 - **Claude subagents** use camelCase for multi-word keys (`disallowedTools`, `permissionMode`, `mcpServers`); **Claude skills** use kebab-case (`allowed-tools`, `argument-hint`, `disable-model-invocation`) and `when_to_use` is snake_case.
-- **OpenCode** `tools` is an OBJECT (`{name: bool}`), NOT an array; `model` is `provider/model`; `mode` ∈ {`primary`,`subagent`,`all`}; dirs are PLURAL (`agents/`,`skills/`,`commands/`).
+- **OpenCode** `tools` is an OBJECT (`{name: bool}`), NOT an array; if a `model` is set natively it is `provider/model` (but global-plugins never presets one — the field is dropped); `mode` ∈ {`primary`,`subagent`,`all`}; dirs are PLURAL (`agents/`,`skills/`,`commands/`).
 - **Codex** SKILL.md frontmatter is `name` + `description` ONLY. Agent metadata lives in `[agents.<name>]` config.toml tables (`config_file`,`description`,`nickname_candidates`) — no per-agent `color`/`tools`/`model`. UI/tool metadata lives in a skill's `agents/openai.yaml` (snake_case: `interface.{display_name,short_description,icon_small,icon_large,brand_color,default_prompt}`, `dependencies.tools[]`, `policy.allow_implicit_invocation`). There is **no `plugin.json` and no `hooks.json`** in native Codex skills (optional dirs are `scripts/`/`references/`/`assets/`).
 
 ### Determinism boundary
 
-The engine applies **keep/rewrite/drop** mechanically for the fields above (`engine/frontmatter.js`, invoked by the executor via the `frontmatterTarget` op tag). Anything requiring judgement — choosing a `brand_color` hex from a named color, modeling `tools` as `dependencies.tools` objects with `type`/`value`, mapping a non-Anthropic model alias, or any field not in the table — is **agentic re-expression**: the projector decides per case, citing this matrix, and flags lossy choices for human review. Never silently copy a Claude field into a provider that has no slot for it.
+The engine applies **keep/rewrite/drop** mechanically for the fields above (`engine/frontmatter.js`, invoked by the executor via the `frontmatterTarget` op tag) — including the OpenCode `color` Claude-name→hex rewrite via the fixed `CLAUDE_TO_OPENCODE_COLOR` table (the standard Claude palette is fully covered, so this is deterministic, not judgement) and the universal `model` drop (no provider ever receives a preset model). Anything requiring judgement — choosing a Codex `brand_color` hex from a named color, modeling `tools` as `dependencies.tools` objects with `type`/`value`, or any field not in the table — is **agentic re-expression**: the projector decides per case, citing this matrix, and flags lossy choices for human review. Never silently copy a Claude field into a provider that has no slot for it, never pass a named Claude color into OpenCode unmapped (it is not a valid OpenCode color), and never emit a `model:` (the user picks the model in the CLI).
 
 ## Foreign-path guard
 
@@ -53,7 +53,7 @@ The engine applies **keep/rewrite/drop** mechanically for the fields above (`eng
 The capability-extractor inverts each transform back to canonical (Claude-shaped) frontmatter:
 
 - **Codex** → canonical: read agent roles from `config.toml` `[agents.<name>]` tables + the `AGENTS.md` index (NOT from per-agent `.toml` files — those do not exist in real Codex); recover any `color`/`tools` from a skill's `agents/openai.yaml` (`interface.brand_color` → named color best-effort; `dependencies.tools[]` → tool-name array); split the consolidated `AGENTS.md` index back into discrete `agents/`/`skills/`/`commands/` sections; skill bodies come from `skills/<name>/SKILL.md`.
-- **OpenCode** → canonical: `tools` object → array of names; `model` `provider/model` → alias where it maps; compiled `dist/` TypeScript cannot round-trip cleanly and is flagged for re-authoring.
+- **OpenCode** → canonical: `tools` object → array of names; any native `model` is left out of the canonical agent (canonical agents carry no `model:`); compiled `dist/` TypeScript cannot round-trip cleanly and is flagged for re-authoring.
 - **All** → canonical: merged settings/`.mcp.json` → canonical `mcp/*.json`; flattened rules → `rules/`.
 
 When lifting, re-canonicalize fields per the **Frontmatter field adaptation** matrix above, in reverse. Anything ambiguous (a hex `brand_color` with no exact named equivalent, a non-Anthropic model) is flagged, never guessed silently.

@@ -17,4 +17,4 @@
 
 - The build step MUST run before `validate()`; otherwise validation hard-fails with `opencode-plugin-not-built`.
 - Adapting an existing OpenCode plugin is lossy for compiled TS; `dist/` is re-derived from the lifted source.
-- On projection, the frontmatter of model-facing `.md` files (agents/skills/commands) is rewritten for OpenCode by `engine/frontmatter.js` (applied via the executor): `tools` array → object (`{ name: true }`), `model` alias → `provider/model` (e.g. `sonnet` → `anthropic/claude-sonnet-4-5`; `inherit` → dropped), `color` kept, `argument-hint` dropped. The body is untouched.
+- On projection, the frontmatter of model-facing `.md` files (agents/skills/commands) is rewritten for OpenCode by `engine/frontmatter.js` (applied via the executor): `tools` array → object (`{ name: true }`), `color` named Claude color → hex `#RRGGBB` (an already-hex value or a valid theme token is kept; an unrecognized name is dropped), `model` dropped (never preset — the user chooses the model in the CLI), `argument-hint` dropped. The body is untouched.

@@ -14,10 +14,13 @@ function makeCanonicalFixture() {
     fs.mkdirSync(path.dirname(abs), { recursive: true });
     fs.writeFileSync(abs, content);
   };
-  // The reviewer agent carries the Claude-only frontmatter fields (a tools
-  // ARRAY, a model ALIAS, a NAMED color) so provider tests can assert each is
-  // adapted correctly: kept for claude, rewritten for opencode (tools object,
-  // provider/model), dropped for codex (no frontmatter slot).
+  // The reviewer agent carries Claude-shaped frontmatter (a tools ARRAY, a NAMED
+  // color) plus a STRAY `model: sonnet` so provider tests can assert each is
+  // adapted correctly: tools kept for claude / rewritten to an object for
+  // opencode / dropped for codex; color kept for claude / hex for opencode /
+  // dropped for codex; and `model` DROPPED for EVERY target (never preset — a
+  // CLI/runtime choice the user makes in the CLI). Canonical agents ship no
+  // model:; this stray input proves the projector strips it everywhere.
   w('agents/reviewer.md', '---\nname: reviewer\ndescription: Review code for issues.\ntools: ["Read", "Grep", "Bash"]\nmodel: sonnet\ncolor: cyan\n---\n# Reviewer\n\nReview code.\n');
   w('skills/builder/SKILL.md', '---\nname: builder\ndescription: Build things from a spec.\n---\n# Builder\n\nBuild from spec.\n');
   w('commands/run.md', '---\ndescription: Run the thing.\n---\n# Run\n\nRun it.\n');

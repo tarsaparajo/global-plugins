@@ -19,10 +19,11 @@ function tomlString(value) {
 // Re-express canonical agents as Codex `[agents.<name>]` config.toml tables. Each
 // canonical agent contributes its name + description (the only fields Codex's
 // native agent-table schema carries: config_file / description /
-// nickname_candidates). The Claude-only frontmatter (tools array, model alias,
-// named color) has NO Codex slot and is intentionally NOT emitted here — it is
-// dropped from frontmatter and, where a real equivalent exists, re-expressed by
-// the agentic projector (color -> openai.yaml interface.brand_color, etc.).
+// nickname_candidates). Other frontmatter (a tools array, a named color) has NO
+// Codex slot and is intentionally NOT emitted here — it is dropped from
+// frontmatter and, where a real equivalent exists, re-expressed by the agentic
+// projector (color -> openai.yaml interface.brand_color, etc.). `model` is never
+// preset on any provider (a CLI/runtime choice), so it never reaches here.
 function codexAgentTables(repoRoot) {
   const agents = collectComponents(repoRoot, 'agents');
   if (!agents.length) {
@@ -139,7 +140,8 @@ const generators = {
       'and commands are installed as sibling files under `.codex/` (skill',
       'frontmatter reduced to Codex\'s `name` + `description`). Provider-specific',
       'agent metadata that has no Codex frontmatter slot (named color, a tools',
-      'array, a model alias) is intentionally not carried here.',
+      'array) is intentionally not carried here; `model` is never preset on any',
+      'provider (a CLI/runtime choice).',
       '',
       capabilityIndex(ctx.repoRoot, { bodyDir: '.codex' }),
       ...(rules ? ['', rules] : []),

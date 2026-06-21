@@ -137,10 +137,13 @@ function planFromModules(planInput, adapter, handlers = {}) {
 }
 
 // The provider target whose .md frontmatter this op should be adapted to, or
-// undefined when no adaptation applies (non-frontmatter dir, or claude which IS
-// the canonical shape). Threaded onto ops and read by the executor.
+// undefined when no adaptation applies (non-frontmatter dir). Claude IS the
+// canonical shape, but it is still adapted: the adapter is a near-no-op for
+// claude (it keeps every field) EXCEPT it drops a stray `model:` — model is never
+// preset on any provider (a CLI/runtime choice). Threaded onto ops, read by the
+// executor.
 function frontmatterTargetFor(adapter, sourceRelativePath) {
-  if (!adapter || adapter.target === 'claude') {
+  if (!adapter) {
     return undefined;
   }
   const top = String(sourceRelativePath).split('/')[0];
