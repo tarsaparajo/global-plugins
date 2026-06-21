@@ -31,6 +31,7 @@ Run `scripts/evolve/detect-substrates.mjs` to inventory what exists.
 - A component removed or renamed that downstream references by stable id (command name, agent name, skill id, hook matcher).
 - A frontmatter contract narrowed: required arg added, arg/tool removed, model class changed.
 - A destination `rootSegments` path changed (installed files move).
+- A folder's PLACEMENT changed for installed copies — e.g. a non-standard folder that used to sit loose at the provider root (or under a flat `_engine`/`dist`) now lands in the private bundle `_<slug>/<folder>/`. Installed files move, so this is breaking for codex/opencode copies (Claude whole-repo installs are unaffected).
 - A module dropped a provider from `targets[]` (a supported harness loses support).
 - A settings schema key removed or retyped, or a default changed in a way that alters behavior.
 - A hook event/matcher or MCP transport semantics changed.
@@ -40,7 +41,12 @@ Additive changes (new component, new optional arg, new target, doc/body/internal
 
 ## Output
 
-If breaking, author `migrations/<version>.md` per the migration schema: affected scope, dry-run plan, apply steps, rollback steps (exact inverse), and a compatibility matrix. Enforce a **second human-gate** (separate from the evolution gate) between dry-run and apply. If breaking but no substrate is detected, still author a **latent** migration (indexed, not auto-applied).
+If breaking, author `migrations/<version>.md` per the migration schema. The `steps[]` MUST be **structured** — a `kind` the runner (`scripts/evolve/migrate-apply.mjs`) interprets, never a prose shell string — so execution is deterministic and injection-free. Supported kinds:
+
+- `relocate-nonstandard-dirs { scope:[codex,opencode] }` — moves every PRIVATE top-level dir in the installed dotfolder into `_<slug>/<dir>/`, classified by the SAME `engine/helpers` `classifyTopLevelDir` + `pinnedToRoot` the projector uses (no hand-listed dirs — so the migration can never diverge from a fresh projection; this is the correct kind for a folder-placement change, NOT a fixed list).
+- `remove-path { scope:[...], paths:[...], onlyWhen?:bundleExists }` — deletes provider-root-relative paths if present (idempotent); `onlyWhen:bundleExists` defers removal until the new bundle is in place.
+
+Record affected scope, the dry-run plan (the runner prints it), and note that rollback is snapshot-based (apply snapshots → forwards → verifies → auto-rolls-back on failure) and `relocate-nonstandard-dirs` inverts by moving each dir back out. Enforce a **second human-gate** (separate from the evolution gate) between dry-run and apply. If breaking but no substrate is detected, still author a **latent** migration (indexed, not auto-applied).
 
 ## Boundaries
 

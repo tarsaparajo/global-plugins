@@ -6,13 +6,15 @@
 // Usage: node scripts/evolve/bump-version.mjs <major|minor|patch> [pluginRoot]
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, posix } from 'node:path';
+import { join, posix, resolve as resolvePath } from 'node:path';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const level = process.argv[2] || 'patch';
-const root = process.argv[3] || process.cwd();
+// Absolute: a relative root ("." ) makes join(root,'engine') a bare specifier
+// require() mis-resolves as a node_modules package.
+const root = resolvePath(process.argv[3] || process.cwd());
 const enginePath = join(root, 'engine');
 const semver = require(join(enginePath, 'semver.js'));
 

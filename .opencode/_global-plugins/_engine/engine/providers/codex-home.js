@@ -17,11 +17,11 @@
 // The Prompt Defense Baseline rides in config.toml as a TOML string field.
 
 const path = require('path');
-const { planFromModules, defaultCopy, opScaffold, payloadCopy } = require('./_base');
+const { planFromModules, defaultCopy, opScaffold, payloadCopy, claimedTopLevel, namespacePrivateFolders } = require('./_base');
 
 function planOperations(planInput, adapter) {
   const targetRoot = adapter.resolveRoot(planInput);
-  const ops = planFromModules(planInput, adapter, {
+  const handlers = {
     // Agents are NOT emitted as files — they are re-expressed as [agents.<name>]
     // tables in config.toml and indexed from AGENTS.md (see the generators).
     agents: () => [],
@@ -30,7 +30,16 @@ function planOperations(planInput, adapter) {
     rules: () => [],
     hooks: () => [],
     mcp: () => [],
-  });
+  };
+  // Scan for non-standard folders this plugin invented (no provider discovers
+  // them natively) and route them into the private bundle `_<slug>/<dir>/` (G1).
+  // Compute it FIRST so the namespaced names can be stamped on capability ops for
+  // reference rewriting (G5). claimed = capability handler keys + payload dirs, so
+  // engine/manifests/etc. (already shipped as payload) are never double-emitted.
+  const claimed = claimedTopLevel(planInput, adapter, handlers);
+  const priv = namespacePrivateFolders(planInput, adapter, { claimed });
+
+  const ops = planFromModules(planInput, adapter, handlers, { namespacedFolders: priv.namespacedFolders });
 
   ops.push(opScaffold({
     moduleId: '__codex__',
@@ -56,6 +65,14 @@ function planOperations(planInput, adapter) {
   // commands). Separate from the capability surface above; never scanned as
   // agents/skills/commands. The destination is computed by payloadCopy.
   ops.push(...payloadCopy(planInput, adapter));
+
+  // Non-standard invented folders -> `_<slug>/<dir>/` (computed above). Pushed
+  // after the capability + payload channels so its destinations are distinct.
+  ops.push(...priv.ops);
+  // Surface the re-home/skip notices to the operator at the human-gate (G3).
+  if (priv.warnings.length) {
+    ops.warnings = priv.warnings;
+  }
 
   return ops;
 }

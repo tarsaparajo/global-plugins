@@ -17,6 +17,10 @@ const {
   opScaffold,
   opBuildStep,
   payloadBasePath,
+  bundleSubPath,
+  classifyTopLevelDir,
+  privateBundleDir,
+  BUNDLE_SIBLING_NAMES,
 } = require('../helpers');
 
 // Read the leading YAML frontmatter of a markdown file and return { name,
@@ -108,11 +112,20 @@ const FRONTMATTER_DIRS = new Set(['agents', 'skills', 'commands']);
 // of the provider CAPABILITY surface. Runtime payload (the engine that performs
 // generation) travels through a SEPARATE channel — see payloadCopy() — into a
 // reserved non-capability subdir, never via these handlers.
-function planFromModules(planInput, adapter, handlers = {}) {
+function planFromModules(planInput, adapter, handlers = {}, options = {}) {
   const { repoRoot, modules } = planInput;
   const targetRoot = adapter.resolveRoot(planInput);
   const seen = new Set();
   const ops = [];
+  // The set of non-standard folders THIS provider relocated into `_<slug>/`, so
+  // capability bodies that reference `<folder>/...` by relative path can be
+  // rewritten to the namespaced location by the executor (G5). Stamped onto every
+  // produced op; the executor only acts on it for model-facing markdown. Empty
+  // (Claude / no namespaced folders) -> the stamp is omitted and bodies are
+  // byte-stable. Frozen so a shared array reference can't be mutated downstream.
+  const namespacedFolders = Array.isArray(options.namespacedFolders) && options.namespacedFolders.length
+    ? Object.freeze(options.namespacedFolders.slice())
+    : null;
 
   for (const module of (modules || [])) {
     const paths = Array.isArray(module.paths) ? module.paths : [];
@@ -126,7 +139,9 @@ function planFromModules(planInput, adapter, handlers = {}) {
       // docs/) that lives at the repo root and must never be copied into a
       // provider dotfolder — doing so bloated every install with the engine
       // source. A provider opts a dir in by registering a handler for it; an
-      // unregistered dir is skipped, not verbatim-copied.
+      // unregistered dir is skipped, not verbatim-copied. (Truly non-standard
+      // INVENTED dirs — outside both handlers and the payload — are NOT dropped
+      // here; they are routed into the private bundle by namespacePrivateFolders.)
       if (typeof handlers[top] !== 'function') {
         continue;
       }
@@ -137,6 +152,9 @@ function planFromModules(planInput, adapter, handlers = {}) {
           continue;
         }
         seen.add(op.destinationPath);
+        if (namespacedFolders) {
+          op.namespacedFolders = namespacedFolders;
+        }
         ops.push(op);
       }
     }
@@ -201,6 +219,137 @@ function payloadCopy(planInput, adapter) {
     }
   }
   return ops;
+}
+
+// The set of TOP-LEVEL dir names already CLAIMED — i.e. governed by the module
+// system, so the generic folder scanner must leave them alone (their placement is
+// decided by APPLICABILITY, not the scanner — R7: applicability ≠ placement).
+// Three sources:
+//  - capability dirs: the keys of the `handlers` map the provider passed to
+//    planFromModules (agents/skills/commands/hooks/rules/mcp/prompts/…). These
+//    flowed (or were intentionally `() => []`) through the capability channel.
+//  - payload dirs: the top-level segment of every module path whose
+//    payloadTargets[] includes this provider (engine/adapters/scripts/manifests/
+//    config/templates/.evolution) — already shipped verbatim by payloadCopy.
+//  - ANY module-declared dir: the top-level segment of every module's paths[],
+//    regardless of its targets[]/payloadTargets[]. A dir a module names (e.g.
+//    `docs/`, claude-only) is KNOWN STRUCTURE whose projection is already governed
+//    by that module — intentionally absent from a provider where it does not
+//    apply, NOT an invented folder to bundle. Only a dir NO module declares is
+//    truly non-standard and reachable by the generic classifier.
+// The scanner consults this to avoid DOUBLE-EMISSION and applicability violations.
+function claimedTopLevel(planInput, adapter, handlers = {}) {
+  const claimed = new Set(Object.keys(handlers));
+  for (const module of (planInput.allModules || [])) {
+    for (const p of (Array.isArray(module.paths) ? module.paths : [])) {
+      claimed.add(String(p).split('/')[0]);
+    }
+  }
+  return claimed;
+}
+
+// Generic non-standard-folder namespacing (the root-cause fix). Scans the
+// canonical source root for TOP-LEVEL directories that NEITHER channel claimed and
+// routes each into the plugin's private bundle `_<slug>/<dir>/` — so a folder a
+// plugin INVENTS (doctrine, schemas, own templates, reference data, internal
+// protocols) that no provider discovers natively is namespaced exactly like the
+// `_engine`/`dist` infra, instead of being silently dropped by the anti-bloat
+// guard. The classifier (helpers.classifyTopLevelDir) is the SINGLE source of
+// truth shared with generate, adapt, and the migration runner.
+//
+// Returns { ops, warnings }. Every relocated dir AND every skipped entry yields a
+// warning so the operator sees it at the human-gate (G3: never a silent move/drop).
+// Claude is a NO-OP (wholeRepoInstall: every folder keeps its repo-root path).
+// Bodies are copied `verbatim: true` (this is infrastructure, not a model-facing
+// capability), so no frontmatter/prompt-defense mutation touches them.
+function namespacePrivateFolders(planInput, adapter, { claimed } = {}) {
+  const { repoRoot } = planInput;
+  const ops = [];
+  const warnings = [];
+  if (adapter.wholeRepoInstall) {
+    return { ops, warnings };
+  }
+  const targetRoot = adapter.resolveRoot(planInput);
+  const pinnedToRoot = new Set(adapter.pinnedToRoot || []);
+  const privBundleName = privateBundleDir(repoRoot);
+  const claimedSet = claimed instanceof Set ? claimed : new Set(claimed || []);
+
+  let entries = [];
+  try {
+    entries = fs.readdirSync(repoRoot, { withFileTypes: true });
+  } catch {
+    return { ops, warnings };
+  }
+  const dirNames = entries
+    .filter(e => e.isDirectory())
+    .map(e => e.name)
+    .sort();
+
+  const seen = new Set();
+  for (const name of dirNames) {
+    if (claimedSet.has(name)) {
+      continue;
+    }
+    const verdict = classifyTopLevelDir(name, { pinnedToRoot, wholeRepo: false, privBundleName });
+    if (verdict === 'SHARED') {
+      // SHARED here means the folder is PINNED-TO-ROOT for this provider (the only
+      // way a non-claimed, non-skip dir is SHARED): the provider auto-scans it at a
+      // FIXED root path. It is the plugin's own folder, so it must be COPIED to the
+      // provider root (so the provider discovers it) — NOT bundled, NOT dropped.
+      // (A SHARED-because-capability-dir would be in `claimed` and never reach here.)
+      for (const rel of listRelativeFiles(path.join(repoRoot, name))) {
+        const destinationPath = path.join(targetRoot, name, rel);
+        if (seen.has(destinationPath)) {
+          continue;
+        }
+        seen.add(destinationPath);
+        ops.push(opCopyPath({
+          moduleId: '__pinned__',
+          sourceRelativePath: path.posix.join(name, rel),
+          destinationPath,
+          verbatim: true,
+        }));
+      }
+      warnings.push({ dir: name, action: 'pinned-to-root', provider: adapter.target });
+      continue;
+    }
+    if (verdict === 'SKIP') {
+      warnings.push({ dir: name, action: 'skip', provider: adapter.target });
+      continue;
+    }
+    // PRIVATE. A relocated folder must never collide with the bundle's infra
+    // siblings (`_engine`/`dist`) — that would clobber a sibling and break the
+    // fixed `dist/tools → ../../_engine` offset (R3/R6). In practice those names
+    // are already in `claimed`/`pinnedToRoot`, but guard explicitly and refuse.
+    if (BUNDLE_SIBLING_NAMES.includes(name)) {
+      warnings.push({ dir: name, action: 'collision', provider: adapter.target,
+        message: `non-standard folder "${name}" collides with a reserved bundle sibling; rename it` });
+      continue;
+    }
+    const destBase = bundleSubPath(targetRoot, repoRoot, name);
+    warnings.push({ dir: name, action: 'namespaced', provider: adapter.target,
+      to: privBundleName ? `${privBundleName}/${name}` : name });
+    for (const rel of listRelativeFiles(path.join(repoRoot, name))) {
+      const destinationPath = path.join(destBase, rel);
+      if (seen.has(destinationPath)) {
+        continue;
+      }
+      seen.add(destinationPath);
+      ops.push(opCopyPath({
+        moduleId: '__private__',
+        sourceRelativePath: path.posix.join(name, rel),
+        destinationPath,
+        // Non-standard infrastructure, not a model-facing capability: copy
+        // byte-for-byte (no frontmatter adapt, no prompt-defense injection), the
+        // same discipline as the _engine payload.
+        verbatim: true,
+      }));
+    }
+  }
+  // The dir names routed to PRIVATE, so the caller can stamp them on capability
+  // ops (G5 reference rewriting) from this SINGLE scan — no second filesystem walk.
+  const namespacedFolders = warnings.filter(w => w.action === 'namespaced').map(w => w.dir).sort();
+  return { ops, warnings, namespacedFolders };
 }
 
 // The provider target whose .md frontmatter this op should be adapted to, or
@@ -309,6 +458,8 @@ module.exports = {
   defaultCopy,
   ownerPrefixedCopy,
   payloadCopy,
+  claimedTopLevel,
+  namespacePrivateFolders,
   flattenDir,
   mcpMergeOps,
   opScaffold,

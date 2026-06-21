@@ -5,6 +5,27 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-21
+
+### Changed
+
+- **Non-standard-folder namespacing is now GENERIC and COMPUTED, not a fixed three-item list.** Through 1.0.0 only `_engine/`, OpenCode `dist/`, and `install-state.json` were namespaced into the per-plugin private bundle `_<slug>/`; ANY other folder a plugin invented (its own doctrine/protocols, schemas, templates, reference data, internal migrations) was silently dropped by the anti-bloat guard or left loose at the provider root. Now a new classifier (`engine/helpers.js` `classifyTopLevelDir`, the single source of truth) decides each top-level folder per provider: **SHARED** (the provider reads it natively / it's pinned-to-root → stays at the root), **PRIVATE** (invented, no provider discovers it → `_<slug>/<folder>/`, a sibling of `_engine`/`dist`), or **SKIP** (genuine dev-meta/junk → dropped with a note). An unrecognized folder defaults to PRIVATE — never silently dropped. The scanner (`engine/providers/_base.js` `namespacePrivateFolders`, wired into `codex-home`/`opencode-home`) walks the canonical root for folders no module declares and routes them; `helpers.bundleSubPath` generalizes the placement (`payloadBasePath` is now `bundleSubPath(…, '_engine')`, byte-identical). The `_engine`↔`dist` sibling invariant and the `../../_engine` offset are untouched.
+- **Per-provider pinned-to-root allowlist (`adapters/registry.json` `pinnedToRoot`).** What a provider auto-scans at a fixed root path is provider-relative: Codex auto-scans `prompts/`/`rules/`, OpenCode does not. So a plugin's own `prompts/` not declared by a module stays at `.codex/prompts/` but is namespaced to `.opencode/_<slug>/prompts/`. Moving a folder a provider auto-scans would break discovery silently; the classifier consults the allowlist to prevent it. Claude is whole-repo (`wholeRepoInstall: true`) → the classifier is a no-op (every folder keeps its repo-root path).
+- **Generic re-home reaches `generate` and `adapt`.** `plugin-architect` models invented folders (`nonStandardFolders[]` in the plan); `capability-extractor`/`adapt` inventory ALL top-level source folders, subtract known capabilities + pinned-to-root, and re-home the rest into `_<slug>/<folder>/` — every moved folder is surfaced as a **warning** at the human-gate (the propagation plan lists them) instead of being dropped silently. `planScaffold` threads `warnings`; `project.mjs --dry-run` shows them.
+
+### Added
+
+- **Internal-reference resolution (G5).** When a folder is namespaced, capability bodies that referenced its contents by a repo-root-relative path (`<folder>/X.md`) are rewritten to the literal `_<slug>/<folder>/X.md` for the providers that move it (`engine/executor.js` `rewriteNamespacedRefs`). Claude keeps folders at the repo root (whole-repo) so its bodies are never rewritten — a single token can't work cross-provider (Codex/OpenCode have no `${CLAUDE_PLUGIN_ROOT}` equivalent), so the engine materializes a literal namespaced path per provider. Idempotent (re-projection never produces `_<slug>/_<slug>/…`).
+- **Real migration-runner execution.** `scripts/evolve/migrate-apply.mjs` was a pure reporter; it now interprets structured `steps[]` (`relocate-nonstandard-dirs` — move PRIVATE installed dirs into `_<slug>/<dir>/` via the SAME classifier; `remove-path`) with snapshot-based forward/verify/rollback, dry-run, and idempotence. `migrations/1.0.0.md` re-expressed to the structured schema; `migration.md.tmpl` + the child migration schema/runner updated so generated children inherit it.
+
+### Breaking Changes
+
+- Installed copies on **codex** and **opencode** that carry a non-standard top-level folder loose at the config root have that folder's PLACEMENT changed (it moves into `_<slug>/<folder>/`). See [migrations/1.1.0.md](migrations/1.1.0.md). Claude Code installs are unaffected (whole-repo). A fresh 1.1.0 projection already places folders correctly and needs no migration. global-plugins' OWN layout is unchanged — all its top-level folders are module-declared or dev-meta, so the classifier is a no-op for it.
+
+### Migrations
+
+- [migrations/1.1.0.md](migrations/1.1.0.md) — relocates any loose non-standard folder in a codex/opencode install into `_<slug>/<folder>/`, classified by the engine (no fixed list). Dry-run / apply / rollback via `/global-plugins:migrate`.
+
 ## [1.0.0] - 2026-06-21
 
 ### Changed

@@ -38,6 +38,14 @@ function createAdapter(entry, providerModule) {
     buildStep: entry.buildStep ? Object.freeze({ ...entry.buildStep }) : null,
     supportsModule: entry.supportsModule || 'always',
     stability: entry.stability || 'stable',
+    // Placement metadata for the generic non-standard-folder classifier.
+    // wholeRepoInstall (Claude): the provider installs the whole repo verbatim, so
+    // EVERY folder keeps its repo-root path and nothing is namespaced — the scanner
+    // is a no-op. pinnedToRoot: the top-level dir NAMES this provider auto-scans at
+    // a FIXED root path (per-provider — R2); the classifier keeps them at the root
+    // even though another provider might bundle the same name.
+    wholeRepoInstall: entry.wholeRepoInstall === true,
+    pinnedToRoot: Object.freeze((entry.pinnedToRoot || []).slice()),
 
     supports(targetOrId) {
       return targetOrId === entry.id || targetOrId === entry.target;
@@ -195,6 +203,11 @@ function planScaffold(options = {}) {
     buildStep: adapter.buildStep,
     validationIssues,
     operations,
+    // Non-standard-folder re-home / skip notices (G3). A provider attaches them to
+    // the returned operations array (which is an object); lift them onto the plan
+    // so the human-gate and `project.mjs --dry-run` can show "folder X re-homed to
+    // _<slug>/X/ (warning)" instead of moving/dropping a folder silently.
+    warnings: Array.isArray(operations.warnings) ? operations.warnings : [],
   };
 }
 

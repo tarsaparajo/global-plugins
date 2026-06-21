@@ -14,6 +14,8 @@
         "install-state.json"
       ],
       "nativeRootRelativePath": ".claude-plugin",
+      "wholeRepoInstall": true,
+      "pinnedToRoot": [],
       "transforms": [
         "copy-path",
         "merge-json:.mcp.json",
@@ -34,6 +36,13 @@
         "install-state.json"
       ],
       "nativeRootRelativePath": ".codex",
+      "pinnedToRoot": [
+        "agents",
+        "skills",
+        "commands",
+        "prompts",
+        "rules"
+      ],
       "transforms": [
         "agents->config.toml-tables",
         "frontmatter-adapt:drop",
@@ -55,6 +64,12 @@
         "install-state.json"
       ],
       "nativeRootRelativePath": ".opencode",
+      "pinnedToRoot": [
+        "agents",
+        "skills",
+        "commands",
+        "plugins"
+      ],
       "buildStep": {
         "command": "node engine/build-opencode.js . ${slug}",
         "requires": [

@@ -24,7 +24,11 @@ function makeCanonicalFixture() {
   // dropped for codex; and `model` DROPPED for EVERY target (never preset — a
   // CLI/runtime choice the user makes in the CLI). Canonical agents ship no
   // model:; this stray input proves the projector strips it everywhere.
-  w('agents/reviewer.md', '---\nname: reviewer\ndescription: Review code for issues.\ntools: ["Read", "Grep", "Bash"]\nmodel: sonnet\ncolor: cyan\n---\n# Reviewer\n\nReview code.\n');
+  // The reviewer agent's BODY references a non-standard folder (`policies/`) by a
+  // plain repo-root-relative path, so the G5 reference-rewrite can be asserted:
+  // codex/opencode (which move policies/ into the bundle) must rewrite it to
+  // `_<slug>/policies/...`; claude (whole-repo) must leave it byte-identical.
+  w('agents/reviewer.md', '---\nname: reviewer\ndescription: Review code for issues.\ntools: ["Read", "Grep", "Bash"]\nmodel: sonnet\ncolor: cyan\n---\n# Reviewer\n\nReview code. Read `policies/STYLE.md` before reviewing.\n');
   // The builder skill's description deliberately contains a colon ("gate: …") —
   // the YAML mapping-value trap that made Codex skip skills. The projector must
   // emit it double-quoted so every projected SKILL.md is valid YAML.
@@ -41,6 +45,16 @@ function makeCanonicalFixture() {
   // something to ship into the private bundle `_<slug>/_engine/` — exercises the
   // non-standard-folder namespacing for codex/opencode payload targets.
   w('engine/resolver.js', "'use strict';\nmodule.exports = {};\n");
+  // A NON-STANDARD folder the plugin invented: no provider discovers `policies/`
+  // natively, no module declares it. The generic classifier must namespace it into
+  // `_<slug>/policies/` on codex/opencode (never drop it, never leave it loose) and
+  // claude keeps it at the repo root via whole-repo install. Referenced from the
+  // reviewer agent body above (G5).
+  w('policies/STYLE.md', '# Style policy\n\nPrefer clarity.\n');
+  // A `prompts/` folder NOT declared by any module: it is pinned-to-root on Codex
+  // (Codex auto-scans prompts/) but NOT on OpenCode — so it stays at `.codex/prompts/`
+  // yet is namespaced to `.opencode/_<slug>/prompts/`. Proves per-provider R2.
+  w('prompts/greeting.md', '# Greeting prompt\n\nHello.\n');
   return root;
 }
 

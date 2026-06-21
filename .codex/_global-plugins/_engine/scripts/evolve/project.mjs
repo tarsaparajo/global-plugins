@@ -7,13 +7,15 @@
 // Usage: node scripts/evolve/project.mjs [--dry-run|--apply] [pluginRoot]
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve as resolvePath } from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const args = process.argv.slice(2);
 const apply = args.includes('--apply');
-const root = args.find((a) => !a.startsWith('--')) || process.cwd();
+// Resolve to ABSOLUTE: a relative root like "." makes join(root,'engine') a bare
+// specifier ("engine") that require() mis-resolves as a node_modules package.
+const root = resolvePath(args.find((a) => !a.startsWith('--')) || process.cwd());
 
 // The child ships the engine under ./engine (copied at generation time).
 const enginePath = join(root, 'engine');
@@ -32,7 +34,10 @@ const plans = projector.planAll(targets, { repoRoot: root, projectRoot: root, ho
 
 if (!apply) {
   const rows = projector.renderPropagationPlan(plans);
-  process.stdout.write(`${JSON.stringify({ mode: 'dry-run', targets, rows }, null, 2)}\n`);
+  // Non-standard-folder re-home / skip notices, surfaced for the human-gate so a
+  // folder is never moved into `_<slug>/` (or skipped) silently.
+  const warnings = projector.collectWarnings ? projector.collectWarnings(plans) : [];
+  process.stdout.write(`${JSON.stringify({ mode: 'dry-run', targets, warnings, rows }, null, 2)}\n`);
   process.exit(0);
 }
 

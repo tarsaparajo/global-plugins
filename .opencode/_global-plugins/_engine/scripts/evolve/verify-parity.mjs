@@ -6,11 +6,13 @@
 // Usage: node scripts/evolve/verify-parity.mjs [pluginRoot]
 
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve as resolvePath } from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const root = process.argv[2] || process.cwd();
+// Absolute: a relative root ("." ) makes join(root,'engine') a bare specifier
+// require() mis-resolves as a node_modules package.
+const root = resolvePath(process.argv[2] || process.cwd());
 const enginePath = join(root, 'engine');
 
 const { resolve } = require(join(enginePath, 'resolver.js'));

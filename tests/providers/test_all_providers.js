@@ -198,6 +198,85 @@ for (const target of ['codex', 'opencode']) {
   });
 }
 
+// G1/G2 (generate direction) + R2 (pinned-to-root per provider): a non-standard
+// folder the plugin invented (`policies/`) lands in the private bundle on BOTH
+// providers; a `prompts/` folder lands in the bundle on OpenCode (not pinned) but
+// STAYS at the root on Codex (pinned — Codex auto-scans prompts/).
+test('non-standard folder `policies/` is namespaced into _<slug>/ on codex and opencode', () => {
+  for (const target of ['codex', 'opencode']) {
+    const { root, out, plan, res } = projectTo(target);
+    try {
+      assert.ok(res.ok, `projection failed: ${res.error}`);
+      const dot = path.join(out, `.${target}`);
+      // policies/ → _<slug>/policies/ (never loose at the dotfolder root, never dropped).
+      assert.ok(fs.existsSync(path.join(dot, FIXTURE_BUNDLE, 'policies', 'STYLE.md')),
+        `${target}: policies/ must be namespaced into ${FIXTURE_BUNDLE}/policies/`);
+      assert.ok(!fs.existsSync(path.join(dot, 'policies')),
+        `${target}: policies/ must NOT be left loose at the dotfolder root`);
+      // The plan must carry a re-home warning for policies/ (G3: never silent).
+      const warns = plan.warnings || plan.operations.warnings || [];
+      assert.ok(warns.some(w => w.dir === 'policies' && w.action === 'namespaced'),
+        `${target}: a re-home warning for policies/ must be surfaced`);
+    } finally { cleanup(root); cleanup(out); }
+  }
+});
+
+test('pinned-to-root is per-provider: prompts/ stays at root on codex, bundles on opencode (R2)', () => {
+  // Codex pins prompts/ (auto-scans it) -> stays at .codex/prompts/.
+  {
+    const { root, out, res } = projectTo('codex');
+    try {
+      assert.ok(res.ok, `codex projection failed: ${res.error}`);
+      assert.ok(fs.existsSync(path.join(out, '.codex', 'prompts', 'greeting.md')),
+        'codex must keep prompts/ at the root (it auto-scans prompts/)');
+      assert.ok(!fs.existsSync(path.join(out, '.codex', FIXTURE_BUNDLE, 'prompts')),
+        'codex must NOT bundle prompts/ (pinned-to-root)');
+    } finally { cleanup(root); cleanup(out); }
+  }
+  // OpenCode does NOT pin prompts/ -> namespaced into the bundle.
+  {
+    const { root, out, res } = projectTo('opencode');
+    try {
+      assert.ok(res.ok, `opencode projection failed: ${res.error}`);
+      assert.ok(fs.existsSync(path.join(out, '.opencode', FIXTURE_BUNDLE, 'prompts', 'greeting.md')),
+        'opencode must bundle prompts/ (it does not auto-scan prompts/)');
+      assert.ok(!fs.existsSync(path.join(out, '.opencode', 'prompts')),
+        'opencode must NOT keep prompts/ loose at the root');
+    } finally { cleanup(root); cleanup(out); }
+  }
+});
+
+// G5 (internal reference resolution): the reviewer body references `policies/STYLE.md`.
+// codex/opencode move policies/ -> the ref is rewritten to `_<slug>/policies/STYLE.md`;
+// claude keeps policies/ at the repo root -> the body is byte-identical (no rewrite).
+test('internal reference to a namespaced folder resolves per-provider (G5)', () => {
+  // codex: reviewer folds into AGENTS.md/config; check the skill body instead — use
+  // a capability that ships as a file on each provider. The reviewer agent IS a file
+  // on opencode; on codex agents are re-expressed, so assert via opencode + claude.
+  {
+    const { root, out, res } = projectTo('opencode');
+    try {
+      assert.ok(res.ok);
+      const ag = fs.readFileSync(path.join(out, '.opencode', 'agents', `${FIXTURE_PLUGIN_NAME}-reviewer.md`), 'utf8');
+      assert.ok(ag.includes(`${FIXTURE_BUNDLE}/policies/STYLE.md`),
+        'opencode reviewer body must rewrite policies/STYLE.md -> _<slug>/policies/STYLE.md');
+      assert.ok(!/[^/]\bpolicies\/STYLE\.md/.test(ag.replace(`${FIXTURE_BUNDLE}/policies/STYLE.md`, '')),
+        'opencode must not leave an un-namespaced policies/STYLE.md reference');
+    } finally { cleanup(root); cleanup(out); }
+  }
+  {
+    const { root, out, res } = projectTo('claude');
+    try {
+      assert.ok(res.ok);
+      const ag = fs.readFileSync(path.join(out, '.claude', 'agents', 'reviewer.md'), 'utf8');
+      assert.ok(ag.includes('`policies/STYLE.md`'),
+        'claude reviewer body must keep the plain policies/STYLE.md ref (whole-repo, no rewrite)');
+      assert.ok(!ag.includes(`${FIXTURE_BUNDLE}/policies`),
+        'claude must NOT namespace the reference (folder stays at repo root)');
+    } finally { cleanup(root); cleanup(out); }
+  }
+});
+
 // Anti-collision: two plugins with different slugs project into the SAME provider
 // home without overwriting each other's private bundle or discovery loader.
 test('two plugins install side-by-side without colliding (opencode)', () => {

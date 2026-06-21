@@ -94,9 +94,23 @@ function renderPropagationPlan(plans) {
   return rows;
 }
 
+// Collect the non-standard-folder warnings across every plan (G3), so the
+// human-gate and `project.mjs --dry-run` show each re-home/skip/collision before
+// any write. Each entry is { provider, dir, action, to?, message? }.
+function collectWarnings(plans) {
+  const out = [];
+  for (const plan of plans) {
+    for (const w of (Array.isArray(plan.warnings) ? plan.warnings : [])) {
+      out.push({ provider: plan.adapter.target, ...w });
+    }
+  }
+  return out;
+}
+
 module.exports = {
   getAdapter,
   planForTarget,
   planAll,
   renderPropagationPlan,
+  collectWarnings,
 };

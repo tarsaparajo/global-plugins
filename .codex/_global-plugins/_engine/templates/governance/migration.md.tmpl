@@ -5,6 +5,11 @@ breakingFor: {{breaking_for}}
 appliesWhen: []
 reversible: true
 estimatedRisk: medium
+# steps[] are STRUCTURED (a `kind` the runner interprets), never a shell string.
+# Supported kinds (scripts/evolve/migrate-apply.mjs):
+#   - relocate-nonstandard-dirs { scope:[codex,opencode] }  # move PRIVATE top-level
+#       dirs into the bundle _<slug>/<dir>/, classified by the engine (no hand list)
+#   - remove-path { scope:[...], paths:[...], onlyWhen?:bundleExists }
 steps: []
 ---
 
@@ -15,3 +20,8 @@ steps: []
 ## Affected substrates
 
 ## Dry-run -> Apply -> Rollback
+
+The runner (`scripts/evolve/migrate-apply.mjs`) interprets the structured `steps[]`
+above with snapshot-based rollback. Dry-run writes nothing; apply snapshots →
+forwards → verifies (auto-rollback + halt on failure); rollback restores the
+snapshot / inverts the moves. Idempotent: re-running with nothing to do is a no-op.

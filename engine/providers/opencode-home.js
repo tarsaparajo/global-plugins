@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { planFromModules, defaultCopy, ownerPrefixedCopy, payloadCopy } = require('./_base');
+const { planFromModules, defaultCopy, ownerPrefixedCopy, payloadCopy, claimedTopLevel, namespacePrivateFolders } = require('./_base');
 const { buildValidationIssue, pluginLabel, privateBundleDir } = require('../helpers');
 
 // The compiled-payload artefacts the build step must produce, resolved against
@@ -85,19 +85,33 @@ function planOperations(planInput, adapter) {
   // hooks/rules/mcp are not invocable capabilities, so they copy verbatim.
   const label = pluginLabel(planInput.repoRoot);
   const prefixed = ctx => ownerPrefixedCopy(ctx, label);
-  const ops = planFromModules(planInput, adapter, {
+  const handlers = {
     agents: prefixed,
     skills: prefixed,
     commands: prefixed,
     hooks: defaultCopy,
     rules: defaultCopy,
     mcp: defaultCopy,
-  });
-  // Runtime payload: ship the projection engine into .opencode/_engine/ so an
-  // OpenCode install can itself generate/adapt/evolve child plugins. The native
+  };
+  // Scan for non-standard invented folders and route them into `_<slug>/<dir>/`
+  // (G1). Computed first so the namespaced names are stamped on capability ops for
+  // reference rewriting (G5). claimed subtracts capability handlers + payload dirs.
+  // Note OpenCode's pinnedToRoot does NOT include prompts/rules (unlike Codex), so
+  // a source `prompts/`/`rules/` not claimed by a module IS bundled here (R2).
+  const claimed = claimedTopLevel(planInput, adapter, handlers);
+  const priv = namespacePrivateFolders(planInput, adapter, { claimed });
+
+  const ops = planFromModules(planInput, adapter, handlers, { namespacedFolders: priv.namespacedFolders });
+  // Runtime payload: ship the projection engine into .opencode/_<slug>/_engine/ so
+  // an OpenCode install can itself generate/adapt/evolve child plugins. The native
   // dist/ tools (build-opencode.js) shell out to this payload. Separate from the
   // capability surface; never scanned/owner-prefixed as a capability.
   ops.push(...payloadCopy(planInput, adapter));
+  // Non-standard invented folders -> `_<slug>/<dir>/` (siblings of _engine/dist).
+  ops.push(...priv.ops);
+  if (priv.warnings.length) {
+    ops.warnings = priv.warnings;
+  }
   return ops;
 }
 

@@ -259,6 +259,73 @@ const RESERVED_DIR_NAMES = Object.freeze([
   'tool', 'tools', 'dist', 'rules', 'hooks', 'mcp', 'prompts', '_engine',
 ]);
 
+// The two infra siblings that live INSIDE every plugin's private bundle
+// (`_<slug>/_engine` runtime payload + `_<slug>/dist` compiled OpenCode plugin).
+// A non-standard source folder relocated under `_<slug>/<folder>/` must NEVER be
+// named one of these, or it would clobber a sibling and break the fixed
+// `dist/tools → ../../_engine` offset (R6). The generic folder scanner treats a
+// PRIVATE folder with one of these names as a hard error, not a silent overwrite.
+const BUNDLE_SIBLING_NAMES = Object.freeze(['_engine', 'dist']);
+
+// Top-level entries that are NEVER a plugin's own runtime infrastructure and so
+// are SKIPped (with a note) rather than bundled. Three groups:
+//  - VCS / tooling metadata and OS junk: `.git`, `node_modules`, `.DS_Store`,
+//    `.github`, and the evolution scratch dir `.evolution` (its `baseline`
+//    subpath ships as engine payload via a module, not as a top-level folder).
+//  - Provider dotfolders (`.claude`/`.codex`/`.opencode`) and the Claude
+//    native-root marker `.claude-plugin`: these are projection OUTPUTS, not
+//    source folders to re-home.
+//  - Repo-meta dev folders never shipped to a runtime install: `tests` (CI only),
+//    `migrations` (consumed by the migrate runner from the repo/payload root, not
+//    a per-install folder), and `assets` (README/author-time art, seeded into
+//    children via templates/, not a runtime payload). These are conventional
+//    dev-meta names a plugin's RUNTIME never reads; a plugin that needs reference
+//    data at runtime names it `data`/`reference`/`protocols`/etc., which the
+//    classifier still routes to PRIVATE.
+// Everything unrecognized defaults to PRIVATE (bundled), NEVER dropped.
+const SKIP_DIR_NAMES = Object.freeze(new Set([
+  '.git', 'node_modules', '.DS_Store', '.github', '.evolution',
+  '.claude', '.codex', '.opencode', '.claude-plugin',
+  'tests', 'migrations', 'assets',
+]));
+
+// Classify a single TOP-LEVEL directory name for one provider into where it must
+// land in that provider's home: 'SHARED' (stays at the dotfolder root — the
+// provider reads it natively or all plugins share it), 'PRIVATE' (goes into the
+// plugin's bundle `_<slug>/<name>/` — the plugin invented it and no provider
+// discovers it), or 'SKIP' (genuine junk, dropped with a note). This is the
+// SINGLE source of truth consumed by generate, adapt, and the migration runner,
+// so all three agree on the same decision. PURE: no filesystem, no plan.
+//
+// Rules, in order:
+//  - wholeRepo (Claude installs the whole repo verbatim) -> SHARED for everything;
+//    every folder keeps its repo-root path, which `${CLAUDE_PLUGIN_ROOT}`-relative
+//    refs already resolve. Claude is a NO-OP for namespacing.
+//  - a SKIP name (junk/metadata/dotfolder) -> SKIP.
+//  - a name in this provider's pinnedToRoot allowlist -> SHARED (the provider
+//    auto-scans it at a FIXED root path; moving it would break discovery
+//    silently). pinnedToRoot is PER-PROVIDER (R2): `prompts`/`rules` are scanned
+//    by Codex but not OpenCode; `plugins` is scanned by OpenCode but not Codex.
+//  - the plugin's own bundle dir name (`_<slug>`) -> SHARED (it IS the bundle).
+//  - anything else -> PRIVATE (the safe default: an unknown folder is namespaced,
+//    NEVER silently dropped).
+function classifyTopLevelDir(name, { pinnedToRoot, wholeRepo, privBundleName } = {}) {
+  if (wholeRepo) {
+    return 'SHARED';
+  }
+  if (SKIP_DIR_NAMES.has(name)) {
+    return 'SKIP';
+  }
+  const pinned = pinnedToRoot instanceof Set ? pinnedToRoot : new Set(pinnedToRoot || []);
+  if (pinned.has(name)) {
+    return 'SHARED';
+  }
+  if (privBundleName && name === privBundleName) {
+    return 'SHARED';
+  }
+  return 'PRIVATE';
+}
+
 // The single namespaced PRIVATE bundle dir a plugin owns inside a provider's
 // home config. ALL of a plugin's non-standard infrastructure (the `_engine/`
 // runtime payload, the OpenCode `dist/`, the install-state file) lives under it,
@@ -274,14 +341,28 @@ function privateBundleDir(repoRoot) {
   return slug ? `_${slug}` : '';
 }
 
+// Absolute path of an arbitrary subdir INSIDE a plugin's private bundle:
+// <targetRoot>/_<slug>/<subdir> (or <targetRoot>/<subdir> when there is no slug —
+// the legacy flat layout used only by manifest-less fixtures). This is the
+// GENERAL placement primitive: the runtime payload is `_engine`, the OpenCode
+// compiled plugin is `dist`, and any non-standard folder a plugin invents is its
+// own name — all SIBLINGS under `_<slug>/`. Keeping every bundle member a sibling
+// is what preserves the fixed `dist/tools → ../../_engine` offset (R6): new
+// folders never nest under `_engine`/`dist`, they sit beside them.
+function bundleSubPath(targetRoot, repoRoot, subdir) {
+  const bundle = privateBundleDir(repoRoot);
+  return bundle ? path.join(targetRoot, bundle, subdir) : path.join(targetRoot, subdir);
+}
+
 // Absolute base path of the runtime payload for a provider install:
 // <targetRoot>/_<slug>/_engine (or <targetRoot>/_engine when there is no slug).
 // Single source of truth shared by the payload planner (_base.payloadCopy), the
 // OpenCode build (dist must sit as a SIBLING of this), the drift guard, and the
-// tests, so the layout rule lives in exactly one place.
+// tests, so the layout rule lives in exactly one place. Expressed through
+// bundleSubPath so the `_engine` slot is just one named member of the bundle —
+// byte-identical result to the prior direct join.
 function payloadBasePath(targetRoot, repoRoot) {
-  const bundle = privateBundleDir(repoRoot);
-  return bundle ? path.join(targetRoot, bundle, '_engine') : path.join(targetRoot, '_engine');
+  return bundleSubPath(targetRoot, repoRoot, '_engine');
 }
 
 module.exports = {
@@ -307,6 +388,10 @@ module.exports = {
   stripOwnershipPrefix,
   prefixName,
   RESERVED_DIR_NAMES,
+  BUNDLE_SIBLING_NAMES,
+  SKIP_DIR_NAMES,
+  classifyTopLevelDir,
   privateBundleDir,
+  bundleSubPath,
   payloadBasePath,
 };

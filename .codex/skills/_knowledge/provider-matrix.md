@@ -59,13 +59,15 @@ The engine applies **keep/rewrite/drop** mechanically for the fields above (`eng
 
 ## Non-standard folder placement (anti-collision)
 
-Capability NAMES are owner-prefixed (above), which keeps `agents/skills/commands` entries collision-free across installed plugins. Non-standard FOLDERS are namespaced instead: every plugin's non-standard infrastructure groups under one private bundle `_<slug>/` at the provider root. The full protocol — PRIVATE (`_engine/`, OpenCode `dist/`, `install-state.json`) vs SHARED (kept at root: `agents/`/`skills/`/`commands/`, `plugins/` + its per-slug loader, `opencode.json`, `AGENTS.md`/`CLAUDE.md`, Codex `config.toml`), the `dist`↔`_engine` sibling invariant, the OpenCode discovery loader, and the reserved-slug guard — is in **`skills/_knowledge/namespacing.md`**. Engine: `helpers.privateBundleDir`/`payloadBasePath`, `_base.payloadCopy`, `build-opencode.js`.
+Capability NAMES are owner-prefixed (above), which keeps `agents/skills/commands` entries collision-free across installed plugins. Non-standard FOLDERS are namespaced instead, by a **computed** classification (not a fixed allowlist): for each top-level folder the engine asks *does this provider read it natively, or is it shared by all plugins?* — if yes it stays at the root (SHARED), otherwise it is namespaced into `_<slug>/<folder>/` (PRIVATE); only genuine dev-meta/junk is SKIPped, and an unrecognized folder defaults to PRIVATE (never dropped). This covers **any** folder a plugin invents (doctrine, schemas, own templates, reference data, internal protocols), not just the three known infra artifacts. The full protocol — the computed PRIVATE/SHARED/SKIP rule, the **per-provider pinned-to-root** allowlist (R2), the `dist`↔`_engine` sibling invariant, the internal-reference rewrite (G5), the OpenCode discovery loader, and the reserved-slug/bundle-sibling guard — is in **`skills/_knowledge/namespacing.md`**. Engine: `helpers.classifyTopLevelDir`/`privateBundleDir`/`bundleSubPath`/`payloadBasePath`, `_base.namespacePrivateFolders`/`payloadCopy`, `executor.rewriteNamespacedRefs`, `build-opencode.js`.
 
-| Provider | Standard/shared (root) | Private bundle `_<slug>/` |
-|---|---|---|
-| claude | whole-repo install model | (n/a — Claude installs the whole repo) |
-| codex | `config.toml`, `AGENTS.md`, `skills/`, `commands/` | `_engine/`, `install-state.json` |
-| opencode | `agents/`, `skills/`, `commands/`, `plugins/<slug>.js`, `opencode.json` | `_engine/`, `dist/`, `install-state.json` |
+| Provider | Standard/shared (root) | Pinned-to-root (auto-scanned, never bundled) | Private bundle `_<slug>/` |
+|---|---|---|---|
+| claude | whole-repo install model | n/a (whole-repo — every folder keeps its root path) | (n/a — Claude installs the whole repo) |
+| codex | `config.toml`, `AGENTS.md`, `skills/`, `commands/`, `prompts/`, `rules/` | `agents/`, `skills/`, `commands/`, `prompts/`, `rules/` | `_engine/`, `install-state.json`, **any invented folder** |
+| opencode | `agents/`, `skills/`, `commands/`, `plugins/<slug>.js`, `opencode.json` | `agents/`, `skills/`, `commands/`, `plugins/` | `_engine/`, `dist/`, `install-state.json`, **any invented folder** |
+
+Pinned-to-root is per-provider: Codex auto-scans `prompts/`/`rules/`, OpenCode does not — so a plugin's own `prompts/` not declared by a module stays at `.codex/prompts/` but is namespaced to `.opencode/_<slug>/prompts/`. A folder declared by a manifest module is governed by its applicability (`targets[]`/`payloadTargets[]`), not the scanner (R7).
 
 ## Reverse transforms (adapt)
 
@@ -74,6 +76,7 @@ The capability-extractor inverts each transform back to canonical (Claude-shaped
 - **Codex** → canonical: read agent roles from `config.toml` `[agents.<name>]` tables + the `AGENTS.md` index (NOT from per-agent `.toml` files — those do not exist in real Codex); recover any `color`/`tools` from a skill's `agents/openai.yaml` (`interface.brand_color` → named color best-effort; `dependencies.tools[]` → tool-name array); split the consolidated `AGENTS.md` index back into discrete `agents/`/`skills/`/`commands/` sections; skill bodies come from `skills/<name>/SKILL.md`.
 - **OpenCode** → canonical: `tools` object → array of names; quoted hex `color` `"#RRGGBB"` → named Claude color best-effort (flag if no exact match); any native `model` is left out of the canonical agent (canonical agents carry no `model:`); compiled `dist/` TypeScript cannot round-trip cleanly and is flagged for re-authoring.
 - **Owner-identity markers (OpenCode/Codex)** → canonical: strip a leading `[<plugin>] ` from descriptions and a leading `<plugin>-` from OpenCode command/agent filenames + skill dir + `name:` (the projector re-derives them from the slug). Never bake the marker into the canonical source; flag a prefix that does not match the source plugin's own slug.
+- **Non-standard folders (any provider)** → canonical: inventory EVERY top-level folder of the source, subtract the known capability dirs and that provider's pinned-to-root surfaces, and lift the rest back to the canonical root as `<folder>/` (so re-projection namespaces them into `_<slug>/<folder>/` again). A source's already-namespaced `_<slug>/<folder>/` is lifted back to `<folder>/`. **Warn** on every re-homed folder — never drop one silently.
 - **All** → canonical: merged settings/`.mcp.json` → canonical `mcp/*.json`; flattened rules → `rules/`.
 
 When lifting, re-canonicalize fields per the **Frontmatter field adaptation** matrix above, in reverse. Anything ambiguous (a hex `brand_color` with no exact named equivalent, a non-Anthropic model) is flagged, never guessed silently.

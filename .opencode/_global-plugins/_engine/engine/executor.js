@@ -8,9 +8,41 @@
 const fs = require('fs');
 const path = require('path');
 
-const { deepMergeJson, readJsonFile, pluginLabel } = require('./helpers');
+const { deepMergeJson, readJsonFile, pluginLabel, privateBundleDir } = require('./helpers');
 const promptDefense = require('./prompt-defense');
 const frontmatter = require('./frontmatter');
+
+// G5 — internal-reference resolution. When a non-standard folder is namespaced
+// into `_<slug>/<folder>/`, a capability body that referenced its contents by a
+// repo-root-relative path (e.g. "read `protocols/PLAYBOOK.md`") would break on the
+// providers that moved it (codex/opencode). This rewrites those references to the
+// LITERAL namespaced relative path `_<slug>/<folder>/…` — a path every provider
+// resolves WITHOUT a provider-specific variable (claude has ${CLAUDE_PLUGIN_ROOT}
+// but codex/opencode have no equivalent, so a single token can't work
+// cross-provider; a literal namespaced path can). It runs ONLY for the providers
+// that actually relocated the folder — Claude keeps folders at the repo root
+// (whole-repo install) and is never stamped with namespacedFolders, so its bodies
+// are left byte-identical.
+//
+// Idempotent (R4): the negative lookahead `(?!<bundle>/)` plus a boundary class
+// that EXCLUDES `/` means an already-rewritten `_<slug>/<folder>/` never matches
+// again, so re-projection never produces `_<slug>/_<slug>/<folder>`.
+function rewriteNamespacedRefs(content, folders, bundle) {
+  if (!bundle || !Array.isArray(folders) || folders.length === 0) {
+    return content;
+  }
+  let out = content;
+  for (const folder of folders) {
+    const esc = String(folder).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Match `<folder>/` only at a path boundary (start-of-string, whitespace, or
+    // an opening (/`/"/'/[ delimiter) and only when NOT already bundle-prefixed,
+    // so `myfolder/` inside an unrelated word is left alone and a literal mention
+    // of the folder name without a trailing slash is untouched.
+    const re = new RegExp(`(^|[\\s(\`"'\\[])(?!${bundle}/)${esc}/`, 'g');
+    out = out.replace(re, `$1${bundle}/${folder}/`);
+  }
+  return out;
+}
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -67,6 +99,14 @@ function applyOperation(op, ctx) {
           pluginLabel: pluginLabel(repoRoot),
           ...(op.nameOverride ? { nameOverride: op.nameOverride } : {}),
         });
+      }
+      // G5: rewrite references to namespaced non-standard folders to their literal
+      // `_<slug>/<folder>/` location. op.namespacedFolders is stamped by the
+      // provider planner ONLY for providers that relocated those folders
+      // (codex/opencode); Claude is never stamped, so its bodies are unchanged.
+      if (!op.verbatim && Array.isArray(op.namespacedFolders) && op.namespacedFolders.length
+          && isModelFacingMarkdown(op.destinationPath)) {
+        content = rewriteNamespacedRefs(content, op.namespacedFolders, privateBundleDir(repoRoot));
       }
       if (!op.verbatim && isModelFacingMarkdown(op.destinationPath)) {
         content = promptDefense.inject(content);
@@ -197,4 +237,5 @@ module.exports = {
   snapshot,
   rollback,
   isModelFacingMarkdown,
+  rewriteNamespacedRefs,
 };

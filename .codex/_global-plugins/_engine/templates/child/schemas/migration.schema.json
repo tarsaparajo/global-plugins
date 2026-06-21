@@ -12,16 +12,16 @@
     "estimatedRisk": { "enum": ["low", "medium", "high"] },
     "steps": {
       "type": "array",
+      "description": "Structured steps the runner (scripts/evolve/migrate-apply.mjs) interprets by `kind`, never a shell string. Supported kinds: relocate-nonstandard-dirs (move PRIVATE top-level dirs into _<slug>/<dir>/, classified by the engine), remove-path (delete provider-root-relative paths if present).",
       "items": {
         "type": "object",
-        "required": ["id", "title", "forward", "rollback"],
+        "required": ["id", "kind"],
         "properties": {
           "id": { "type": "string" },
-          "title": { "type": "string" },
-          "detect": { "type": "string" },
-          "forward": { "type": "array" },
-          "rollback": { "type": "array" },
-          "verify": { "type": "string" }
+          "kind": { "enum": ["relocate-nonstandard-dirs", "remove-path"] },
+          "scope": { "type": "array", "items": { "type": "string" } },
+          "paths": { "type": "array", "items": { "type": "string" } },
+          "onlyWhen": { "enum": ["bundleExists"] }
         }
       }
     }
