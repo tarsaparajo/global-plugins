@@ -1,5 +1,5 @@
 ---
-description: Fast pass/fail validation gate for a plugin before shipping — manifests, projection round-trips, version sync, changelog, prompt-defense.
+description: "[global-plugins] Fast pass/fail validation gate for a plugin before shipping — manifests, projection round-trips, version sync, changelog, prompt-defense."
 ---
 ## Prompt Defense Baseline
 

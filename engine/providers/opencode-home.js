@@ -7,8 +7,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { planFromModules, defaultCopy } = require('./_base');
-const { buildValidationIssue } = require('../helpers');
+const { planFromModules, defaultCopy, ownerPrefixedCopy } = require('./_base');
+const { buildValidationIssue, pluginLabel } = require('../helpers');
 
 const REQUIRED_ARTEFACTS = Object.freeze([
   { rel: path.join('.opencode', 'dist', 'index.js'), type: 'file' },
@@ -63,10 +63,16 @@ function validate(input, adapter) {
 }
 
 function planOperations(planInput, adapter) {
+  // Owner-prefix the invocable NAME of agents/skills/commands (e.g.
+  // `/<slug>-adapt`) so the owning plugin is identifiable in OpenCode's `/`
+  // palette — OpenCode has no native namespacing like Claude's `/plugin:cmd`.
+  // hooks/rules/mcp are not invocable capabilities, so they copy verbatim.
+  const label = pluginLabel(planInput.repoRoot);
+  const prefixed = ctx => ownerPrefixedCopy(ctx, label);
   return planFromModules(planInput, adapter, {
-    agents: defaultCopy,
-    skills: defaultCopy,
-    commands: defaultCopy,
+    agents: prefixed,
+    skills: prefixed,
+    commands: prefixed,
     hooks: defaultCopy,
     rules: defaultCopy,
     mcp: defaultCopy,

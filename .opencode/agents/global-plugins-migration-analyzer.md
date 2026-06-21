@@ -1,8 +1,8 @@
 ---
-name: migration-analyzer
-description: When an evolution delta is breaking for already-materialized products, projects, or substrates, generate a versioned migration with dry-run, rollback, and its own human-gate. Writes migrations/<version>.md.
+name: global-plugins-migration-analyzer
+description: "[global-plugins] When an evolution delta is breaking for already-materialized products, projects, or substrates, generate a versioned migration with dry-run, rollback, and its own human-gate. Writes migrations/<version>.md."
 tools: { read: true, grep: true, glob: true, bash: true, write: true }
-color: #F97316
+color: "#F97316"
 ---
 
 ## Prompt Defense Baseline

@@ -14,7 +14,7 @@ const { planScaffold, getAdapter } = require('../../engine/registry');
 const executor = require('../../engine/executor');
 const { generators } = require('../../engine/builder');
 const { isForeignPlatformPath } = require('../../engine/helpers');
-const { makeCanonicalFixture, cleanup, fixtureModules } = require('../_fixture');
+const { makeCanonicalFixture, cleanup, fixtureModules, FIXTURE_PLUGIN_NAME } = require('../_fixture');
 
 function projectTo(target) {
   const root = makeCanonicalFixture();
@@ -40,7 +40,8 @@ const EXPECTATIONS = {
   // Codex re-expresses agents as [agents.<name>] config.toml tables — NOT
   // agents/<name>.toml files (which never existed in real Codex).
   codex: { root: '.codex', expect: (out) => !fs.existsSync(path.join(out, '.codex', 'agents')) && fs.existsSync(path.join(out, '.codex', 'config.toml')) },
-  opencode: { root: '.opencode', expect: (out) => fs.existsSync(path.join(out, '.opencode', 'agents', 'reviewer.md')) },
+  // OpenCode owner-prefixes the invocable name: reviewer -> <plugin>-reviewer.md.
+  opencode: { root: '.opencode', expect: (out) => fs.existsSync(path.join(out, '.opencode', 'agents', `${FIXTURE_PLUGIN_NAME}-reviewer.md`)) },
 };
 
 for (const [target, exp] of Object.entries(EXPECTATIONS)) {
@@ -73,19 +74,23 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         // carrying ONLY Codex's real fields (description). The Claude-only fields
         // (tools array, model alias, named color) have no Codex slot.
         assert.ok(/\[agents\.reviewer\]/.test(cfg), 'codex config.toml missing the [agents.reviewer] table');
-        assert.ok(/description = "Review code for issues\."/.test(cfg), 'codex [agents.reviewer] missing its description');
+        // Codex has no native namespacing -> every description is owner-prefixed.
+        const L = FIXTURE_PLUGIN_NAME;
+        assert.ok(cfg.includes(`description = "[${L}] Review code for issues."`),
+          'codex [agents.reviewer] description must carry the [plugin] owner prefix');
+        // The AGENTS.md index is owner-prefixed AND grouped under a "### <plugin>" heading.
+        assert.ok(new RegExp(`^### ${L}$`, 'm').test(idx), 'codex AGENTS.md missing the "### <plugin>" owner group heading');
+        assert.ok(idx.includes(`[${L}] `), 'codex AGENTS.md index entries must carry the [plugin] owner prefix');
         const skillMd = path.join(out, '.codex', 'skills', 'builder', 'SKILL.md');
-        assert.ok(fs.existsSync(skillMd), 'codex did not materialize the skill body as a sibling file');
+        assert.ok(fs.existsSync(skillMd), 'codex did not materialize the skill body as a sibling file (name NOT prefixed on codex)');
         // The fixture skill's description carries a colon ("Fast gate: …"). Codex's
         // SKILL.md frontmatter must be VALID YAML: the colon-bearing description
-        // must be double-quoted, never left as a bare scalar (which a YAML reader
-        // parses as a nested mapping → "mapping values are not allowed in this
-        // context" → Codex skips the skill).
+        // must be double-quoted, AND owner-prefixed.
         const skillBody = fs.readFileSync(skillMd, 'utf8');
-        assert.ok(/^description: ".*Fast gate: schema-valid, round-trips\."$/m.test(skillBody),
-          'codex SKILL.md must double-quote a colon-bearing description');
-        assert.ok(!/^description: Build things from a spec\. Fast gate:/m.test(skillBody),
-          'codex SKILL.md must NOT leave a colon-bearing description unquoted');
+        assert.ok(new RegExp(`^description: "\\[${L}\\] .*Fast gate: schema-valid, round-trips\\."$`, 'm').test(skillBody),
+          'codex SKILL.md description must be owner-prefixed AND double-quoted');
+        assert.ok(!/^description: Build things from a spec\./m.test(skillBody),
+          'codex SKILL.md must NOT leave the description bare/unprefixed');
         // No Claude-shaped frontmatter may leak anywhere in the Codex projection:
         // not a renamed agent .toml, not the skill SKILL.md (name + description
         // only), not the config or index.
@@ -112,15 +117,34 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
         assert.ok(/^color:\s*cyan/m.test(ag), 'claude must keep the named color verbatim');
       }
       // OpenCode rewrites field SHAPES: tools array -> object; color named Claude
-      // color -> hex (a bare Claude name is not a valid OpenCode color); model is
-      // dropped (never preset).
+      // color -> QUOTED hex; model dropped. AND owner-prefixes the invocable name
+      // (file + name:) and the description (no native namespacing).
       if (target === 'opencode') {
-        const ag = fs.readFileSync(path.join(out, '.opencode', 'agents', 'reviewer.md'), 'utf8');
+        const L = FIXTURE_PLUGIN_NAME;
+        const agPath = path.join(out, '.opencode', 'agents', `${L}-reviewer.md`);
+        assert.ok(fs.existsSync(agPath), 'opencode agent file must be owner-prefixed (<plugin>-reviewer.md)');
+        assert.ok(!fs.existsSync(path.join(out, '.opencode', 'agents', 'reviewer.md')), 'no unprefixed opencode agent file');
+        const ag = fs.readFileSync(agPath, 'utf8');
         assert.ok(!/^tools:\s*\[/m.test(ag), 'opencode must not keep the Claude tools array');
         assert.ok(/^tools:\s*\{[^}]*read: true[^}]*\}/m.test(ag), 'opencode must rewrite tools to an object of name:true');
         assert.ok(!/^model:/m.test(ag), 'opencode must NOT emit a model field (dropped)');
         assert.ok(!/^color:\s*cyan/m.test(ag), 'opencode must not keep the bare Claude color name (invalid)');
-        assert.ok(/^color:\s*#06B6D4/m.test(ag), 'opencode must rewrite cyan -> hex #06B6D4');
+        assert.ok(/^color:\s*"#06B6D4"$/m.test(ag), 'opencode must rewrite cyan -> QUOTED hex "#06B6D4"');
+        assert.ok(!/^color:\s*#06B6D4\s*$/m.test(ag), 'opencode hex must NOT be bare (would be a YAML comment)');
+        assert.ok(new RegExp(`^name: ${L}-reviewer$`, 'm').test(ag), 'opencode agent name: must match its owner-prefixed file');
+        // A leading "[" makes the scalar a YAML flow-sequence unless quoted, so the
+        // owner-prefixed description MUST be double-quoted.
+        assert.ok(new RegExp(`^description: "\\[${L}\\] `, 'm').test(ag), 'opencode agent description owner-prefixed AND quoted');
+        // Skill: directory AND name: are owner-prefixed; no unprefixed dir remains.
+        const skillPath = path.join(out, '.opencode', 'skills', `${L}-builder`, 'SKILL.md');
+        assert.ok(fs.existsSync(skillPath), 'opencode skill dir must be owner-prefixed (<plugin>-builder/)');
+        assert.ok(!fs.existsSync(path.join(out, '.opencode', 'skills', 'builder')), 'no unprefixed opencode skill dir');
+        const sk = fs.readFileSync(skillPath, 'utf8');
+        assert.ok(new RegExp(`^name: ${L}-builder$`, 'm').test(sk), 'opencode skill name: must match its owner-prefixed dir');
+        assert.ok(new RegExp(`^description: "\\[${L}\\] `, 'm').test(sk), 'opencode skill description prefixed (and quoted for its colon)');
+        // Command file is owner-prefixed too (commands have no name: field).
+        assert.ok(fs.existsSync(path.join(out, '.opencode', 'commands', `${L}-run.md`)), 'opencode command file must be owner-prefixed');
+        assert.ok(!fs.existsSync(path.join(out, '.opencode', 'commands', 'run.md')), 'no unprefixed opencode command file');
       }
       // Containment: no planned source path is foreign to this target.
       for (const op of plan.operations) {

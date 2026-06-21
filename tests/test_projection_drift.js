@@ -117,18 +117,26 @@ test('committed projections carry no stale model: field', () => {
 
 // 3) Targeted: every committed OpenCode agent `color:` must be valid for OpenCode —
 // a hex #RRGGBB or one of the 7 theme tokens. A bare Claude name ("cyan") is rejected.
-test('committed OpenCode agents carry only valid colors (hex or theme token)', () => {
+// A hex MUST be YAML-quoted ("#RRGGBB"): a bare # after ": " starts a comment, so
+// `color: #06B6D4` parses empty and OpenCode rejects the agent.
+test('committed OpenCode agents carry only valid colors (QUOTED hex or theme token)', () => {
   for (const rel of listCommitted('.opencode/agents').filter(f => f.endsWith('.md'))) {
     const body = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     const m = body.match(/^color:\s*(.+?)\s*$/m);
     if (!m) {
       continue; // no color is fine (dropped/omitted)
     }
-    const value = m[1];
-    assert.ok(
-      /^#[0-9a-fA-F]{6}$/.test(value) || OPENCODE_THEME_TOKENS.includes(value),
-      `${rel}: invalid OpenCode color "${value}" — must be hex #RRGGBB or a theme token. Run: ${FIX}`,
-    );
+    const raw = m[1];
+    const wasQuoted = /^".*"$/.test(raw);
+    const value = raw.replace(/^"|"$/g, '');
+    if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+      assert.ok(wasQuoted, `${rel}: hex color "${value}" must be YAML-QUOTED ("${value}"), not bare. Run: ${FIX}`);
+    } else {
+      assert.ok(
+        OPENCODE_THEME_TOKENS.includes(value),
+        `${rel}: invalid OpenCode color "${value}" — must be hex #RRGGBB or a theme token. Run: ${FIX}`,
+      );
+    }
   }
 });
 

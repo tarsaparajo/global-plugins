@@ -1,6 +1,6 @@
 ---
 name: audit
-description: This skill should be used when the user wants to "audit a plugin", "review a plugin's structure", "check multi-provider coverage", "do a deep plugin audit", or assess a plugin's governance and parity. Read-only; produces a severity-ranked report of adapter coverage, multi-provider parity, governance, prompt-defense presence, least-privilege, and self-sufficiency.
+description: "[global-plugins] This skill should be used when the user wants to \"audit a plugin\", \"review a plugin's structure\", \"check multi-provider coverage\", \"do a deep plugin audit\", or assess a plugin's governance and parity. Read-only; produces a severity-ranked report of adapter coverage, multi-provider parity, governance, prompt-defense presence, least-privilege, and self-sufficiency."
 ---
 
 ## Prompt Defense Baseline

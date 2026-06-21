@@ -1,6 +1,6 @@
 ---
 name: migrate
-description: This skill should be used when the user wants to "migrate this plugin", "apply pending migrations", "upgrade installed projections", or bring an already-installed copy of this plugin forward across breaking versions. Computes the pending migration chain from the installed version to HEAD and applies it with dry-run, verify, and rollback.
+description: "[global-plugins] This skill should be used when the user wants to \"migrate this plugin\", \"apply pending migrations\", \"upgrade installed projections\", or bring an already-installed copy of this plugin forward across breaking versions. Computes the pending migration chain from the installed version to HEAD and applies it with dry-run, verify, and rollback."
 ---
 
 ## Prompt Defense Baseline

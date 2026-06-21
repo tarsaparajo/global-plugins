@@ -1,5 +1,7 @@
 'use strict';
 
+const { prefixDescription } = require('./helpers');
+
 // Frontmatter adaptation. "Adaptar não é copiar" — a canonical agent/skill/command
 // carries Claude-shaped YAML frontmatter, but each provider's real schema is
 // different. When the engine projects a model-facing .md into a non-Claude
@@ -116,6 +118,22 @@ function decodeScalar(raw) {
   return raw.trim().replace(/^["']|["']$/g, '');
 }
 
+// Decode a YAML scalar's RAW text to its plain string value: a double-quoted
+// value is unquoted and unescaped (\" -> ", \\ -> \); a single-quoted value is
+// unquoted ('' -> '); a bare value is returned trimmed. Used before transforming
+// a description (e.g. prefixing a label) so serialize() can re-quote it ONCE and
+// cleanly, instead of nesting quotes/escapes on an already-quoted raw.
+function decodeYamlScalar(raw) {
+  const t = String(raw).trim();
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    return t.slice(1, -1).replace(/\\(["\\])/g, '$1');
+  }
+  if (t.length >= 2 && t.startsWith("'") && t.endsWith("'")) {
+    return t.slice(1, -1).replace(/''/g, "'");
+  }
+  return t;
+}
+
 // True when a raw value is already a structured form the rest of the engine
 // produces and round-trips on its own — an inline array ([ … ] / { … }, used by
 // the opencode tools rewrite) or an already-quoted scalar. These must NOT be
@@ -136,19 +154,32 @@ function isAlreadyStructured(raw) {
 }
 
 // True when a plain (unquoted) scalar would be MISPARSED by a YAML reader and so
-// must be emitted double-quoted. The bug this guards: a description like
-// "Fast pass/fail gate: schema-valid manifests" has a `: ` that YAML reads as a
-// nested mapping ("mapping values are not allowed in this context"), and Codex
-// then SKIPS the skill. Kept deliberately NARROW — the `: ` mapping trap and
-// surrounding whitespace are the only cases this engine actually emits — so the
-// established bare forms this plugin relies on stay byte-stable: hex colors
-// (`#RRGGBB`), theme tokens, names, and inline arrays/objects are untouched.
+// must be emitted double-quoted. Two guards, both observed in this engine's output:
+//   1. The `: ` mapping trap — a description like "Fast pass/fail gate: schema-valid
+//      manifests" reads as a nested mapping ("mapping values are not allowed in this
+//      context"), and Codex then SKIPS the skill.
+//   2. A leading `#` — a value like `#06B6D4` (the OpenCode hex `color`) sits AFTER
+//      `: `, where a bare `#` begins a YAML COMMENT, so the field parses empty and
+//      OpenCode rejects the agent. Quoting it (`color: "#06B6D4"`) preserves the value.
+// Kept otherwise NARROW so the established bare forms stay byte-stable: theme tokens,
+// names, and inline arrays/objects are untouched (isAlreadyStructured guards the
+// already-quoted/array/object cases, keeping this idempotent).
 function needsYamlQuoting(raw) {
   if (raw === '' || isAlreadyStructured(raw)) {
     return false;
   }
   if (/:(\s|$)/.test(raw)) {
-    return true; // "x: y" or trailing ":" — the mapping-value trap (the real bug).
+    return true; // "x: y" or trailing ":" — the mapping-value trap.
+  }
+  const head = raw.trimStart()[0];
+  if (head === '#') {
+    return true; // leading "#" — a bare value here starts a YAML comment (hex colors).
+  }
+  if (head === '[' || head === '{') {
+    // Leading "[" / "{" starts a YAML flow sequence/mapping (isAlreadyStructured
+    // already returned false, so this is NOT a real inline array/object — e.g. an
+    // owner-prefixed description "[plugin] …"). A bare value would fail to parse.
+    return true;
   }
   if (raw !== raw.trim()) {
     return true; // leading/trailing whitespace is lost by a plain scalar.
@@ -185,12 +216,32 @@ function serialize(entries, body) {
 }
 
 // Per-target rewrite of a parsed entry list. Mutates entry.raw (null => drop).
-function rewriteEntries(entries, target) {
+// opts.pluginLabel, when set, prefixes the `description` with `[label] ` for the
+// OpenCode/Codex targets (whose CLIs have no native namespacing) so the owning
+// plugin is visible in the `/` palette; Claude is left untouched (it already
+// namespaces as `/plugin:cmd`).
+function rewriteEntries(entries, target, opts = {}) {
+  const label = opts.pluginLabel || '';
   for (const entry of entries) {
     const { key } = entry;
 
-    if (key === 'name' || key === 'description') {
-      continue; // keep everywhere.
+    if (key === 'name') {
+      // Keep everywhere; opts.nameOverride (owner-prefixed OpenCode skills) sets
+      // the SKILL.md `name:` to match its renamed directory.
+      if (opts.nameOverride && entry.raw != null) {
+        entry.raw = opts.nameOverride;
+      }
+      continue;
+    }
+
+    if (key === 'description') {
+      // Keep everywhere; for OpenCode/Codex, prefix with the owner label. Decode
+      // the raw to its PLAIN value first so serialize() re-quotes it exactly once
+      // (prefixing a still-quoted raw and re-quoting would nest escapes).
+      if (label && (target === 'opencode' || target === 'codex') && entry.raw != null) {
+        entry.raw = prefixDescription(decodeYamlScalar(entry.raw), label);
+      }
+      continue;
     }
 
     if (key === 'model') {
@@ -267,7 +318,10 @@ function camelTool(name) {
 // byte-stable, claude content with no `model:` is returned untouched; only when a
 // stray `model:` is present does it get serialized through the drop. Returns the
 // content with adapted (or dropped) frontmatter fields; the body is untouched.
-function adapt(content, target) {
+// opts.pluginLabel (optional) is the owning plugin's slug; when set it prefixes
+// the description with `[label] ` for OpenCode/Codex (see rewriteEntries). It does
+// NOT affect Claude, so the claude byte-stable no-op below stays valid.
+function adapt(content, target, opts = {}) {
   if (!target) {
     return content;
   }
@@ -278,7 +332,7 @@ function adapt(content, target) {
   if (target === 'claude' && !parsed.entries.some(e => e.key === 'model')) {
     return content; // true no-op: nothing to drop, keep byte-identical.
   }
-  const entries = rewriteEntries(parsed.entries, target);
+  const entries = rewriteEntries(parsed.entries, target, opts);
   return serialize(entries, parsed.body);
 }
 

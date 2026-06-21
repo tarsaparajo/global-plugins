@@ -1,6 +1,6 @@
 ---
-name: adapt
-description: This skill should be used when the user wants to "adapt a plugin", "make my plugin work everywhere", "convert a single-provider plugin to multi-provider", "port my Claude Code/Codex/OpenCode plugin to the other providers", or points at a plugin built for one tool. Fingerprints the source, lifts it to canonical, and projects it to all three CLI providers (or a selected subset) while preserving 100% of the original functionality.
+name: global-plugins-adapt
+description: "[global-plugins] This skill should be used when the user wants to \"adapt a plugin\", \"make my plugin work everywhere\", \"convert a single-provider plugin to multi-provider\", \"port my Claude Code/Codex/OpenCode plugin to the other providers\", or points at a plugin built for one tool. Fingerprints the source, lifts it to canonical, and projects it to all three CLI providers (or a selected subset) while preserving 100% of the original functionality."
 ---
 
 ## Prompt Defense Baseline

@@ -1,6 +1,6 @@
 ---
-name: generate
-description: This skill should be used when the user wants to "create a plugin", "generate a plugin", "build a plugin from a briefing", "make a multi-provider plugin", or describes a plugin they want built from a natural-language description. Generates a complete multi-provider plugin from a single canonical source and projects it to every selected provider, with self-evolution injected.
+name: global-plugins-generate
+description: "[global-plugins] This skill should be used when the user wants to \"create a plugin\", \"generate a plugin\", \"build a plugin from a briefing\", \"make a multi-provider plugin\", or describes a plugin they want built from a natural-language description. Generates a complete multi-provider plugin from a single canonical source and projects it to every selected provider, with self-evolution injected."
 ---
 
 ## Prompt Defense Baseline

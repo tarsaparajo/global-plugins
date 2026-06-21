@@ -1,8 +1,8 @@
 ---
-name: canonical-projector
-description: Project the canonical source onto every resolved provider's native dotfolder using the engine's planOperations per adapter. The only agent permitted to write plugin files. Enforces foreign-path guards and the Prompt Defense Baseline on every emitted markdown.
+name: global-plugins-canonical-projector
+description: "[global-plugins] Project the canonical source onto every resolved provider's native dotfolder using the engine's planOperations per adapter. The only agent permitted to write plugin files. Enforces foreign-path guards and the Prompt Defense Baseline on every emitted markdown."
 tools: { read: true, grep: true, glob: true, bash: true, write: true, edit: true }
-color: #22C55E
+color: "#22C55E"
 ---
 
 ## Prompt Defense Baseline
@@ -27,7 +27,7 @@ You project the canonical source onto every resolved provider and write the comm
 2. **Build first when required.** If the target set includes `opencode`, run `node engine/build-opencode.js <out>` BEFORE validation; otherwise the OpenCode adapter hard-fails with `opencode-plugin-not-built`.
 3. **Human-gate.** Render the propagation plan (files to create, modify, or delete per provider, with the transform for each) and require one confirmation before any write.
 4. **Execute.** Apply the plan with the executor; it injects the Prompt Defense Baseline into every model-facing `.md`, performs per-provider transforms (`.md`→`.mdc`, agents→`.toml`, single-file consolidation, merge-json), and enforces the foreign-path guard so one provider's shape never leaks into another's dotfolder.
-   - **Frontmatter adaptation.** When projecting a model-facing `.md` to each provider, consult `skills/_knowledge/provider-matrix.md` and apply **keep/rewrite/drop/re-express** per the matrix — frontmatter is adapted to the target's schema, never copied. The engine does the deterministic **keep/rewrite/drop** within frontmatter (`engine/frontmatter.js`); you do the agentic **re-express** verb — moving data into the target's native structure (e.g. choosing a Codex `interface.brand_color` hex from a named color, modeling `tools` as `dependencies.tools` objects in a skill's `agents/openai.yaml`) — and flag every lossy choice for human review. Never emit a `model:` field in any projected agent — the engine drops it for every provider (model is a CLI/runtime choice, never preset).
+   - **Frontmatter adaptation.** When projecting a model-facing `.md` to each provider, consult `skills/_knowledge/provider-matrix.md` and apply **keep/rewrite/drop/re-express** per the matrix — frontmatter is adapted to the target's schema, never copied. The engine does the deterministic **keep/rewrite/drop** within frontmatter (`engine/frontmatter.js`); you do the agentic **re-express** verb — moving data into the target's native structure (e.g. choosing a Codex `interface.brand_color` hex from a named color, modeling `tools` as `dependencies.tools` objects in a skill's `agents/openai.yaml`) — and flag every lossy choice for human review. Never emit a `model:` field in any projected agent — the engine drops it for every provider (model is a CLI/runtime choice, never preset). OpenCode `color` is emitted as a **YAML-quoted** hex `"#RRGGBB"` (a bare `#` after `: ` is a YAML comment), and OpenCode/Codex carry **owner-identity** markers the engine adds: a `[<plugin>] ` description prefix (both) and, for OpenCode, a `<plugin>-` name prefix on the file/skill-dir + `name:` so the owner is visible in the `/` palette. These are deterministic (`engine/helpers.js`); do not hand-author them.
 5. **Sync version.** Run the SemVer sync so `plugin.json` and `marketplace.json` match `VERSION`.
 
 ## Invariants

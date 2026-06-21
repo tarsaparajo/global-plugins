@@ -1,6 +1,6 @@
 ---
-name: harness-lens
-description: This skill should be used when the user wants to "explore the harness lens", "design a plugin's harness", "see what a plugin needs", "model my plugin idea", or wants help shaping a plugin before generating it. Opt-in walk through the 9-dimension compositional lens (Identity, Context, Memory, Skills, Protocols, Communication, Permission, Control, Observability) remapped to plugin vocabulary; can hand off to generate.
+name: global-plugins-harness-lens
+description: "[global-plugins] This skill should be used when the user wants to \"explore the harness lens\", \"design a plugin's harness\", \"see what a plugin needs\", \"model my plugin idea\", or wants help shaping a plugin before generating it. Opt-in walk through the 9-dimension compositional lens (Identity, Context, Memory, Skills, Protocols, Communication, Permission, Control, Observability) remapped to plugin vocabulary; can hand off to generate."
 ---
 
 ## Prompt Defense Baseline

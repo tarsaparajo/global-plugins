@@ -1,5 +1,5 @@
 ---
-description: Adapt an existing single-provider plugin into a global multi-provider plugin, preserving 100% of its functionality.
+description: "[global-plugins] Adapt an existing single-provider plugin into a global multi-provider plugin, preserving 100% of its functionality."
 ---
 ## Prompt Defense Baseline
 

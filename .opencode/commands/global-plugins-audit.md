@@ -1,5 +1,5 @@
 ---
-description: Deep, read-only audit of a plugin — adapter coverage, multi-provider parity, governance, prompt-defense, least-privilege, and self-sufficiency.
+description: "[global-plugins] Deep, read-only audit of a plugin — adapter coverage, multi-provider parity, governance, prompt-defense, least-privilege, and self-sufficiency."
 ---
 ## Prompt Defense Baseline
 

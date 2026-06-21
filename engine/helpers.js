@@ -188,6 +188,69 @@ function readJsonFile(filePath, label) {
   return parsed;
 }
 
+// Resolve a plugin's slug (its identity label) from its root: prefer the
+// `.claude-plugin/plugin.json` name (the canonical plugin identifier, the same
+// file compliance.js reads), fall back to package.json `name`, else ''. Cached
+// per root because the projector calls this once per emitted file. The slug is
+// used to (a) prefix descriptions for OpenCode/Codex (whose CLIs have no native
+// namespacing, unlike Claude's `/plugin:cmd`) and (b) prefix OpenCode
+// command/agent/skill names so the owner shows in the invocable token itself.
+const _pluginLabelCache = new Map();
+function pluginLabel(repoRoot) {
+  if (!repoRoot) {
+    return '';
+  }
+  if (_pluginLabelCache.has(repoRoot)) {
+    return _pluginLabelCache.get(repoRoot);
+  }
+  let label = '';
+  for (const rel of [path.join('.claude-plugin', 'plugin.json'), 'package.json']) {
+    try {
+      const json = readJsonFile(path.join(repoRoot, rel), rel);
+      if (json && typeof json.name === 'string' && json.name.trim()) {
+        label = json.name.trim();
+        break;
+      }
+    } catch {
+      // Missing/invalid manifest — try the next candidate, default to ''.
+    }
+  }
+  _pluginLabelCache.set(repoRoot, label);
+  return label;
+}
+
+// Prepend a `[label] ` ownership marker to a description, idempotently: a falsy
+// label or a description that already carries this exact `[label] ` prefix is
+// returned unchanged (so re-projection never double-prefixes).
+function prefixDescription(raw, label) {
+  if (!label || raw == null) {
+    return raw;
+  }
+  const marker = `[${label}] `;
+  return String(raw).startsWith(marker) ? raw : `${marker}${raw}`;
+}
+
+// Remove a leading `[...] ` ownership marker from a description (reverse of
+// prefixDescription, used when lifting an OpenCode/Codex plugin back to
+// canonical so the marker is not baked into the canonical source).
+function stripOwnershipPrefix(raw) {
+  if (raw == null) {
+    return raw;
+  }
+  return String(raw).replace(/^\[[^\]]+\]\s+/, '');
+}
+
+// Prefix a capability NAME (a command/agent/skill basename) with `<label>-`,
+// idempotently. Used by the OpenCode projection so the owner is part of the
+// invocable token (`/<label>-<name>`). Falsy label -> unchanged.
+function prefixName(name, label) {
+  if (!label || !name) {
+    return name;
+  }
+  const marker = `${label}-`;
+  return String(name).startsWith(marker) ? name : `${marker}${name}`;
+}
+
 module.exports = {
   PLATFORM_SOURCE_PATH_OWNERS,
   ownershipFor,
@@ -206,4 +269,8 @@ module.exports = {
   opSymlink,
   deepMergeJson,
   readJsonFile,
+  pluginLabel,
+  prefixDescription,
+  stripOwnershipPrefix,
+  prefixName,
 };

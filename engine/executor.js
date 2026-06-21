@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const { deepMergeJson, readJsonFile } = require('./helpers');
+const { deepMergeJson, readJsonFile, pluginLabel } = require('./helpers');
 const promptDefense = require('./prompt-defense');
 const frontmatter = require('./frontmatter');
 
@@ -56,7 +56,14 @@ function applyOperation(op, ctx) {
       // planner for agents/skills/commands; when absent this is a no-op, and for
       // claude with no stray model: it is byte-stable. See engine/frontmatter.js.
       if (op.frontmatterTarget && isModelFacingMarkdown(op.destinationPath)) {
-        content = frontmatter.adapt(content, op.frontmatterTarget);
+        // Pass the owning plugin's slug so OpenCode/Codex descriptions get a
+        // `[label] ` ownership prefix (no native namespacing on those CLIs).
+        // op.nameOverride (set for owner-prefixed OpenCode skills) rewrites the
+        // SKILL.md `name:` so it matches the renamed skill directory.
+        content = frontmatter.adapt(content, op.frontmatterTarget, {
+          pluginLabel: pluginLabel(repoRoot),
+          ...(op.nameOverride ? { nameOverride: op.nameOverride } : {}),
+        });
       }
       if (isModelFacingMarkdown(op.destinationPath)) {
         content = promptDefense.inject(content);

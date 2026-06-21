@@ -45,25 +45,31 @@ test('opencode rewrites tools array -> object and DROPS model', () => {
   assert.match(out, /^tools:\s*\{ read: true, grep: true, bash: true \}$/m);
   assert.doesNotMatch(out, /^model:/m, 'model is never emitted — the user picks it in the CLI');
   assert.doesNotMatch(out, /^color:\s*cyan$/m, 'named Claude color must NOT survive (invalid in OpenCode)');
-  assert.match(out, /^color:\s*#06B6D4$/m, 'cyan -> hex #06B6D4 for OpenCode');
+  assert.match(out, /^color:\s*"#06B6D4"$/m, 'cyan -> QUOTED hex "#06B6D4" for OpenCode (bare # is a YAML comment)');
+  assert.doesNotMatch(out, /^color:\s*#06B6D4$/m, 'hex must NOT be emitted bare (would parse as a comment)');
   assert.match(out, /Body stays untouched\./, 'body is preserved');
 });
 
-test('opencode rewrites every Claude named color to a valid hex', () => {
+test('opencode rewrites every Claude named color to a valid QUOTED hex', () => {
   for (const [name, hex] of Object.entries(fm.CLAUDE_TO_OPENCODE_COLOR)) {
     const src = `---\nname: a\ndescription: d\ncolor: ${name}\n---\nbody\n`;
     const out = fm.adapt(src, 'opencode');
-    assert.match(out, new RegExp(`^color:\\s*${hex}$`, 'm'), `${name} -> ${hex}`);
+    assert.match(out, new RegExp(`^color:\\s*"${hex}"$`, 'm'), `${name} -> "${hex}" (quoted)`);
     assert.match(hex, /^#[0-9a-fA-F]{6}$/, `${name} maps to a 6-digit hex`);
   }
 });
 
-test('opencode keeps an already-valid color (hex or theme token) unchanged', () => {
+test('opencode keeps an already-valid color value, emitting hex QUOTED and theme tokens bare', () => {
   const hexSrc = '---\nname: a\ndescription: d\ncolor: #FF5733\n---\nbody\n';
-  assert.match(fm.adapt(hexSrc, 'opencode'), /^color:\s*#FF5733$/m, 'pre-set hex is kept');
+  // The VALUE is kept (#FF5733), but it must be emitted quoted so the leading #
+  // is not read as a YAML comment.
+  assert.match(fm.adapt(hexSrc, 'opencode'), /^color:\s*"#FF5733"$/m, 'pre-set hex kept, now quoted');
+  // An already-quoted hex must NOT be double-quoted (idempotent).
+  const quotedSrc = '---\nname: a\ndescription: d\ncolor: "#FF5733"\n---\nbody\n';
+  assert.match(fm.adapt(quotedSrc, 'opencode'), /^color:\s*"#FF5733"$/m, 'already-quoted hex unchanged');
   for (const token of fm.OPENCODE_THEME_TOKENS) {
     const tokSrc = `---\nname: a\ndescription: d\ncolor: ${token}\n---\nbody\n`;
-    assert.match(fm.adapt(tokSrc, 'opencode'), new RegExp(`^color:\\s*${token}$`, 'm'), `theme token ${token} is kept`);
+    assert.match(fm.adapt(tokSrc, 'opencode'), new RegExp(`^color:\\s*${token}$`, 'm'), `theme token ${token} stays bare`);
   }
 });
 
@@ -200,4 +206,48 @@ test('codex SKILL.md with a colon description survives adapt and is valid YAML',
   assert.match(out, /^description: ".*Fast pass\/fail gate: manifests.*"$/m, 'colon description is quoted');
   assert.doesNotMatch(out, /^color:/m, 'codex drops color');
   assert.doesNotMatch(out, /^tools:/m, 'codex drops tools');
+});
+
+test('needsYamlQuoting: a leading "#" value (hex color) must be quoted', () => {
+  // A bare "#06B6D4" after ": " starts a YAML comment, so it must be quoted.
+  assert.match(fm.serialize([{ key: 'color', raw: '#06B6D4' }], 'b\n'), /^color: "#06B6D4"$/m);
+  // Already-quoted is left alone (idempotent); a non-# scalar stays bare.
+  assert.match(fm.serialize([{ key: 'color', raw: '"#06B6D4"' }], 'b\n'), /^color: "#06B6D4"$/m);
+  assert.match(fm.serialize([{ key: 'color', raw: 'primary' }], 'b\n'), /^color: primary$/m);
+});
+
+test('description gets a [plugin] owner prefix for opencode/codex, NOT claude', () => {
+  const src = '---\nname: adapt\ndescription: Adapt a plugin.\n---\n# A\nbody\n';
+  for (const target of ['opencode', 'codex']) {
+    const out = fm.adapt(src, target, { pluginLabel: 'myplug' });
+    // A leading "[" must be quoted (else YAML reads a flow sequence).
+    assert.match(out, /^description: "\[myplug\] Adapt a plugin\."$/m, `${target} prefixes (and quotes) the description`);
+  }
+  // Claude already namespaces (/plugin:cmd) — it must NOT be prefixed, and with no
+  // model: it stays byte-identical.
+  assert.strictEqual(fm.adapt(src, 'claude', { pluginLabel: 'myplug' }), src, 'claude is untouched');
+  // No label -> no prefix anywhere.
+  assert.match(fm.adapt(src, 'opencode'), /^description: Adapt a plugin\.$/m, 'no label -> no prefix');
+});
+
+test('the [plugin] description prefix is idempotent (no double-prefix on re-adapt)', () => {
+  const src = '---\nname: adapt\ndescription: Adapt a plugin.\n---\nbody\n';
+  const once = fm.adapt(src, 'opencode', { pluginLabel: 'myplug' });
+  const twice = fm.adapt(once, 'opencode', { pluginLabel: 'myplug' });
+  assert.strictEqual(twice, once, 're-adapting must not add a second [myplug] prefix');
+  assert.strictEqual((twice.match(/\[myplug\]/g) || []).length, 1, 'exactly one prefix');
+});
+
+test('a colon-bearing description is both prefixed AND quoted', () => {
+  const src = '---\nname: validate\ndescription: Gate: schema-valid.\n---\nbody\n';
+  const out = fm.adapt(src, 'opencode', { pluginLabel: 'myplug' });
+  assert.match(out, /^description: "\[myplug\] Gate: schema-valid\."$/m,
+    'prefix applied, then quoted because of the colon');
+});
+
+test('nameOverride rewrites the name: field (owner-prefixed OpenCode skills)', () => {
+  const src = '---\nname: adapt\ndescription: Adapt a plugin.\n---\nbody\n';
+  const out = fm.adapt(src, 'opencode', { pluginLabel: 'myplug', nameOverride: 'myplug-adapt' });
+  assert.match(out, /^name: myplug-adapt$/m, 'name: is rewritten to the prefixed skill name');
+  assert.match(out, /^description: "\[myplug\] Adapt a plugin\."$/m, 'description still prefixed (and quoted)');
 });

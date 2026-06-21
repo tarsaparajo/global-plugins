@@ -39,8 +39,14 @@ function readFrontmatter(absFile) {
       continue;
     }
     let value = kv[2].trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
+    // Decode a quoted YAML scalar to its plain value: a double-quoted value is
+    // unquoted AND unescaped (\" -> ", \\ -> \) so a description like
+    // "...\"validate a plugin\"..." yields clean inner quotes, not literal
+    // backslashes in the consolidated AGENTS.md index / [agents.<name>] tables.
+    if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
+      value = value.slice(1, -1).replace(/\\(["\\])/g, '$1');
+    } else if (value.length >= 2 && value.startsWith("'") && value.endsWith("'")) {
+      value = value.slice(1, -1).replace(/''/g, "'");
     }
     out[kv[1]] = value;
   }
@@ -169,6 +175,58 @@ function defaultCopy({ repoRoot, targetRoot, module, sourceRelativePath, adapter
   }));
 }
 
+// Like defaultCopy, but prefixes the capability NAME with `<pluginLabel>-` so the
+// owning plugin is part of the invocable token in CLIs without native namespacing
+// (OpenCode). For a flat component (`agents/<name>.md`, `commands/<name>.md`) the
+// FILE basename is prefixed -> `/<label>-<name>`. For a nested skill
+// (`skills/<name>/SKILL.md`) the SKILL DIR segment is prefixed -> the skill name
+// becomes `<label>-<name>`; the op also carries `nameOverride` so the executor
+// rewrites the SKILL.md `name:` frontmatter to match the dir. Idempotent: a name
+// already starting with `<label>-` is left alone. Non-component dirs are not
+// routed here (the provider only wires this for agents/skills/commands).
+function ownerPrefixedCopy({ repoRoot, targetRoot, module, sourceRelativePath, adapter }, label) {
+  if (!label) {
+    return defaultCopy({ repoRoot, targetRoot, module, sourceRelativePath, adapter });
+  }
+  const absSource = path.join(repoRoot, sourceRelativePath);
+  const frontmatterTarget = frontmatterTargetFor(adapter, sourceRelativePath);
+  const marker = `${label}-`;
+  const prefixSeg = seg => (seg.startsWith(marker) ? seg : `${marker}${seg}`);
+  const ops = [];
+  for (const rel of listRelativeFiles(absSource)) {
+    const parts = rel.split('/');
+    // `_knowledge` under skills/ is shared reference doctrine, NOT an invocable
+    // capability — copy it verbatim (no name prefix). README.md likewise.
+    const top = parts[0];
+    const isNonCapability = top === '_knowledge' || top.toLowerCase() === 'readme.md';
+    let nameOverride;
+    if (isNonCapability) {
+      // leave parts untouched -> copied verbatim, no nameOverride.
+    } else if (parts.length >= 2) {
+      // Nested skill: prefix the SKILL DIR segment (the skill name); nameOverride
+      // tells the executor to rewrite the SKILL.md `name:` to match.
+      nameOverride = prefixSeg(top);
+      parts[0] = nameOverride;
+    } else {
+      // Flat agent/command: prefix the file basename. nameOverride rewrites a
+      // `name:` field IF present (agents have one; commands do not).
+      const ext = path.posix.extname(top);
+      const base = top.slice(0, top.length - ext.length);
+      nameOverride = prefixSeg(base);
+      parts[0] = `${nameOverride}${ext}`;
+    }
+    const destRel = parts.join('/');
+    ops.push(opCopyPath({
+      moduleId: module.id,
+      sourceRelativePath: path.posix.join(sourceRelativePath, rel),
+      destinationPath: path.join(targetRoot, sourceRelativePath, destRel),
+      ...(frontmatterTarget ? { frontmatterTarget } : {}),
+      ...(nameOverride ? { nameOverride } : {}),
+    }));
+  }
+  return ops;
+}
+
 // Flatten a dir of files into <targetRoot>/<destDir>, applying nameTransform.
 // nameTransform(fileName, sourceRelFile) => newName | null (null = skip).
 function flattenDir({ repoRoot, targetRoot, module, sourceRelativePath, adapter }, destDir, kind, nameTransform) {
@@ -195,6 +253,7 @@ function flattenDir({ repoRoot, targetRoot, module, sourceRelativePath, adapter 
 module.exports = {
   planFromModules,
   defaultCopy,
+  ownerPrefixedCopy,
   flattenDir,
   mcpMergeOps,
   opScaffold,

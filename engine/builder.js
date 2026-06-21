@@ -8,6 +8,7 @@
 const { resolve } = require('./resolver');
 const { planAll } = require('./projector');
 const { collectComponents } = require('./providers/_base');
+const { pluginLabel, prefixDescription } = require('./helpers');
 
 // Escape a value for a TOML basic string (double-quoted). Newlines are folded to
 // spaces; backslashes and quotes are escaped. Codex agent descriptions are short
@@ -29,12 +30,14 @@ function codexAgentTables(repoRoot) {
   if (!agents.length) {
     return '';
   }
+  const label = pluginLabel(repoRoot);
   const out = ['', '# Custom agents (native Codex [agents.<name>] tables).',
     '# Re-expressed from canonical agents; their guidance is indexed in AGENTS.md.'];
   for (const a of agents) {
     out.push('', `[agents.${a.name}]`);
     if (a.description) {
-      out.push(`description = ${tomlString(a.description)}`);
+      // Prefix the owner label BEFORE TOML-escaping so it rides inside the string.
+      out.push(`description = ${tomlString(prefixDescription(a.description, label))}`);
     }
   }
   return `${out.join('\n')}\n`;
@@ -52,13 +55,21 @@ function capabilityIndex(repoRoot, { bodyDir } = {}) {
     { dir: 'skills', label: 'Skills', noun: 'skill' },
     { dir: 'commands', label: 'Commands', noun: 'command' },
   ];
+  const ownerLabel = pluginLabel(repoRoot);
   const lines = ['## Capability Index', ''];
+  // Group the whole index under the owning plugin so, with several plugins
+  // installed, every capability is clearly attributable to its owner (Codex has
+  // no native namespacing). Per-type sections demote to #### under it.
+  const typeHeading = ownerLabel ? '#### ' : '### ';
+  if (ownerLabel) {
+    lines.push(`### ${ownerLabel}`, '');
+  }
   for (const g of groups) {
     const items = collectComponents(repoRoot, g.dir);
     if (!items.length) {
       continue;
     }
-    lines.push(`### ${g.label}`, '');
+    lines.push(`${typeHeading}${g.label}`, '');
     for (const it of items) {
       let where = '';
       if (g.whereOverride) {
@@ -66,7 +77,7 @@ function capabilityIndex(repoRoot, { bodyDir } = {}) {
       } else if (bodyDir) {
         where = ` — \`${bodyDir}/${g.dir}/\``;
       }
-      const desc = it.description ? ` — ${it.description}` : '';
+      const desc = it.description ? ` — ${prefixDescription(it.description, ownerLabel)}` : '';
       lines.push(`- **${it.name}**${desc}${where}`);
     }
     lines.push('');

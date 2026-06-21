@@ -7,6 +7,9 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+// The slug the fixture's manifest declares; owner-identity assertions use it.
+const FIXTURE_PLUGIN_NAME = 'fixture-plugin';
+
 function makeCanonicalFixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gp-test-'));
   const w = (rel, content) => {
@@ -30,6 +33,10 @@ function makeCanonicalFixture() {
   w('rules/style.md', '# Style\n\nAlways test.\n');
   w('rules/README.md', '# Rules\n');
   w('mcp/servers.json', JSON.stringify({ mcpServers: { demo: { command: 'demo' } } }, null, 2));
+  // A plugin manifest so pluginLabel() resolves a known slug — exercised by the
+  // owner-identity projections (description prefix, OpenCode name prefix, Codex
+  // index grouping). FIXTURE_PLUGIN_NAME is exported for assertions.
+  w('.claude-plugin/plugin.json', JSON.stringify({ name: FIXTURE_PLUGIN_NAME }, null, 2));
   return root;
 }
 
@@ -42,4 +49,4 @@ function fixtureModules() {
   return [{ id: 'm1', paths: ['agents', 'skills', 'commands', 'rules', 'mcp'], targets: [] }];
 }
 
-module.exports = { makeCanonicalFixture, cleanup, fixtureModules };
+module.exports = { makeCanonicalFixture, cleanup, fixtureModules, FIXTURE_PLUGIN_NAME };

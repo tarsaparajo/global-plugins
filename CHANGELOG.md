@@ -5,6 +5,20 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-06-21
+
+### Fixed
+
+- **OpenCode agent colors are back — the real bug was an unquoted hex, not the color.** The engine rewrites a named Claude color → hex for OpenCode, but it emitted the hex **bare** (`color: #06B6D4`). In YAML a `#` after `: ` starts a comment, so the value parsed empty and OpenCode rejected the agent — which is why colors had previously seemed to need dropping. `engine/frontmatter.js` `needsYamlQuoting` now quotes any `#`-leading scalar, so OpenCode colors emit as **`color: "#06B6D4"`** (valid). Theme tokens (no `#`) stay unquoted; Claude keeps named colors; Codex still drops per-agent color. Committed `.opencode` agents regenerated accordingly; the projection-drift guard and `engine/compliance.js` now require a hex `color` to be quoted.
+
+### Added
+
+- **Owner-identity for OpenCode/Codex capabilities** — neither CLI namespaces like Claude's `/plugin:cmd` (Codex issue #22626 is an open collision report), and both show the frontmatter `description` in the `/` palette, so the owning plugin is now made visible by three self-standardized conventions, all derived deterministically from the plugin slug (`.claude-plugin/plugin.json` → fallback `package.json` `name`) at projection time and inherited by generated children:
+  - **`[plugin-name] ` description prefix** on every projected skill/command/agent for OpenCode **and** Codex (SKILL.md/command frontmatter, the Codex `[agents.<name>]` table descriptions, and the `AGENTS.md` index). Claude is left unprefixed (it already namespaces). Idempotent; stripped on `adapt` (reverse).
+  - **OpenCode filename/name owner-prefix** — the invocable NAME carries the owner: command/agent files become `<plugin>-<name>.md` (`/<plugin>-adapt`), and a skill's directory AND its `name:` frontmatter become `<plugin>-<name>`. `_knowledge` reference docs are NOT prefixed. **This changes OpenCode invocation strings** (`/adapt` → `/global-plugins-adapt`).
+  - **Codex `AGENTS.md` owner-grouping** — the capability index is grouped under a `### <plugin>` heading (per-type sections demote to `####`).
+- New engine helpers `pluginLabel`/`prefixDescription`/`prefixName`/`stripOwnershipPrefix` (`engine/helpers.js`), a YAML-scalar decoder so a prefixed-then-requoted description never nests escapes (`engine/frontmatter.js` `decodeYamlScalar`; `engine/providers/_base.js` `readFrontmatter` now unescapes too), and `ownerPrefixedCopy` (`engine/providers/_base.js`) wired into the OpenCode adapter. Doctrine updated across `provider-matrix.md`, `opencode-harness.md`, `codex-harness.md`, the two provider contracts, and the child-generation agents; reverse-strip rules added to `capability-extractor`. Tests: 59/59 (added color-quoting, `[plugin]`-prefix idempotency, owner-rename, and Codex-grouping coverage); `npm run validate` → `{ ok: true }`; strict PyYAML/tomllib validate all projected frontmatter + `config.toml`.
+
 ## [0.7.1] - 2026-06-20
 
 ### Fixed

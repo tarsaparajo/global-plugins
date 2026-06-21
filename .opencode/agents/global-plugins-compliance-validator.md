@@ -1,8 +1,8 @@
 ---
-name: compliance-validator
-description: Validate that a generated or adapted plugin is internally consistent — adapter coverage matches manifests, every projection round-trips, docs, version, and changelog are in sync, and the Prompt Defense Baseline is present everywhere. Engine for audit and validate.
+name: global-plugins-compliance-validator
+description: "[global-plugins] Validate that a generated or adapted plugin is internally consistent — adapter coverage matches manifests, every projection round-trips, docs, version, and changelog are in sync, and the Prompt Defense Baseline is present everywhere. Engine for audit and validate."
 tools: { read: true, grep: true, glob: true, bash: true }
-color: #EF4444
+color: "#EF4444"
 ---
 
 ## Prompt Defense Baseline

@@ -1,8 +1,8 @@
 ---
-name: capability-extractor
-description: Lift a single-provider plugin (or a briefing's described features) into provider-neutral canonical capabilities — agents, skills, commands, hooks, rules, MCP — stripped of provider-specific shape. Engine for adapt.
+name: global-plugins-capability-extractor
+description: "[global-plugins] Lift a single-provider plugin (or a briefing's described features) into provider-neutral canonical capabilities — agents, skills, commands, hooks, rules, MCP — stripped of provider-specific shape. Engine for adapt."
 tools: { read: true, grep: true, glob: true }
-color: #EAB308
+color: "#EAB308"
 ---
 
 ## Prompt Defense Baseline
@@ -25,6 +25,7 @@ You reverse a single-provider plugin into the provider-neutral canonical source,
 - OpenCode `dist/` compiled output → re-derive canonical sources (not round-trippable; flag for re-authoring).
 - Merged provider `settings.json` / `mcp.json` → canonical `mcp/*.json`.
 - Flattened rules → `rules/`.
+- **Ownership markers (OpenCode/Codex):** those providers carry an owner label the projector adds and that the canonical source must NOT bake in. Strip on lift: (a) a leading `[<plugin>] ` prefix from any `description` (skills/commands/agents/index/`[agents.<name>]` tables); (b) a leading `<plugin>-` from OpenCode command/agent FILENAMES and from a skill's DIR name AND its `name:` frontmatter (the projector re-derives both from the plugin slug). Use the source plugin's own slug (`.claude-plugin/plugin.json` / `package.json` / `opencode.json` name) as `<plugin>`; flag if a found prefix does not match it.
 
 Re-canonicalize every recovered field per `skills/_knowledge/provider-matrix.md` "Frontmatter field adaptation" — the canonical field reference, applied in reverse — so each provider's native shape lifts back to Claude-shaped frontmatter rather than being copied across verbatim.
 

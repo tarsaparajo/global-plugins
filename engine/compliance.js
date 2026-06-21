@@ -178,8 +178,10 @@ function checkProjectionDrift(root) {
     }
   }
 
-  // Every committed OpenCode agent color must be hex #RRGGBB or a theme token —
-  // a bare Claude name (cyan, green, …) is rejected by OpenCode's validator.
+  // Every committed OpenCode agent color must be a hex #RRGGBB or a theme token —
+  // a bare Claude name (cyan, green, …) is rejected by OpenCode's validator. A hex
+  // MUST be YAML-quoted ("#RRGGBB"): a bare # after ": " starts a comment, so an
+  // unquoted hex parses empty and OpenCode rejects the agent.
   const ocAgents = path.join(root, '.opencode', 'agents');
   if (fs.existsSync(ocAgents)) {
     for (const rel of listRelativeFiles(ocAgents)) {
@@ -192,8 +194,15 @@ function checkProjectionDrift(root) {
       if (!m) {
         continue;
       }
-      const value = m[1];
-      if (!/^#[0-9a-fA-F]{6}$/.test(value) && !OPENCODE_THEME_TOKENS.includes(value)) {
+      const raw = m[1];
+      const wasQuoted = /^".*"$/.test(raw);
+      const value = raw.replace(/^"|"$/g, '');
+      if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+        if (!wasQuoted) {
+          out.push(finding('error', 'projection-drift',
+            `${file} has a BARE hex color "${value}" — must be YAML-quoted ("${value}") or OpenCode reads it as a comment; ${FIX}`, { file }));
+        }
+      } else if (!OPENCODE_THEME_TOKENS.includes(value)) {
         out.push(finding('error', 'projection-drift',
           `${file} has invalid OpenCode color "${value}" — needs hex #RRGGBB or a theme token; ${FIX}`, { file }));
       }

@@ -1,5 +1,5 @@
 ---
-description: Generate a complete multi-provider plugin from a natural-language briefing, projected to every selected provider with self-evolution built in.
+description: "[global-plugins] Generate a complete multi-provider plugin from a natural-language briefing, projected to every selected provider with self-evolution built in."
 ---
 ## Prompt Defense Baseline
 

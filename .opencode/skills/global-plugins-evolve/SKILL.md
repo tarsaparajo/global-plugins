@@ -1,6 +1,6 @@
 ---
-name: evolve
-description: This skill should be used when the user wants to "evolve this plugin", "update the plugin everywhere", "propagate a change to all providers", "mirror my change", or has edited the canonical source and wants it reflected across providers. Edits flow from the canonical source; the delta is re-projected to every provider with parity validation, SemVer bump, CHANGELOG and EVOLUTION ledger, and a conditional breaking-change migration. One human-gate before writing.
+name: global-plugins-evolve
+description: "[global-plugins] This skill should be used when the user wants to \"evolve this plugin\", \"update the plugin everywhere\", \"propagate a change to all providers\", \"mirror my change\", or has edited the canonical source and wants it reflected across providers. Edits flow from the canonical source; the delta is re-projected to every provider with parity validation, SemVer bump, CHANGELOG and EVOLUTION ledger, and a conditional breaking-change migration. One human-gate before writing."
 ---
 
 ## Prompt Defense Baseline

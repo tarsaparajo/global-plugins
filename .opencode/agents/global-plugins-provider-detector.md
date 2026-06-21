@@ -1,8 +1,8 @@
 ---
-name: provider-detector
-description: Detect which providers a request targets and resolve them against the adapter registry and 3-tier manifests. For adapt, fingerprint an existing single-provider plugin's dotfolders to identify its source provider.
+name: global-plugins-provider-detector
+description: "[global-plugins] Detect which providers a request targets and resolve them against the adapter registry and 3-tier manifests. For adapt, fingerprint an existing single-provider plugin's dotfolders to identify its source provider."
 tools: { read: true, grep: true, glob: true, bash: true }
-color: #06B6D4
+color: "#06B6D4"
 ---
 
 ## Prompt Defense Baseline
