@@ -2,7 +2,6 @@
 name: capability-extractor
 description: Lift a single-provider plugin (or a briefing's described features) into provider-neutral canonical capabilities — agents, skills, commands, hooks, rules, MCP — stripped of provider-specific shape. Engine for adapt.
 tools: ["Read", "Grep", "Glob"]
-model: sonnet
 color: yellow
 ---
 

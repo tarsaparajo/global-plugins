@@ -2,8 +2,7 @@
 name: migration-analyzer
 description: When an evolution delta is breaking for already-materialized products, projects, or substrates, generate a versioned migration with dry-run, rollback, and its own human-gate. Writes migrations/<version>.md.
 tools: { read: true, grep: true, glob: true, bash: true, write: true }
-model: anthropic/claude-opus-4-5
-color: orange
+color: #F97316
 ---
 
 ## Prompt Defense Baseline

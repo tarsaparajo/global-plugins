@@ -12,7 +12,7 @@
       "name": "global-plugins",
       "source": "./",
       "description": "Generate a multi-provider plugin from a briefing, adapt a single-provider plugin to all providers, and ship self-evolving products.",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "author": {
         "name": "Tarsa",
         "email": "tarsaparajo@gmail.com",

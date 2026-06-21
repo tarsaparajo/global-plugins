@@ -123,6 +123,14 @@ function getAdapter(targetOrId) {
   return adapter;
 }
 
+// Whether a module declares this provider in its targets[] compatibility
+// registry. An empty/absent targets[] means "no restriction" — projected to
+// every provider (the default for modules and test fixtures that omit it).
+function moduleTargetsProvider(module, target) {
+  const targets = Array.isArray(module.targets) ? module.targets : [];
+  return targets.length === 0 || targets.includes(target);
+}
+
 // Plan the full scaffold for one target over a set of modules.
 function planScaffold(options = {}) {
   const adapter = getAdapter(options.target);
@@ -142,7 +150,16 @@ function planScaffold(options = {}) {
     throw new Error(blocking.map(i => i.message).join('; '));
   }
 
-  const supportedModules = modules.filter(m => adapter.moduleSupported(m));
+  // A module is projected to this target only when its targets[] registry
+  // (manifests/modules.json — "the per-provider compatibility registry") names
+  // this provider. A module with NO targets[] is unrestricted (projected
+  // everywhere) — this preserves behavior for ad-hoc modules and test fixtures
+  // that omit the field. Without this filter a claude-only module (e.g. the
+  // engine/, adapters/, manifests/ source) would be copied into every dotfolder,
+  // bloating non-claude installs with infrastructure they never run.
+  const supportedModules = modules
+    .filter(m => adapter.moduleSupported(m))
+    .filter(m => moduleTargetsProvider(m, adapter.target));
   const operations = adapter.planOperations({ ...planInput, modules: supportedModules });
 
   return {
@@ -162,4 +179,5 @@ module.exports = {
   listProviders,
   getAdapter,
   planScaffold,
+  moduleTargetsProvider,
 };

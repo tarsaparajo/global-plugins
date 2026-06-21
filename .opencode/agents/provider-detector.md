@@ -2,8 +2,7 @@
 name: provider-detector
 description: Detect which providers a request targets and resolve them against the adapter registry and 3-tier manifests. For adapt, fingerprint an existing single-provider plugin's dotfolders to identify its source provider.
 tools: { read: true, grep: true, glob: true, bash: true }
-model: anthropic/claude-sonnet-4-5
-color: cyan
+color: #06B6D4
 ---
 
 ## Prompt Defense Baseline

@@ -5,7 +5,8 @@ tables in `config.toml`; their roles are named in the index below. Skills
 and commands are installed as sibling files under `.codex/` (skill
 frontmatter reduced to Codex's `name` + `description`). Provider-specific
 agent metadata that has no Codex frontmatter slot (named color, a tools
-array, a model alias) is intentionally not carried here.
+array) is intentionally not carried here; `model` is never preset on any
+provider (a CLI/runtime choice).
 
 ## Capability Index
 

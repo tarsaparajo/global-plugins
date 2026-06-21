@@ -12,6 +12,7 @@ const semver = require('./semver');
 const promptDefense = require('./prompt-defense');
 const { listProviders } = require('./registry');
 const { listRelativeFiles } = require('./helpers');
+const { OPENCODE_THEME_TOKENS } = require('./frontmatter');
 
 // Terms that would reveal a source/methodology/inspiration origin. Any hit in a
 // shipped file fails the build. The terms are assembled from fragments so this
@@ -143,6 +144,65 @@ function checkI18n(root) {
   return out;
 }
 
+// Committed-projection guard. The engine adapts frontmatter per provider
+// (drop `model:` everywhere; rewrite a named Claude color -> hex for OpenCode),
+// but that only helps the FRESH output — a previously committed projection can
+// still carry the old, invalid shape if it was never regenerated. That exact
+// gap shipped a `.opencode` agent with `color: cyan` + a stale `model:`, which
+// OpenCode rejects on install. This check reads the committed projection files
+// directly and fails on the two symptoms; the full byte-for-byte drift guard
+// lives in tests/test_projection_drift.js. Read-only: it never re-projects, so
+// `validate` stays fast and pure. The remedy is always the same — re-project.
+function checkProjectionDrift(root) {
+  const out = [];
+  const FIX = 'run: node scripts/evolve/project.mjs --apply';
+
+  // Every committed agent on a file-based provider must not preset `model:`.
+  // (Codex re-expresses agents inside config.toml/AGENTS.md/skills — same rule.)
+  const modelDirs = ['.claude/agents', '.opencode/agents', '.codex'];
+  for (const d of modelDirs) {
+    const base = path.join(root, d);
+    if (!fs.existsSync(base)) {
+      continue;
+    }
+    for (const rel of listRelativeFiles(base)) {
+      if (!/\.(md|toml)$/.test(rel)) {
+        continue;
+      }
+      const file = `${d}/${rel}`;
+      const content = fs.readFileSync(path.join(base, rel), 'utf8');
+      if (/^model:/m.test(content)) {
+        out.push(finding('error', 'projection-drift',
+          `${file} carries a preset "model:" — model is never preset (a CLI/runtime choice); ${FIX}`, { file }));
+      }
+    }
+  }
+
+  // Every committed OpenCode agent color must be hex #RRGGBB or a theme token —
+  // a bare Claude name (cyan, green, …) is rejected by OpenCode's validator.
+  const ocAgents = path.join(root, '.opencode', 'agents');
+  if (fs.existsSync(ocAgents)) {
+    for (const rel of listRelativeFiles(ocAgents)) {
+      if (!rel.endsWith('.md')) {
+        continue;
+      }
+      const file = `.opencode/agents/${rel}`;
+      const content = fs.readFileSync(path.join(ocAgents, rel), 'utf8');
+      const m = content.match(/^color:\s*(.+?)\s*$/m);
+      if (!m) {
+        continue;
+      }
+      const value = m[1];
+      if (!/^#[0-9a-fA-F]{6}$/.test(value) && !OPENCODE_THEME_TOKENS.includes(value)) {
+        out.push(finding('error', 'projection-drift',
+          `${file} has invalid OpenCode color "${value}" — needs hex #RRGGBB or a theme token; ${FIX}`, { file }));
+      }
+    }
+  }
+
+  return out;
+}
+
 function walk(root, fn, rel = '') {
   const dir = rel ? path.join(root, rel) : root;
   let entries;
@@ -174,6 +234,7 @@ function audit(root, options = {}) {
     ...checkPromptDefense(root),
     ...checkI18n(root),
     ...checkSelfSufficiency(root),
+    ...checkProjectionDrift(root),
   ];
   const ok = !findings.some(f => f.severity === 'error');
   return { ok, findings };
@@ -187,5 +248,6 @@ module.exports = {
   checkSelfSufficiency,
   checkPromptDefense,
   checkI18n,
+  checkProjectionDrift,
   audit,
 };

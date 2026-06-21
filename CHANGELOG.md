@@ -5,6 +5,17 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-20
+
+### Fixed
+
+- **Committed provider projections were stale and broke OpenCode install.** The engine has dropped `model:` and rewritten a named Claude color → hex for OpenCode since 0.5.1/0.6.0, but the committed `.claude`/`.opencode`/`.codex` files were never regenerated — they still carried a preset `model:` and an invalid named `color:` (e.g. `color: cyan`), so OpenCode rejected every agent on install (`Expected a string matching /^#[0-9a-fA-F]{6}$/ … got "cyan"`). The stale `_knowledge` doctrine projections (`provider-matrix.md`, `opencode-harness.md`, `claude-code-harness.md`) still described the OLD model=keep / color=keep rules. All committed projections were regenerated via `node scripts/evolve/project.mjs --apply`: OpenCode agents now carry hex colors (e.g. `#06B6D4`) and no `model:`; Claude agents keep their named color and carry no `model:`.
+- **The projector copied claude-only infrastructure into every provider dotfolder.** `engine/providers/_base.js` `planFromModules` verbatim-copied any canonical dir with no explicit provider handler, so `engine/`, `adapters/`, `manifests/`, `config/`, `templates/`, and `docs/` were projected into `.claude`/`.opencode`/`.codex`, bloating each install with the engine source. It now projects ONLY dirs a provider explicitly handles (`agents`/`skills`/`commands`/`rules`/`mcp`/`hooks`); an unhandled dir is skipped, not copied. Additionally, `engine/registry.js` `planScaffold` now honors each module's `targets[]` compatibility registry (`manifests/modules.json`) so a provider-restricted module never projects to a provider it does not target. The three dotfolders are back to their intended surface (`agents`/`skills`/`commands`, plus OpenCode's compiled `dist/`).
+
+### Added
+
+- **Projection-drift guard so committed output can never silently diverge again.** New `tests/test_projection_drift.js` re-projects the real canonical source into a temp root and asserts every committed `.claude`/`.opencode`/`.codex` file is BYTE-IDENTICAL to a fresh projection (catching ANY field drift), with targeted checks for the two symptoms that bit users (no stale `model:`, no invalid OpenCode `color:`) and a check that no infrastructure dir leaks into a dotfolder — each failing with `run: node scripts/evolve/project.mjs --apply`. `engine/compliance.js` `audit()` gains a `projection-drift` finding (stale `model:` / invalid OpenCode color) so `npm run validate`, the `/audit` skill, and CI all catch it. Root cause of the recurrence: `engine/parity.js` only re-runs the planner in memory and `audit()` never inspected the committed bytes, so prior fixes touched the engine but the broken committed files kept shipping uncaught.
+
 ## [0.6.0] - 2026-06-20
 
 ### Changed

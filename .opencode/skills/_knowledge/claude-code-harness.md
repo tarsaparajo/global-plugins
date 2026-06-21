@@ -32,7 +32,7 @@ my-plugin/
 ## Components
 
 - **Skills** (`skills/<name>/SKILL.md`) — the distinctive Claude surface. Frontmatter (all optional): `name`, `description`, `when_to_use`, `argument-hint`, `arguments`, `disable-model-invocation`, `user-invocable`, `allowed-tools`/`disallowed-tools`, `model`, `effort`, `context: fork` (+ `agent`), `hooks`, `paths`, `shell`. **Progressive disclosure:** descriptions are always in context; full body loads only on invocation; supporting files (`reference.md`, `scripts/`) load on demand. Dynamic injection via `` !`command` ``. Substitutions: `$ARGUMENTS`, `$N`, `$name`, `${CLAUDE_SKILL_DIR}`, `${CLAUDE_SESSION_ID}`.
-- **Subagents** (`agents/<name>.md`) — frontmatter: `name`, `description`, `model`, `tools` (whitelist), `skills` (preloaded), `rules`, `hooks`, `color`, `permissions`, `isolation: worktree`. Body = system prompt. Built-ins: `Explore`, `Plan`, `general-purpose`.
+- **Subagents** (`agents/<name>.md`) — frontmatter: `name`, `description`, `model`, `tools` (whitelist), `skills` (preloaded), `rules`, `hooks`, `color`, `permissions`, `isolation: worktree`. Body = system prompt. Built-ins: `Explore`, `Plan`, `general-purpose`. *(`model` is a platform-supported field but global-plugins never presets it — agents omit `model` so the user chooses it in the CLI; the same applies to a skill's optional `model`.)*
 - **Commands** — legacy flat `.md` in `commands/`; same shape as skills. Prefer skills.
 - **MCP servers** (`.mcp.json`) — stdio/SSE/HTTP/WebSocket; tools namespaced `mcp__<server>__<tool>`; use `${CLAUDE_PLUGIN_ROOT}` for bundled servers.
 

@@ -110,10 +110,17 @@ function planFromModules(planInput, adapter, handlers = {}) {
         continue;
       }
       const top = String(sourceRelativePath).split('/')[0];
+      // Only project canonical dirs a provider EXPLICITLY handles. Anything else
+      // is infrastructure (engine/, adapters/, manifests/, config/, templates/,
+      // docs/) that lives at the repo root and must never be copied into a
+      // provider dotfolder — doing so bloated every install with the engine
+      // source. A provider opts a dir in by registering a handler for it; an
+      // unregistered dir is skipped, not verbatim-copied.
+      if (typeof handlers[top] !== 'function') {
+        continue;
+      }
       const ctx = { repoRoot, targetRoot, module, sourceRelativePath, adapter };
-      const produced = typeof handlers[top] === 'function'
-        ? handlers[top](ctx)
-        : defaultCopy(ctx);
+      const produced = handlers[top](ctx);
       for (const op of produced) {
         if (!op || !op.destinationPath || seen.has(op.destinationPath)) {
           continue;
