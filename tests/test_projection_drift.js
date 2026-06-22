@@ -98,8 +98,15 @@ for (const target of targets) {
           fs.existsSync(committedPath),
           `MISSING committed projection: ${rel} is produced by a fresh projection but absent from the repo. Run: ${FIX}`,
         );
-        const committed = fs.readFileSync(committedPath, 'utf8');
-        const fresh = fs.readFileSync(op.destinationPath, 'utf8');
+        // Normalize CRLF -> LF on both sides. The engine always emits LF, but the
+        // Windows CI runner's `actions/checkout` hands committed files back as CRLF
+        // (autocrlf), which is NOT real projection drift — it's a checkout artifact.
+        // Comparing line-ending-insensitively keeps this guard about CONTENT drift
+        // (the stale-projection bug it exists to catch) on every OS. (.gitattributes
+        // eol=lf alone did not suppress the checkout conversion on the runner.)
+        const norm = s => s.replace(/\r\n/g, '\n');
+        const committed = norm(fs.readFileSync(committedPath, 'utf8'));
+        const fresh = norm(fs.readFileSync(op.destinationPath, 'utf8'));
         assert.strictEqual(
           committed,
           fresh,
