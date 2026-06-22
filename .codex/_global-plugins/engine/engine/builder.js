@@ -104,7 +104,10 @@ function foldedRules(repoRoot) {
   }
   const out = ['## Conventions / Rules', ''];
   for (const f of files) {
-    let body = fs.readFileSync(path.join(dir, f), 'utf8');
+    // Normalize CRLF -> LF first: a Windows checkout (CRLF) would make the
+    // frontmatter-stripping regex below miss (it expects `---\n`), leaking the
+    // YAML block into the projected AGENTS.md and diverging from a fresh LF run.
+    let body = fs.readFileSync(path.join(dir, f), 'utf8').replace(/\r\n/g, '\n');
     body = body.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
     out.push(body, '');
   }

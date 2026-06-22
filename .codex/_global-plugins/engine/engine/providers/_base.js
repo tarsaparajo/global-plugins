@@ -33,6 +33,12 @@ function readFrontmatter(absFile) {
   } catch {
     return {};
   }
+  // Normalize CRLF -> LF before parsing. On Windows, `actions/checkout` hands the
+  // canonical source back as CRLF, which otherwise leaves a stray `\r` on every
+  // frontmatter value (the `(.*)` capture swallows it) and corrupts the quoted-
+  // scalar detection below — so the projected description differs from a fresh LF
+  // projection and the drift guard fails on Windows only. Parse EOL-insensitively.
+  text = text.replace(/\r\n/g, '\n');
   const match = /^---\n([\s\S]*?)\n---/.exec(text);
   if (!match) {
     return {};

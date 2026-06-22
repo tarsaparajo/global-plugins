@@ -63,7 +63,11 @@ const files = existsSync(migrationsDir)
 
 // Parse YAML frontmatter: scalar fields + the structured `steps:` block.
 function parse(file) {
-  const text = readFileSync(join(migrationsDir, file), 'utf8');
+  // Normalize CRLF -> LF: on Windows, `actions/checkout` delivers migrations/*.md
+  // as CRLF, which leaves a trailing `\r` on every split('\n') line below — that
+  // breaks the `$`-anchored step regexes in parseSteps(), so the migration parses
+  // with no steps and nothing gets planned (the Windows-only migration-test fails).
+  const text = readFileSync(join(migrationsDir, file), 'utf8').replace(/\r\n/g, '\n');
   const fm = text.match(/^---\n([\s\S]*?)\n---/);
   const body = fm ? fm[1] : '';
   const get = (k) => (fm ? (body.match(new RegExp(`^${k}:\\s*"?([^"\\n]+)"?`, 'm')) || [])[1] : undefined);

@@ -77,6 +77,13 @@ const CLAUDE_TO_OPENCODE_MODEL = Object.freeze({
 // is byte-stable and we never depend on a YAML library. Only the small, flat
 // frontmatter shapes this plugin emits are handled (scalars + inline arrays).
 function parse(content) {
+  // Normalize CRLF -> LF first. On Windows, `actions/checkout` hands the canonical
+  // source back as CRLF, which otherwise leaves a trailing `\r` on every parsed
+  // entry `raw`. That stray `\r` silently breaks the quoting/prefix logic
+  // downstream (needsYamlQuoting, prefixDescription, serialize), so the projected
+  // frontmatter — e.g. the `[label] `-prefixed, re-quoted description — diverges
+  // from a fresh LF projection and the drift guard fails on Windows only.
+  content = content.replace(/\r\n/g, '\n');
   const match = content.match(/^---\n([\s\S]*?)\n---\n?/);
   if (!match) {
     return { hasFrontmatter: false, entries: [], body: content };
