@@ -216,3 +216,47 @@ test('codex and opencode ship a complete _engine runtime payload in the private 
   assert.ok(!fs.existsSync(path.join(ROOT, '.claude', BUNDLE)),
     `.claude/${BUNDLE}/ should not exist — Claude carries the engine via the whole-repo install`);
 });
+
+// 6) Hero doctrine: the hero-skeleton standard is shared reference doctrine, so it
+// must project verbatim into EVERY provider's skills/_knowledge/ (the channel that
+// also carries readme-skeleton.md / namespacing.md). If it is missing from any
+// dotfolder, a Codex/OpenCode user (or a generated child seeded from one) would not
+// carry the hero standard. The general byte-equality check (#1) covers its content;
+// this gives a precise, actionable failure.
+test('hero-skeleton doctrine projects into every provider skills/_knowledge/', () => {
+  for (const dot of ['.claude', '.codex', '.opencode']) {
+    const p = path.join(ROOT, dot, 'skills', '_knowledge', 'hero-skeleton.md');
+    assert.ok(
+      fs.existsSync(p),
+      `${dot}/skills/_knowledge/hero-skeleton.md missing — the hero skeleton standard did not project to ${dot}. Run: ${FIX}`,
+    );
+  }
+});
+
+// 7) Hero skeleton payload: the neutral model + its two authoring guides ride the
+// child-templates payload channel verbatim, so every Codex/OpenCode install (and
+// every child seeded from one) carries them under the private bundle's _engine/.
+test('hero skeleton + guides ride the _engine payload on codex and opencode', () => {
+  const ASSETS = ['hero.skeleton.svg', 'hero-svg.md', 'hero-authoring.md'];
+  for (const dot of ['.codex', '.opencode']) {
+    const assetsBase = path.join(payloadBasePath(path.join(ROOT, dot), ROOT), 'templates', 'child', 'assets');
+    for (const name of ASSETS) {
+      assert.ok(
+        fs.existsSync(path.join(assetsBase, name)),
+        `${dot}/${BUNDLE}/_engine/templates/child/assets/${name} missing — the hero skeleton ecosystem did not ride the payload to ${dot}. Run: ${FIX}`,
+      );
+    }
+  }
+});
+
+// 8) Neutrality + well-formedness of the canonical skeleton. It is a TEMPLATE every
+// child starts from, so it must name no specific plugin (no "Global Plugins" /
+// "tarsaparajo") and be a valid, self-contained 2400x1350 SVG.
+test('hero.skeleton.svg is neutral and well-formed', () => {
+  const svg = fs.readFileSync(path.join(ROOT, 'templates', 'child', 'assets', 'hero.skeleton.svg'), 'utf8');
+  assert.ok(!/Global Plugins/.test(svg), 'hero.skeleton.svg must not name "Global Plugins" — it is a neutral model.');
+  assert.ok(!/tarsaparajo/.test(svg), 'hero.skeleton.svg must not reference the parent owner — it is a neutral model.');
+  assert.ok(/<svg\b[^>]*\bviewBox="0 0 2400 1350"/.test(svg), 'hero.skeleton.svg must declare viewBox="0 0 2400 1350".');
+  assert.ok(/<\/svg>\s*$/.test(svg), 'hero.skeleton.svg must end with a closing </svg>.');
+  assert.ok(/\[PLUGIN NAME\]/.test(svg) && /\[OWNER\]/.test(svg), 'hero.skeleton.svg must keep its placeholder fields.');
+});

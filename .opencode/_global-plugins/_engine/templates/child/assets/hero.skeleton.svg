@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1350" viewBox="0 0 2400 1350" role="img" aria-labelledby="t">
+<!--
+  ============================================================================
+  HERO SKELETON — a neutral, self-contained model for a plugin README banner.
+  ============================================================================
+  This is a TEMPLATE, not a finished hero. Every value wrapped in [SQUARE
+  BRACKETS] is a placeholder you replace with THIS plugin's real data.
+
+  HOW TO USE IT: an agent (Claude / Codex / OpenCode), at generate or adapt
+  time, READS this skeleton and AUTHORS a brand-new SVG for the plugin — it
+  does NOT run a deterministic renderer over this file. Fill the placeholders,
+  pick the plugin's own palette + logo glyph, then convert the result to a PNG
+  with the zero-dependency method documented in `assets/README.md`.
+
+  Two design knobs vary per plugin; EVERYTHING ELSE is the fixed skeleton:
+    1. PALETTE  — the three gradient stops (the degradé). Search "PALETTE:".
+    2. LOGO     — the icon glyph inside the top-bar mark. Search "LOGO:".
+
+  Canvas: 2400x1350 (16:9, retina-crisp at README width). Keep it.
+  Field-by-field guidance: see `hero-svg.md` (line-by-line) and
+  `hero-authoring.md` (how to fill each region + group agents/skills).
+  Standard: `skills/_knowledge/hero-skeleton.md`.
+  ============================================================================
+-->
+<title id="t">[PLUGIN NAME] — [TAGLINE]</title>
+
+<!-- ===== DEFS — gradients, filters, pattern. The PALETTE feeds every one. ===== -->
+<defs>
+<!--
+  PALETTE: replace these THREE example stops with this plugin's gradient.
+  C1 = start, C2 = mid, C3 = end (start -> mid -> end / left -> right).
+  The same three colors must be used consistently below: in `accentH`,
+  `accentStroke` (C1 -> C3), `iconGlow`/`heroGlow` (a C2 tint), `markFrame`
+  (C1 -> C3), `markNode` (C2 -> C3), the card header/row dots, the version
+  pill, the eyebrow and the active row/pill tints. The chrome (charcoal
+  background #070b10, neutral text #eef2f6) stays fixed — only the accents
+  follow the plugin's identity.
+-->
+<linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="0.5" stop-color="#22d3ee"/><stop offset="1" stop-color="#34d399"/></linearGradient>
+<linearGradient id="accentH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b82f6"/><stop offset="0.5" stop-color="#22d3ee"/><stop offset="1" stop-color="#34d399"/></linearGradient>
+<linearGradient id="accentStroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(59,130,246,0.6)"/><stop offset="1" stop-color="rgba(52,211,153,0.6)"/></linearGradient>
+<radialGradient id="iconGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="rgba(34,211,238,0.40)"/><stop offset="0.6" stop-color="rgba(52,211,153,0.16)"/><stop offset="1" stop-color="rgba(34,211,238,0)"/></radialGradient>
+<filter id="neon" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="neonSoft" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<radialGradient id="heroGlow" cx="0.3" cy="0.35" r="0.6"><stop offset="0" stop-color="rgba(34,211,238,0.07)"/><stop offset="1" stop-color="rgba(34,211,238,0)"/></radialGradient>
+<linearGradient id="markFrame" x1="18" y1="14" x2="82" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#34d399"/></linearGradient>
+<linearGradient id="markNode" x1="24" y1="24" x2="72" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#34d399"/></linearGradient>
+<linearGradient id="cardFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(7,11,16,0)"/><stop offset="0.55" stop-color="rgba(7,11,16,0.82)"/><stop offset="1" stop-color="rgba(7,11,16,0.97)"/></linearGradient>
+<pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(238,242,246,0.03)" stroke-width="1"/></pattern>
+<linearGradient id="gridMask" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(7,11,16,1)"/><stop offset="0.42" stop-color="rgba(7,11,16,0)"/></linearGradient>
+</defs>
+
+<!-- ===== BACKGROUND — charcoal base, faint grid, left-to-right grid wipe, glow ===== -->
+<rect width="2400" height="1350" fill="#070b10"/>
+<rect x="0" y="115" width="2400" height="1235" fill="url(#grid)"/>
+<rect x="0" y="115" width="2400" height="1235" fill="url(#gridMask)"/>
+<ellipse cx="520" cy="470" rx="760" ry="520" fill="url(#heroGlow)"/>
+
+<!-- ===== TOP BAR — logo mark, wordmark, repo, version pill ===== -->
+<rect x="0" y="0" width="2400" height="115" fill="#0b1118"/>
+<line x1="0" y1="115" x2="2400" y2="115" stroke="rgba(238,242,246,0.07)" stroke-width="1.5"/>
+<circle cx="100" cy="58" r="62" fill="url(#iconGlow)"/>
+<!--
+  LOGO: the icon inside the mark. Drawn in a 100x100 local space (the outer
+  neon frame + dark inner panel are the fixed "button"; only the glyph inside
+  varies). Below is the DEFAULT "share" glyph (one left node -> two right
+  nodes). Swap it for another built-in glyph (nodes | hexagon | spark) or your
+  own path/inline SVG — keep it inside the <g filter="url(#neon)"> wrapper and
+  color it from the palette (C1/C2/C3 via url(#markNode)). See the logo gallery
+  in `skills/_knowledge/hero-skeleton.md`.
+-->
+<g transform="translate(54,12) scale(0.88)">
+  <g filter="url(#neonSoft)"><rect x="10" y="10" width="80" height="80" rx="26" fill="rgba(8,12,20,0.7)" stroke="url(#markFrame)" stroke-width="4"/></g>
+  <rect x="20" y="20" width="60" height="60" rx="19" fill="#070b12" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+  <g filter="url(#neon)">
+    <line x1="40" y1="50" x2="60" y2="38" stroke="url(#markNode)" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="40" y1="50" x2="60" y2="62" stroke="url(#markNode)" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="38" cy="50" r="7" fill="#3b82f6"/>
+    <circle cx="62" cy="36" r="7" fill="#22d3ee"/>
+    <circle cx="62" cy="64" r="7" fill="#34d399"/>
+  </g>
+</g>
+<!-- Wordmark = plugin name. The "/" + repo path follow it; move their x to fit your name's width. -->
+<text x="162" y="68" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="33" font-weight="bold" letter-spacing="0.3" fill="#eef2f6">[PLUGIN NAME]</text>
+<text x="410" y="68" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" fill="#4a5663">/</text>
+<text x="438" y="68" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" fill="#8c97a3">[OWNER]/[PLUGIN-SLUG]</text>
+<!-- Version pill — right-anchored at the content edge (2336). Label MUST equal the VERSION file. Resize/reposition the rect to fit your label. -->
+<rect x="1966.8" y="29" width="369.2" height="56" rx="28" fill="#10171f" stroke="rgba(59,130,246,0.35)" stroke-width="1.5"/>
+<circle cx="1996.8" cy="57" r="6" fill="#34d399"/>
+<text x="2026.8" y="66" font-family="Menlo, 'Andale Mono', monospace" font-size="26" letter-spacing="1" fill="#22d3ee">v[X.Y.Z]</text>
+
+<!-- ===== LEFT COLUMN — eyebrow, headline, subhead, provider pills ===== -->
+<rect x="64" y="187" width="64" height="5" rx="2.5" fill="url(#accentH)"/>
+<text x="148" y="200" font-family="Menlo, 'Andale Mono', monospace" font-size="24" letter-spacing="6" fill="#22d3ee" opacity="0.92">[EYEBROW · SHORT TAGLINE]</text>
+<!-- Headline: up to 3 lines. Last line uses the gradient fill (url(#accentH)). -->
+<text x="62" y="330" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="106" font-weight="bold" letter-spacing="-2" fill="#eef2f6">[HEADLINE LINE 1]</text>
+<text x="62" y="438" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="106" font-weight="bold" letter-spacing="-2" fill="#eef2f6">[HEADLINE LINE 2]</text>
+<text x="62" y="546" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="106" font-weight="bold" letter-spacing="-2" fill="url(#accentH)">[HEADLINE LINE 3]</text>
+<text x="64" y="620" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="33" fill="#7c8a99">[ONE-LINE SUBHEAD — what the plugin does, plainly.]</text>
+<text x="64" y="666" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="33" fill="#7c8a99">[SUBHEAD CONTINUED — <tspan fill="#eef2f6" font-weight="bold">emphasize the key idea</tspan>.]</text>
+<text x="64" y="755" font-family="Menlo, 'Andale Mono', monospace" font-size="22" letter-spacing="5" fill="#6b7682">[RUNS ON / PROJECTS TO]</text>
+<!-- Provider pills: the FIRST is "active" (palette tint + gradient stroke); the rest are neutral. Widen each rect to fit its label. -->
+<rect x="64" y="783" width="209.5" height="52" rx="12" fill="rgba(52,211,153,0.10)" stroke="url(#accentStroke)" stroke-width="1.5"/>
+<text x="168.75" y="817" text-anchor="middle" font-family="Menlo, 'Andale Mono', monospace" font-size="26" fill="#7fe7d0">[PROVIDER 1]</text>
+<rect x="291.5" y="783" width="110.5" height="52" rx="12" fill="rgba(238,242,246,0.03)" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>
+<text x="346.75" y="817" text-anchor="middle" font-family="Menlo, 'Andale Mono', monospace" font-size="26" fill="#9aa6b2">[PROVIDER 2]</text>
+<rect x="420" y="783" width="160" height="52" rx="12" fill="rgba(238,242,246,0.03)" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>
+<text x="500" y="817" text-anchor="middle" font-family="Menlo, 'Andale Mono', monospace" font-size="26" fill="#9aa6b2">[PROVIDER 3]</text>
+
+<!-- ===== CARD 1 — AGENTS (label fixed; count + rows = this plugin's agents) ===== -->
+<!-- Card geometry is fixed: x=1064, width=406, top=180, height=1010. Up to 12 rows
+     at y=292 + i*68. Row 0 is the "active"/highlighted row. The bottom cardFade
+     mask + "+[K] more"/"complete" trailer sit over the last rows. Count MUST equal
+     the number of items (use "+[K] more" when there are more than 12). -->
+<rect x="1064" y="180" width="406" height="1010" rx="18" fill="rgba(238,242,246,0.025)" stroke="rgba(238,242,246,0.10)" stroke-width="1.5"/>
+<circle cx="1110" cy="222" r="7" fill="url(#accent)"/>
+<text x="1132" y="232" font-family="Menlo, 'Andale Mono', monospace" font-size="27" font-weight="bold" letter-spacing="3" fill="#eef2f6">AGENTS</text>
+<text x="1436" y="236" text-anchor="end" font-family="Menlo, 'Andale Mono', monospace" font-size="42" fill="url(#accent)">[N]</text>
+<line x1="1104" y1="268" x2="1436" y2="268" stroke="rgba(238,242,246,0.18)" stroke-width="2" stroke-dasharray="2 8"/>
+<g opacity="1"><rect x="1088" y="292" width="358" height="54" rx="10" fill="rgba(52,211,153,0.08)" stroke="url(#accentStroke)" stroke-width="1.5"/><circle cx="1112" cy="319" r="5" fill="url(#accent)"/><text x="1130" y="327" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#a7f3d8">[AGENT 1]</text></g>
+<g opacity="1"><rect x="1088" y="360" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1112" cy="387" r="5" fill="#4a5663"/><text x="1130" y="395" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[AGENT 2]</text></g>
+<g opacity="1"><rect x="1088" y="428" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1112" cy="455" r="5" fill="#4a5663"/><text x="1130" y="463" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[AGENT 3]</text></g>
+<g opacity="1"><rect x="1088" y="496" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1112" cy="523" r="5" fill="#4a5663"/><text x="1130" y="531" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[AGENT 4]</text></g>
+<g opacity="0.65"><rect x="1088" y="564" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1112" cy="591" r="5" fill="#4a5663"/><text x="1130" y="599" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[AGENT 5 …]</text></g>
+<rect x="1066" y="950" width="402" height="238" rx="16" fill="url(#cardFade)"/>
+<text x="1267" y="1148" text-anchor="middle" font-family="Menlo, 'Andale Mono', monospace" font-size="26" fill="#566472">[+[K] more / complete]</text>
+
+<!-- ===== CARD 2 — SKILLS (label fixed; count + rows = this plugin's skills/commands) ===== -->
+<rect x="1497" y="180" width="406" height="1010" rx="18" fill="rgba(238,242,246,0.025)" stroke="rgba(238,242,246,0.10)" stroke-width="1.5"/>
+<circle cx="1543" cy="222" r="7" fill="url(#accent)"/>
+<text x="1565" y="232" font-family="Menlo, 'Andale Mono', monospace" font-size="27" font-weight="bold" letter-spacing="3" fill="#eef2f6">SKILLS</text>
+<text x="1869" y="236" text-anchor="end" font-family="Menlo, 'Andale Mono', monospace" font-size="42" fill="url(#accent)">[N]</text>
+<line x1="1537" y1="268" x2="1869" y2="268" stroke="rgba(238,242,246,0.18)" stroke-width="2" stroke-dasharray="2 8"/>
+<g opacity="1"><rect x="1521" y="292" width="358" height="54" rx="10" fill="rgba(52,211,153,0.08)" stroke="url(#accentStroke)" stroke-width="1.5"/><circle cx="1545" cy="319" r="5" fill="url(#accent)"/><text x="1563" y="327" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#a7f3d8">[SKILL 1]</text></g>
+<g opacity="1"><rect x="1521" y="360" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1545" cy="387" r="5" fill="#4a5663"/><text x="1563" y="395" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[SKILL 2]</text></g>
+<g opacity="1"><rect x="1521" y="428" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1545" cy="455" r="5" fill="#4a5663"/><text x="1563" y="463" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[SKILL 3]</text></g>
+<g opacity="1"><rect x="1521" y="496" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1545" cy="523" r="5" fill="#4a5663"/><text x="1563" y="531" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[SKILL 4]</text></g>
+<g opacity="0.65"><rect x="1521" y="564" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1545" cy="591" r="5" fill="#4a5663"/><text x="1563" y="599" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[SKILL 5 …]</text></g>
+<rect x="1499" y="950" width="402" height="238" rx="16" fill="url(#cardFade)"/>
+<text x="1700" y="1148" text-anchor="middle" font-family="Menlo, 'Andale Mono', monospace" font-size="26" fill="#566472">[+[K] more / complete]</text>
+
+<!-- ===== CARD 3 — PROVIDERS (label fixed; count + rows = the resolved target set) ===== -->
+<rect x="1930" y="180" width="406" height="1010" rx="18" fill="rgba(238,242,246,0.025)" stroke="rgba(238,242,246,0.10)" stroke-width="1.5"/>
+<circle cx="1976" cy="222" r="7" fill="url(#accent)"/>
+<text x="1998" y="232" font-family="Menlo, 'Andale Mono', monospace" font-size="27" font-weight="bold" letter-spacing="3" fill="#eef2f6">PROVIDERS</text>
+<text x="2302" y="236" text-anchor="end" font-family="Menlo, 'Andale Mono', monospace" font-size="42" fill="url(#accent)">[N]</text>
+<line x1="1970" y1="268" x2="2302" y2="268" stroke="rgba(238,242,246,0.18)" stroke-width="2" stroke-dasharray="2 8"/>
+<g opacity="1"><rect x="1954" y="292" width="358" height="54" rx="10" fill="rgba(52,211,153,0.08)" stroke="url(#accentStroke)" stroke-width="1.5"/><circle cx="1978" cy="319" r="5" fill="url(#accent)"/><text x="1996" y="327" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#a7f3d8">[PROVIDER 1]</text></g>
+<g opacity="1"><rect x="1954" y="360" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1978" cy="387" r="5" fill="#4a5663"/><text x="1996" y="395" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[PROVIDER 2]</text></g>
+<g opacity="1"><rect x="1954" y="428" width="358" height="54" rx="10" fill="rgba(238,242,246,0.035)" stroke="rgba(238,242,246,0.05)" stroke-width="1.5"/><circle cx="1978" cy="455" r="5" fill="#4a5663"/><text x="1996" y="463" font-family="Menlo, 'Andale Mono', monospace" font-size="24" fill="#c4ccd6">[PROVIDER 3]</text></g>
+<rect x="1932" y="950" width="402" height="238" rx="16" fill="url(#cardFade)"/>
+<text x="2133" y="1148" text-anchor="middle" font-family="Menlo, 'Andale Mono', monospace" font-size="26" fill="#566472">[+[K] more / complete]</text>
+
+<!-- ===== FOOTER — justified metric groups, space-between, separators in the gaps ===== -->
+<!-- Each group is either a big number + muted label, a single gradient word, or
+     a right-aligned repo. Replace with metrics that matter for the plugin; keep
+     them justified across L=64 … R=2336 with a vertical separator in each gap. -->
+<line x1="64" y1="1232" x2="2336" y2="1232" stroke="rgba(238,242,246,0.08)" stroke-width="1.5"/>
+<text x="64" y="1290" font-family="Menlo, 'Andale Mono', monospace" font-size="44" font-weight="bold" fill="url(#accentH)">[N]</text>
+<text x="107" y="1290" font-family="Menlo, 'Andale Mono', monospace" font-size="21" letter-spacing="2" fill="#7c8a99">[METRIC 1 LABEL]</text>
+<line x1="327" y1="1262" x2="327" y2="1296" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>
+<text x="451" y="1290" font-family="Menlo, 'Andale Mono', monospace" font-size="44" font-weight="bold" fill="url(#accentH)">[N]</text>
+<text x="494" y="1290" font-family="Menlo, 'Andale Mono', monospace" font-size="21" letter-spacing="2" fill="#7c8a99">[METRIC 2 LABEL]</text>
+<line x1="933" y1="1262" x2="933" y2="1296" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>
+<text x="1057" y="1290" font-family="Menlo, 'Andale Mono', monospace" font-size="40" font-weight="bold" fill="url(#accentH)">[TAGLINE WORD]</text>
+<line x1="1506" y1="1262" x2="1506" y2="1296" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>
+<text x="1630" y="1290" font-family="Menlo, 'Andale Mono', monospace" font-size="40" font-weight="bold" fill="url(#accentH)">[LICENSE]</text>
+<line x1="1835" y1="1262" x2="1835" y2="1296" stroke="rgba(238,242,246,0.14)" stroke-width="1.5"/>
+<text x="2336" y="1290" text-anchor="end" font-family="Menlo, 'Andale Mono', monospace" font-size="25" letter-spacing="1" fill="#8c97a3">[OWNER]/[PLUGIN-SLUG]</text>
+</svg>

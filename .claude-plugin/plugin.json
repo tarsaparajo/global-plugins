@@ -1,6 +1,6 @@
 {
   "name": "global-plugins",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Generate and adapt multi-provider AI coding plugins from a single canonical source, projected to every supported provider with self-evolution built in.",
   "author": {
     "name": "Tarsa",

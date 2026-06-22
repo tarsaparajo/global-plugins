@@ -67,11 +67,9 @@ When the plugin ships `rules/`, add a dedicated box to the `## Install` section:
 
 A plugin with no rules layer gets no rules box.
 
-## 7. Hero generation (SVG → PNG, with fallback)
+## 7. Hero (authored from the skeleton, SVG → PNG)
 
-The plugin ships `assets/build-hero.js` (seeded, parametrized) plus `assets/README.md`. Running `node assets/build-hero.js` always writes `assets/hero.svg`, then best-effort rasterizes `assets/hero.png`: try `sharp`, then `@resvg/resvg-js`; if neither is installed, print the manual step (open `hero.svg` in a browser or vector editor and export `hero.png` at 2400×1350) and exit successfully — never hard-fail. Both rasterizer imports are guarded, so the generator adds no hard dependency.
-
-**Per-plugin color identity.** The generator derives its gradient palette **deterministically from the plugin name** (a stable hash → an index into a curated palette set), so each plugin gets a distinct three-stop degradé instead of a shared one, while regenerating the same plugin always yields the same palette. An optional `assets/hero.config.json` pins a palette explicitly when the author wants to override the derived one. The palette feeds every gradient in the SVG.
+The hero is authored from a shared, neutral **hero skeleton** (`assets/hero.skeleton.svg`) to the hero-skeleton standard, then converted to `assets/hero.png` with a zero-dependency method (`sharp → @resvg/resvg-js → headless Chrome → manual export at 2400×1350`, never hard-failing, no hard dependency). Only the palette (the degradé) and the logo glyph vary per plugin. Full standard — the model, the palette + logo parametrization, the logo gallery, and the conversion methodology — is in `skills/_knowledge/hero-skeleton.md`.
 
 ## 8. Invariants
 

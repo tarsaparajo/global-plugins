@@ -5,6 +5,25 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-21
+
+### Added
+
+- **Hero skeleton — a shared, agent-authored SVG model for every child.** The README hero is now a reusable *skeleton model* the way global-plugins itself is a model for its children. New `templates/child/assets/hero.skeleton.svg`: a neutral, self-contained, well-formed 2400×1350 SVG cloned structurally from the real hero, with every plugin-specific value replaced by a `[PLACEHOLDER]` token (`[PLUGIN NAME]`, `[OWNER]/[PLUGIN-SLUG]`, `[AGENT 1]`, the version pill, the headline/eyebrow/footer copy) and **no** reference to any specific plugin. It is decorated with section comments and two knob markers (`PALETTE:`, `LOGO:`). It is **not** consumed by a deterministic renderer — at generate/adapt the provider agent (Claude/Codex/OpenCode) **reads it and authors a brand-new bespoke SVG** for the plugin, then converts that to PNG with the documented zero-dependency method.
+- **Two authoring guides that ship to every child.** `templates/child/assets/hero-svg.md` — a line-by-line annotation of the skeleton (every gradient/filter, the logo-mark anatomy, the card model, the footer; which palette stop or field feeds each region; a field→region cross-reference). `templates/child/assets/hero-authoring.md` — the fill-in sequence: gather the plugin's data, choose the palette (the degradé), choose the logo glyph, fill the fields with the agents/skills/providers grouping rules, write the SVG, convert to PNG.
+- **`skills/_knowledge/hero-skeleton.md` — first-class doctrine** (projected verbatim to all three providers): the shared model authored-not-rendered for children; the parametrization surface (palette + logo + copy) and the rule that ONLY these vary; the **logo gallery** (`share` default, `nodes`, `hexagon`, `spark`, plus a raw `svgPath`/inline-SVG escape hatch — all colored from the palette, drawn in the 100×100 mark space); the **zero-dependency SVG→PNG methodology** (the tiered `sharp → @resvg/resvg-js → headless Chrome → manual` fallback, always writes the SVG first, never hard-fails, adds no hard dependency); and the invariants (2400×1350, regenerable, hero in every locale, version pill == VERSION). As a `_knowledge/` reference it carries no Prompt Defense Baseline (the compliance check exempts it).
+- **Three projection-drift tests** (`tests/test_projection_drift.js`): the hero doctrine projects into every provider's `skills/_knowledge/`; the skeleton + both guides ride the `_engine/` payload on codex and opencode; the canonical skeleton is neutral (names no plugin) and well-formed (`viewBox="0 0 2400 1350"`, placeholders intact).
+
+### Changed
+
+- **`generate`/`adapt` now author the hero from the skeleton.** `skills/generate/SKILL.md` (steps 4 + 7) seeds the skeleton ecosystem (`hero.skeleton.svg`, `hero-svg.md`, `hero-authoring.md`, plus `build-hero.js`, `assets/README.md`) and authors a bespoke `assets/hero.svg` + converts to PNG instead of only running the deterministic generator. `skills/adapt/SKILL.md` (step 5): a plugin with no hero gains one authored from the skeleton; an existing hero is preserved. The deterministic `build-hero.js` is **unchanged** — it remains a convenience generator and the reference implementation of the conversion chain.
+- **Doctrine wiring.** `skills/_knowledge/readme-skeleton.md` §7 now points to the dedicated `hero-skeleton.md` instead of inlining the methodology. `agents/plugin-architect.md` (Communication dimension) and `agents/capability-extractor.md` describe the hero as a shared skeleton governed by `hero-skeleton.md`. `templates/child/assets/README.md` and the parent `assets/README.md` document the skeleton ecosystem, the palette + logo knobs, and the conversion methodology.
+- Hero pill (`assets/build-hero.js`) and all 14 README version badges (root + 13 locales) → `1.2.0`; parent `assets/hero.svg`/`hero.png` regenerated.
+
+### Migrations
+
+- None. Additive doctrine + templates; the renderer and projection topology are unchanged. Previously generated children gain the skeleton ecosystem on their next `/evolve` re-author. Pre-existing installs are unaffected.
+
 ## [1.1.0] - 2026-06-21
 
 ### Changed
