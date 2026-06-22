@@ -35,3 +35,7 @@ No shipped file may reference any external source, prior art, attribution, coden
 ## Author and license
 
 Author and license live in `plugin.json`/`marketplace.json` and `LICENSE`. For a generated child plugin, the author defaults to the generating user (the plugin belongs to its creator), and the license defaults to MIT.
+
+## Distribution manifest
+
+A child that targets Claude Code MUST ship **two** `.claude-plugin/` manifests: `plugin.json` (the plugin manifest) AND `marketplace.json` (a self-listing marketplace catalog with `"source": "./"`). Claude Code's `/plugin marketplace add <repo>` looks for `marketplace.json`; a child that ships only `plugin.json` errors `Marketplace file not found` and cannot be installed. Both are authored together at generate/adapt time (`skills/generate` step 4, `skills/adapt` step 4) from `templates/governance/marketplace.json.tmpl`, the marketplace `name` and `plugins[0].name` both equal the plugin's `identifier`, and `engine/semver.js` keeps `plugins[0].version` in sync with `VERSION` on every `/evolve` (it fans into the file only when present — so authoring it once at creation is what activates the sync). Codex and OpenCode do not use `marketplace.json` (they install by copying the dotfolder); this manifest is Claude-Code-specific.

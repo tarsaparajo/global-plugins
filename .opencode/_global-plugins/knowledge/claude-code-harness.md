@@ -33,7 +33,7 @@ Configured in `hooks/hooks.json` (or settings). Events include lifecycle (`Sessi
 
 ## Distribution
 
-`.claude-plugin/marketplace.json` lists plugins from sources: relative path, `github`, git `url`, `git-subdir`, or `npm`. Install: `/plugin marketplace add <owner/repo|url|path>` then `/plugin install <plugin>@<marketplace>`. `strict` mode controls whether the marketplace entry supplements or replaces `plugin.json`.
+`.claude-plugin/marketplace.json` lists plugins from sources: relative path, `github`, git `url`, `git-subdir`, or `npm`. Install: `/plugin marketplace add <owner/repo|url|path>` then `/plugin install <plugin>@<marketplace>`. `strict` mode controls whether the marketplace entry supplements or replaces `plugin.json`. **global-plugins authors this file for every Claude-targeted child** — a self-listing catalog (`"source": "./"`, so the repo is both plugin and marketplace) emitted alongside `plugin.json` from `templates/governance/marketplace.json.tmpl` at generate/adapt time. Without it, `/plugin marketplace add` on the child errors `Marketplace file not found`; see `knowledge/governance.md` § Distribution manifest.
 
 ## Rules distribution gap — validated (official)
 

@@ -9,7 +9,7 @@
 單一規範源，涵蓋所有服務商。只需一句描述，即可生成、適配並演進 AI 編程外掛。
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-2.1.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.2.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**

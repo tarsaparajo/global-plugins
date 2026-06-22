@@ -5,6 +5,16 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-06-22
+
+### Added
+
+- **Every Claude-targeted child now ships a `.claude-plugin/marketplace.json` from birth, so `/plugin marketplace add` works out of the box.** Claude Code's `/plugin marketplace add <repo>` requires a marketplace catalog at `.claude-plugin/marketplace.json`; a plugin that ships only `plugin.json` errors `Marketplace file not found` and cannot be installed. The pipeline already authored `plugin.json` but never the marketplace catalog — and the `templates/governance/marketplace.json.tmpl` (a self-listing catalog with `"source": "./"`) existed but was **orphaned**, referenced by no skill, agent, or engine path. This wires it in: `skills/generate/SKILL.md` step 4 ("Author the distribution manifest") now authors `.claude-plugin/marketplace.json` alongside `plugin.json` whenever the resolved target set includes `claude`, filling the template from the same plan data used for `plugin.json` (the marketplace `name` and `plugins[0].name` both equal the plugin identifier; `"source": "./"`; version = `VERSION`). `skills/adapt/SKILL.md` step 4 does the same for the adapt path with **preserve-if-present** semantics — a lifted single-provider plugin that already has a marketplace.json keeps it (only `name`/`version`/`source` are reconciled), and one that lacks it (the common case — the exact gap that hit adapted children) gains it. `knowledge/governance.md` gains a **Distribution manifest** section stating the two-manifest contract; `knowledge/claude-code-harness.md` §Distribution records that the generator emits the catalog. `engine/semver.js` already fans `VERSION` into `marketplace.json` when present, so authoring it once at creation activates the ongoing version sync with no new wiring.
+
+### Migrations
+
+- None. Additive doctrine + template-wiring only — no engine code change, no projection-shape change. Already-materialized children are unaffected (they continue to lack the file exactly as before until re-authored); the next `/evolve` re-projection of any child carries the new authoring doctrine in its seeded `skills/`. Pre-1.x parity: MINOR (new additive surface, backward-compatible).
+
 ## [2.1.0] - 2026-06-22
 
 ### Added

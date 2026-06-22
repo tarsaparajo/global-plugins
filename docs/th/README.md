@@ -9,7 +9,7 @@
 แหล่งข้อมูลแบบ canonical เดียว ครอบคลุมทุกผู้ให้บริการ สร้าง ปรับ และพัฒนาปลั๊กอินเขียนโค้ด AI จากคำอธิบายเดียว
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-2.1.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.2.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
