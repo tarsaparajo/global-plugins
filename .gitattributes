@@ -1,0 +1,11 @@
+# Deterministic line endings across OSes.
+# The projection engine emits LF; committed dotfolders are byte-compared against a
+# fresh projection in CI (tests/test_projection_drift.js). Without this, Windows
+# checkout converts LF->CRLF and every byte-equality assertion fails there.
+* text=auto eol=lf
+
+# Text assets that must stay LF even though they look binary-ish to some tools.
+*.svg text eol=lf
+
+# True binaries: never touch their bytes.
+*.png binary
