@@ -633,7 +633,13 @@ function run(mode, installRoot) {
 
 function rel(base, abs) {
   const r = relative(base, abs);
-  return r.startsWith('..') ? abs : r;
+  // Emit POSIX separators. These provider-root-relative strings are LOGICAL
+  // identifiers in the result JSON (e.g. ".codex/_slug/policies"), compared as
+  // plain strings by callers/tests. On Windows path.relative yields backslashes,
+  // which would never match a "/"-formed expected value — so normalize. (The whole
+  // engine uses "/" for logical paths via path.posix.)
+  const out = r.startsWith('..') ? abs : r;
+  return out.replace(/\\/g, '/');
 }
 
 const result = run(mode, root);

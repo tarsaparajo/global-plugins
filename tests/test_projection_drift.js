@@ -85,11 +85,16 @@ for (const target of targets) {
         // would run a stale engine. No capability path contains an `engine/`
         // segment (capability dirs are agents/skills/commands), so this matches
         // payload only.
-        const isPayload = !!op.destinationPath && /(^|\/)engine\//.test(op.destinationPath);
+        // Match either separator: on Windows op.destinationPath uses `\`, so a
+        // `/engine/`-only regex would miss every payload file and silently SKIP the
+        // payload byte-check there (a coverage hole, not a failure). Accept `\` too.
+        const isPayload = !!op.destinationPath && /(^|[\\/])engine[\\/]/.test(op.destinationPath);
         if (!op.destinationPath || (!isPayload && !/\.(md|toml)$/.test(op.destinationPath))) {
           continue;
         }
-        const rel = path.relative(out, op.destinationPath);
+        // Normalize separators so the committed-path lookup and the failure message
+        // are identical on every OS (path.relative yields `\` on Windows).
+        const rel = path.relative(out, op.destinationPath).replace(/\\/g, '/');
         if (rel.endsWith('install-state.json') || rel.startsWith('..')) {
           continue;
         }
