@@ -13,7 +13,7 @@ const path = require('path');
 const { planScaffold, getAdapter } = require('../../engine/registry');
 const executor = require('../../engine/executor');
 const { generators } = require('../../engine/builder');
-const { isForeignPlatformPath, pluginLabel, payloadBasePath } = require('../../engine/helpers');
+const { isForeignPlatformPath, pluginLabel, payloadBasePath, privateBundleDir, RESERVED_DIR_NAMES } = require('../../engine/helpers');
 const { makeCanonicalFixture, cleanup, fixtureModules, FIXTURE_PLUGIN_NAME } = require('../_fixture');
 
 // The fixture plugin's private bundle dir name (e.g. `_fixture-plugin`).
@@ -197,6 +197,57 @@ for (const target of ['codex', 'opencode']) {
     }
   });
 }
+
+// Reverse-projection guard (bundle -> source): EVERY first-level folder inside the
+// private bundle `_<slug>/` must map BACK to a real source folder (or be known infra
+// engine/dist), and a RESERVED provider surface (agents/skills/commands/plugins/…)
+// must NEVER be nested inside the bundle. This is the downstream assertion that
+// catches a future regression where projection invents an absent folder (phantom) or
+// a classifier bug nests a standard surface in the bundle. The forward path is
+// source-scan-based (namespacePrivateFolders iterates only fs.readdirSync(repoRoot));
+// this proves the COMMITTED output honors both invariants on BOTH providers.
+test('reverse guard: no phantom folder and no standard surface nested in the private bundle', () => {
+  for (const target of ['codex', 'opencode']) {
+    const { root, out, res } = projectTo(target);
+    try {
+      assert.ok(res.ok, `projection failed: ${res.error}`);
+      const dot = path.join(out, `.${target}`);
+      const bundle = privateBundleDir(root);
+      const bundleRoot = path.join(dot, bundle);
+      assert.ok(fs.existsSync(bundleRoot), `${target}: private bundle ${bundle}/ must exist`);
+      // engine/dist are the bundle's OWN infra siblings (always legitimate). The
+      // four discovery surfaces must never be nested in the bundle. Other RESERVED
+      // names (hooks/mcp/rules/prompts) MAY ride into the bundle on a non-pinning
+      // provider, so they are not a nested-surface violation — but they DO have a
+      // source origin, so the phantom guard still covers them.
+      const sourceTop = new Set(
+        fs.readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name),
+      );
+      const DISCOVERY_SURFACES = ['agents', 'skills', 'commands', 'command', 'plugins', 'plugin'];
+      for (const e of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
+        if (!e.isDirectory()) {
+          continue;
+        }
+        const name = e.name;
+        const isInfra = name === 'engine' || name === 'dist';
+        // (a) phantom guard: a bundle dir that is neither a bundle infra sibling
+        //     (engine/dist) nor present in the source has no origin.
+        assert.ok(isInfra || sourceTop.has(name),
+          `${target}: bundle dir "${name}" has no origin folder in the source (phantom)`);
+        // (b) discovery-surface guard: no agents/skills/commands/plugins in the bundle.
+        assert.ok(!DISCOVERY_SURFACES.includes(name),
+          `${target}: discovery surface "${name}" must NOT be nested in the private bundle`);
+      }
+      // Direct contract check for the four named discovery surfaces.
+      for (const surf of ['skills', 'commands', 'agents', 'plugins']) {
+        assert.ok(!fs.existsSync(path.join(bundleRoot, surf)),
+          `${target}: ${surf}/ must stay at the provider root, never inside ${bundle}/`);
+      }
+    } finally {
+      cleanup(root); cleanup(out);
+    }
+  }
+});
 
 // G1/G2 (generate direction) + R2 (pinned-to-root per provider): a non-standard
 // folder the plugin invented (`policies/`) lands in the private bundle on BOTH

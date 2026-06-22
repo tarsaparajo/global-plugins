@@ -10,6 +10,19 @@ const path = require('path');
 const W = 2400;
 const H = 1350;
 
+// The version pill string MUST equal VERSION (knowledge/bump-protocol.md). Derive
+// it from the VERSION file (the SemVer source of truth) instead of hardcoding —
+// mirrors the child twin (templates/child/assets/build-hero.js). The month suffix
+// is stamped from the build clock so re-running within a release month is idempotent.
+const VERSION = (() => {
+  try {
+    return fs.readFileSync(path.join(__dirname, '..', 'VERSION'), 'utf8').trim();
+  } catch {
+    return '0.0.0';
+  }
+})();
+const MONTH_YEAR = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
 // Palette
 const BG = '#070b10';
 const BG_BAR = '#0b1118';
@@ -170,7 +183,7 @@ svg += `<text x="438" y="68" font-family="${SANS}" font-size="29" fill="#8c97a3"
 // Version pill — right edge anchored at the content edge (2336), sized to fit
 // the text with comfortable padding on both sides.
 (function versionPill() {
-  const label = 'v2.0.0 · Jun 2026';
+  const label = `v${VERSION} · ${MONTH_YEAR}`;
   const fontSize = 26;
   const letterSpacing = 1;
   // mono glyph advance ~0.6em; add letter-spacing per gap.

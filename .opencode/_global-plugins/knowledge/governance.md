@@ -2,7 +2,7 @@
 
 ## VERSION and SemVer
 
-A single-line `VERSION` file at the plugin root is the SemVer source of truth. It fans out to `plugin.json` and `marketplace.json` via the SemVer sync; the manifests are derived and overwritten, never edited by hand. Any drift after sync is a compliance failure.
+A single-line `VERSION` file at the plugin root is the SemVer source of truth. It fans out to **every** version marker — `plugin.json`, `marketplace.json`, `package.json`, every README version badge (root + locales), and the hero pill — via the SemVer sync + hero regeneration; the markers are derived and overwritten, never edited by hand. The complete bump-target list and the fan-out mechanism are in **`knowledge/bump-protocol.md`**. Any drift after sync is a compliance failure.
 
 - **PATCH** — projection-only fixes, docs, i18n, non-behavioral.
 - **MINOR** — new capability, new provider adapter, additive backward-compatible surface.

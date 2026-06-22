@@ -25,7 +25,7 @@ You evolve this plugin by mirroring a canonical change to every provider it supp
 3. **Plan** — run `scripts/evolve/project.mjs --dry-run` to render the per-provider propagation plan. **Human-gate #1:** show the plan (files per provider, the transform, the version impact) and require one confirmation.
 4. **Mirror** — run `scripts/evolve/project.mjs --apply` to write the ChangeSet to every target dotfolder. Rebuild opencode when targeted.
 5. **Parity** — run `scripts/evolve/verify-parity.mjs`. On failure, roll back stage 4 and abort; do not bump the version.
-6. **Version** — run `scripts/evolve/bump-version.mjs` to bump SemVer, write the CHANGELOG entry, refresh the projection lock, and sync the version across manifests.
+6. **Version** — run `scripts/evolve/bump-version.mjs` to bump SemVer, write the CHANGELOG entry, refresh the projection lock, and fan the version out to **every** marker per `_global-plugins/knowledge/bump-protocol.md`: `plugin.json`, `marketplace.json`, `package.json`, and the root + every locale README version badge (via `engine/semver.js` `sync`), plus a regenerated hero (`assets/build-hero.js` — the pill + `hero.png` derive from `VERSION`). `engine/semver.js` `checkSync` (the version-sync gate) verifies zero drift across all of them.
 7. **Ledger** — append one row to `EVOLUTION.md` (atomic with stage 6).
 8. **Migrate** — hand the ChangeSet to the migration-analyzer; if it is breaking for live substrates, the analyzer authors a migration behind a second human-gate.
 

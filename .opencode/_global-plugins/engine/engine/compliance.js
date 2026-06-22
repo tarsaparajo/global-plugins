@@ -11,7 +11,7 @@ const path = require('path');
 const semver = require('./semver');
 const promptDefense = require('./prompt-defense');
 const { listProviders } = require('./registry');
-const { listRelativeFiles, payloadBasePath, privateBundleDir, RESERVED_DIR_NAMES } = require('./helpers');
+const { listRelativeFiles, payloadBasePath, privateBundleDir, RESERVED_DIR_NAMES, BUNDLE_SIBLING_NAMES } = require('./helpers');
 const { OPENCODE_THEME_TOKENS } = require('./frontmatter');
 
 // Terms that would reveal a source/methodology/inspiration origin. Any hit in a
@@ -239,6 +239,41 @@ function checkProjectionDrift(root) {
       if (!fs.existsSync(path.join(payload, rel))) {
         out.push(finding('error', 'projection-drift',
           `${dot}/${bundleLabel}/${rel} missing — incomplete runtime payload; ${FIX}`, { file: `${dot}/${bundleLabel}/${rel}` }));
+      }
+    }
+    // Reverse-projection guard: every first-level folder inside the private bundle
+    // must map BACK to a real source folder (or be known infra engine/dist), and a
+    // RESERVED provider surface (agents/skills/commands/plugins/…) must NEVER be
+    // nested inside the bundle — those stay at the provider root. This catches a
+    // future regression where projection invents an absent folder (a phantom) or a
+    // classifier bug routes a standard surface into `_<slug>/`. The forward path is
+    // already source-scan-based (helpers.classifyTopLevelDir + _base.namespacePrivateFolders
+    // iterate only fs.readdirSync(repoRoot)); this asserts the COMMITTED output too.
+    if (bundle) {
+      const bundleRoot = path.join(dotBase, bundle);
+      // engine/dist are the bundle's OWN infra siblings — legitimate members, never
+      // a violation. The discovery surfaces a provider scans at the ROOT (agents,
+      // skills, commands, plugins) must NEVER appear inside the bundle — nesting one
+      // there shadows discovery. Other RESERVED names (hooks/mcp/rules/prompts) MAY
+      // legitimately ride into the bundle as non-standard folders on a provider that
+      // does not pin them, so they are NOT treated as a nested-surface violation.
+      const DISCOVERY_SURFACES = ['agents', 'skills', 'commands', 'command', 'plugins', 'plugin'];
+      if (fs.existsSync(bundleRoot)) {
+        for (const e of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
+          if (!e.isDirectory()) {
+            continue;
+          }
+          const entry = e.name;
+          if (DISCOVERY_SURFACES.includes(entry)) {
+            out.push(finding('error', 'projection-drift',
+              `${dot}/${bundle}/${entry} is a standard provider discovery surface nested inside the private bundle — agents/skills/commands/plugins must stay at the provider root, never in _<slug>/; ${FIX}`,
+              { file: `${dot}/${bundle}/${entry}` }));
+          } else if (!BUNDLE_SIBLING_NAMES.includes(entry) && !fs.existsSync(path.join(root, entry))) {
+            out.push(finding('error', 'projection-drift',
+              `${dot}/${bundle}/${entry} has no origin folder in the plugin source (phantom bundle folder) — projection must never invent a folder absent from the source; ${FIX}`,
+              { file: `${dot}/${bundle}/${entry}` }));
+          }
+        }
       }
     }
     // The private bundle name must not collide with a reserved provider dir

@@ -5,6 +5,21 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-06-22
+
+### Added
+
+- **Reverse-projection guard — the private bundle can never gain a folder absent from the source, nor nest a standard discovery surface.** The forward path was already source-scan-based (`engine/providers/_base.js` `namespacePrivateFolders` iterates only `fs.readdirSync(repoRoot)`; `engine/helpers.js` `classifyTopLevelDir` routes reserved surfaces to the root before they reach the namespacer), but nothing asserted the *committed* output back. A new check in `engine/compliance.js` `checkProjectionDrift` (and a per-target test in `tests/providers/test_all_providers.js`) now FAILS if any first-level folder inside `_<slug>/` (a) has no origin folder in the plugin source (a **phantom** folder — projection inventing a dir the child never had) or (b) is a standard **discovery surface** (`agents`/`skills`/`commands`/`plugins`) nested in the bundle instead of staying at the provider root. `engine`/`dist` are the bundle's own infra siblings and are exempt; other reserved names (`hooks`/`mcp`/`rules`/`prompts`) may legitimately ride into the bundle and are covered by the phantom check (they have a source origin). This blinds the bundle layout against a future regression (a second fs-walk, a hardcoded destination, a classifier bug). Rides the existing `/validate` + `/audit` + CI gate; every generated child inherits it via its seeded `engine/`.
+- **Canonical version-bump protocol (`knowledge/bump-protocol.md`) — `VERSION` fans out to EVERY marker.** A new first-class doctrine doc lists the complete bump-target set and the fan-out mechanism. `engine/semver.js` `sync()` now rewrites, in addition to `plugin.json` + `marketplace.json`, the root `package.json` `version` **and every README version badge** (the root README + all 13 locale `docs/<locale>/README.md`, idempotent regex rewrite). `checkSync()` verifies all of them — plus the **hero pill** (`assets/hero.svg`) — against `VERSION` and reports per-file drift; it is already wired into `engine/compliance.js` (`version-drift`), `/validate`, `/audit`, and the CI version-sync gate, so a forgotten badge or a stale manifest now fails the build. `assets/build-hero.js` derives the version pill from `VERSION` (was a hardcoded literal), matching the child twin; `scripts/evolve/bump-version.mjs` regenerates the hero after the sync so the pill + `hero.png` track `VERSION`. The **evolution-propagator** stage 6 and `skills/generate` + `skills/adapt` document the full fan-out, so every generated/adapted child inherits the protocol (the engine + bump script ride in the child's `_<slug>/engine/`; the doc rides in `_<slug>/knowledge/` via the classifier; the child's `build-hero.js` already derives its pill from `VERSION`).
+
+### Fixed
+
+- **`package.json` version drift.** The root `package.json` was stranded at `0.9.0` while `VERSION`/`plugin.json`/`marketplace.json` were at `2.0.0` — exactly the kind of silent drift the new version-marker guard catches. `package.json` is now synced by `engine/semver.js` and bumped to `2.1.0` with every other marker.
+
+### Migrations
+
+- None. Both evolutions are additive: new compliance findings, a new knowledge doc, an extended SemVer fan-out, a derived hero pill, and a propagator description update. No canonical surface is removed or renamed; already-generated children gain the new guards + fan-out on their next `/evolve` re-projection.
+
 ## [2.0.0] - 2026-06-22
 
 ### Changed
