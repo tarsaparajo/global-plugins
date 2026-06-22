@@ -22,11 +22,11 @@ An installed copy predates a breaking version and needs to be brought forward.
 
 ## Pipeline
 
-1. Read the installed copy's recorded version (from its projection-lock signature or a version stamp).
-2. Run `scripts/evolve/migrate-apply.mjs` to compute the **pending chain** — the ordered migrations whose `from` range contains the current version up to HEAD.
-3. For each migration in order: **dry-run** (writes nothing), **human-gate**, **apply** (`forward` then `verify`; a failed verify auto-runs `rollback` for that step and halts the chain), recording each applied migration back into EVOLUTION.md.
-4. Return the chain result and the new installed version.
+1. Read the installed copy's recorded version from its **provenance stamp** — `install-state.json` `schemaVersion`, written into each provider's bundle (`_<slug>/install-state.json`, or the provider root for Claude) at projection time. Fallbacks: the bundled `.evolution/baseline/projection.lock.json` `version`, else treat the install as **pre-stamp** (apply the whole chain). The stamp also records `generatedWith` (`<slug>@<version>` — which release authored the install), so the version a child was generated from is always identifiable.
+2. Run `scripts/evolve/migrate-apply.mjs` to compute the **pending chain** — the ordered migrations whose `from` range contains the installed version, up to HEAD. Migrations the install already has are reported under `skippedAlreadyApplied`, never re-run.
+3. For each pending migration in order: **dry-run** (writes nothing), **human-gate**, **apply** (`forward` then `verify`; a failed verify auto-runs `rollback` for that step and halts the chain), recording each applied migration back into EVOLUTION.md.
+4. On a clean apply the runner re-stamps every install-state `schemaVersion` to HEAD, so a subsequent run is a clean no-op. Return the chain result and the new installed version.
 
 ## Invariants
 
-Chains are monotonic and gapless. Every step is idempotent via its `detect` guard. Rollback is the exact inverse, applied in reverse order. Self-sufficient.
+Chains are monotonic and gapless. Gating by the provenance stamp is the primary mechanism (only the pending chain runs); per-step idempotence is the safety net. Rollback is the exact inverse, applied in reverse order, and leaves the stamp untouched (the operator is intentionally moving backward). Self-sufficient.

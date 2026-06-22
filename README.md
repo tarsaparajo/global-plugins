@@ -9,7 +9,7 @@
 One canonical source, every provider. Generate, adapt, and evolve AI coding plugins from a single description.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -110,7 +110,7 @@ See the [Provider Matrix](#provider-matrix) for the exact transform each provide
 
 Global Plugins is self-hosting: it ships its own `evolve` and `migrate` surface, and mirrors the same `/<plugin>:evolve` and `/<plugin>:migrate` into every plugin it generates.
 
-**Generate from any provider — not only Claude Code.** The projection engine travels with every install as a runtime payload, so an installed plugin can itself create/adapt/evolve multi-provider child plugins from all three CLIs. Claude Code carries it via its whole-repo install; **Codex** and **opencode** carry it inside the plugin's private bundle (`~/.codex/_global-plugins/_engine/`, `~/.config/opencode/_global-plugins/_engine/`) — namespaced by plugin so many installed plugins never overwrite each other's payload, while standard surfaces (agents/skills/commands, `plugins/`, `config.toml`) stay shared at the config root. On Codex the agent runs the bundled engine with Node (`cd ~/.codex/_global-plugins/_engine && node scripts/evolve/project.mjs`, one approval prompt per run); on opencode the compiled plugin (under `_global-plugins/dist/`, discovered via `plugins/global-plugins.js`) exposes native `global-plugins-{generate,adapt,evolve,validate,migrate}` tools backed by the same payload. Every generated child also ships the engine in its own `_<name>/` bundle, so it is self-sufficient, re-projectable, and collision-free on its own.
+**Generate from any provider — not only Claude Code.** The projection engine travels with every install as a runtime payload, so an installed plugin can itself create/adapt/evolve multi-provider child plugins from all three CLIs. Claude Code carries it via its whole-repo install; **Codex** and **opencode** carry it inside the plugin's private bundle (`~/.codex/_global-plugins/engine/`, `~/.config/opencode/_global-plugins/engine/`) — namespaced by plugin so many installed plugins never overwrite each other's payload, while standard surfaces (agents/skills/commands, `plugins/`, `config.toml`) stay shared at the config root. On Codex the agent runs the bundled engine with Node (`cd ~/.codex/_global-plugins/engine && node scripts/evolve/project.mjs`, one approval prompt per run); on opencode the compiled plugin (under `_global-plugins/dist/`, discovered via `plugins/global-plugins.js`) exposes native `global-plugins-{generate,adapt,evolve,validate,migrate}` tools backed by the same payload. Every generated child also ships the engine in its own `_<name>/` bundle, so it is self-sufficient, re-projectable, and collision-free on its own.
 
 ## Internal Architecture
 

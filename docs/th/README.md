@@ -9,7 +9,7 @@
 แหล่งข้อมูลแบบ canonical เดียว ครอบคลุมทุกผู้ให้บริการ สร้าง ปรับ และพัฒนาปลั๊กอินเขียนโค้ด AI จากคำอธิบายเดียว
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -110,7 +110,7 @@ opencode อ่าน config ระดับ global ของมันจาก 
 
 Global Plugins เป็นแบบ self-hosting คือมาพร้อมพื้นผิวคำสั่ง `evolve` และ `migrate` ของตัวเอง และสะท้อน `/<plugin>:evolve` และ `/<plugin>:migrate` แบบเดียวกันนี้ไปยังทุกปลั๊กอินที่มันสร้างขึ้น
 
-**สร้างจากผู้ให้บริการใดก็ได้ — ไม่ใช่แค่ Claude Code.** เอนจินการฉาย (projection engine) เดินทางไปกับทุกการติดตั้งในรูปแบบ runtime payload ดังนั้นปลั๊กอินที่ติดตั้งแล้วสามารถสร้าง/ปรับ/วิวัฒน์ปลั๊กอินลูกแบบหลายผู้ให้บริการได้ด้วยตัวเองจากทั้งสาม CLI โดย Claude Code นำพามันไปผ่านการติดตั้งทั้งรีโพ ส่วน **Codex** และ **opencode** นำพามันไว้ใต้ไดเรกทอรีย่อยสงวน `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`) บน Codex เอเจนต์จะรันเอนจินที่บันเดิลไว้ด้วย Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs` โดยมีการอนุมัติหนึ่งครั้งต่อการรัน) ส่วนบน opencode ปลั๊กอินที่คอมไพล์แล้วใน `dist/` จะเปิดเผยเครื่องมือเนทีฟ `generate`/`adapt`/`evolve`/`validate`/`migrate` ที่อาศัย payload เดียวกัน ปลั๊กอินลูกที่สร้างขึ้นทุกตัวก็พกเอนจินไปด้วย จึงพึ่งพาตัวเองได้และฉายใหม่ได้ด้วยตัวเอง
+**สร้างจากผู้ให้บริการใดก็ได้ — ไม่ใช่แค่ Claude Code.** เอนจินการฉาย (projection engine) เดินทางไปกับทุกการติดตั้งในรูปแบบ runtime payload ดังนั้นปลั๊กอินที่ติดตั้งแล้วสามารถสร้าง/ปรับ/วิวัฒน์ปลั๊กอินลูกแบบหลายผู้ให้บริการได้ด้วยตัวเองจากทั้งสาม CLI โดย Claude Code นำพามันไปผ่านการติดตั้งทั้งรีโพ ส่วน **Codex** และ **opencode** นำพามันไว้ใต้ไดเรกทอรีย่อยสงวน `engine/` (`~/.codex/engine/`, `~/.config/opencode/engine/`) บน Codex เอเจนต์จะรันเอนจินที่บันเดิลไว้ด้วย Node (`cd ~/.codex/engine && node scripts/evolve/project.mjs` โดยมีการอนุมัติหนึ่งครั้งต่อการรัน) ส่วนบน opencode ปลั๊กอินที่คอมไพล์แล้วใน `dist/` จะเปิดเผยเครื่องมือเนทีฟ `generate`/`adapt`/`evolve`/`validate`/`migrate` ที่อาศัย payload เดียวกัน ปลั๊กอินลูกที่สร้างขึ้นทุกตัวก็พกเอนจินไปด้วย จึงพึ่งพาตัวเองได้และฉายใหม่ได้ด้วยตัวเอง
 
 ## สถาปัตยกรรมภายใน
 

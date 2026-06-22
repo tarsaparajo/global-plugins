@@ -9,7 +9,7 @@
 Una única fuente canónica, todos los proveedores. Genera, adapta y evoluciona plugins de IA para programar a partir de una sola descripción.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -110,7 +110,7 @@ Consulta la [Matriz de proveedores](#provider-matrix) para ver la transformació
 
 Global Plugins es autohospedado: incluye su propia superficie de evolve y migrate, y refleja los mismos `/<plugin>:evolve` y `/<plugin>:migrate` en cada plugin que genera.
 
-**Genera desde cualquier proveedor — no solo desde Claude Code.** El motor de proyección viaja con cada instalación como un runtime payload, así que un plugin instalado puede él mismo crear/adaptar/evolucionar plugins hijos multiproveedor desde las tres CLIs. Claude Code lo lleva mediante la instalación del repositorio completo; **Codex** y **opencode** lo llevan bajo un subdirectorio reservado `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). En Codex el agente ejecuta el motor empaquetado con Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, con una aprobación por ejecución); en opencode el plugin compilado en `dist/` expone herramientas nativas `generate`/`adapt`/`evolve`/`validate`/`migrate` respaldadas por el mismo payload. Cada hijo generado también lleva el motor, por lo que es autosuficiente y reproyectable por sí mismo.
+**Genera desde cualquier proveedor — no solo desde Claude Code.** El motor de proyección viaja con cada instalación como un runtime payload, así que un plugin instalado puede él mismo crear/adaptar/evolucionar plugins hijos multiproveedor desde las tres CLIs. Claude Code lo lleva mediante la instalación del repositorio completo; **Codex** y **opencode** lo llevan bajo un subdirectorio reservado `engine/` (`~/.codex/engine/`, `~/.config/opencode/engine/`). En Codex el agente ejecuta el motor empaquetado con Node (`cd ~/.codex/engine && node scripts/evolve/project.mjs`, con una aprobación por ejecución); en opencode el plugin compilado en `dist/` expone herramientas nativas `generate`/`adapt`/`evolve`/`validate`/`migrate` respaldadas por el mismo payload. Cada hijo generado también lleva el motor, por lo que es autosuficiente y reproyectable por sí mismo.
 
 ## Arquitectura interna
 

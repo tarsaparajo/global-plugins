@@ -9,7 +9,7 @@
 Tek bir kanonik kaynak, her sağlayıcı. Tek bir açıklamadan AI kodlama eklentileri oluşturun, uyarlayın ve geliştirin.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -110,7 +110,7 @@ Her sağlayıcının uyguladığı tam dönüşüm için [Sağlayıcı Matrisi](
 
 Global Plugins kendi kendine barındırılır (self-hosting): kendi evolve ve migrate yüzeyiyle birlikte gelir ve aynı `/<plugin>:evolve` ve `/<plugin>:migrate`'i ürettiği her eklentiye yansıtır.
 
-**Herhangi bir sağlayıcıdan üretin — yalnızca Claude Code'dan değil.** Projeksiyon motoru her kuruluma bir runtime payload olarak eşlik eder; böylece kurulu bir eklenti üç CLI'nin tamamından çok sağlayıcılı alt eklentileri kendisi oluşturabilir/uyarlayabilir/evrimleştirebilir. Claude Code onu tüm depo kurulumuyla taşır; **Codex** ve **opencode** onu ayrılmış bir `_engine/` alt klasöründe taşır (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). Codex'te ajan, paketlenmiş motoru Node ile çalıştırır (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, çalıştırma başına bir onay ile); opencode'da `dist/` içindeki derlenmiş eklenti, aynı payload tarafından desteklenen yerel `generate`/`adapt`/`evolve`/`validate`/`migrate` araçlarını sunar. Üretilen her alt eklenti de motoru taşır; bu yüzden kendi kendine yeterlidir ve tek başına yeniden projeksiyonlanabilir.
+**Herhangi bir sağlayıcıdan üretin — yalnızca Claude Code'dan değil.** Projeksiyon motoru her kuruluma bir runtime payload olarak eşlik eder; böylece kurulu bir eklenti üç CLI'nin tamamından çok sağlayıcılı alt eklentileri kendisi oluşturabilir/uyarlayabilir/evrimleştirebilir. Claude Code onu tüm depo kurulumuyla taşır; **Codex** ve **opencode** onu ayrılmış bir `engine/` alt klasöründe taşır (`~/.codex/engine/`, `~/.config/opencode/engine/`). Codex'te ajan, paketlenmiş motoru Node ile çalıştırır (`cd ~/.codex/engine && node scripts/evolve/project.mjs`, çalıştırma başına bir onay ile); opencode'da `dist/` içindeki derlenmiş eklenti, aynı payload tarafından desteklenen yerel `generate`/`adapt`/`evolve`/`validate`/`migrate` araçlarını sunar. Üretilen her alt eklenti de motoru taşır; bu yüzden kendi kendine yeterlidir ve tek başına yeniden projeksiyonlanabilir.
 
 ## İç Mimari
 

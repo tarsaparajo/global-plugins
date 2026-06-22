@@ -42,7 +42,7 @@ function makeCanonicalFixture() {
   // index grouping). FIXTURE_PLUGIN_NAME is exported for assertions.
   w('.claude-plugin/plugin.json', JSON.stringify({ name: FIXTURE_PLUGIN_NAME }, null, 2));
   // A minimal `engine/` source so the runtime-payload channel (payloadCopy) has
-  // something to ship into the private bundle `_<slug>/_engine/` — exercises the
+  // something to ship into the private bundle `_<slug>/engine/` — exercises the
   // non-standard-folder namespacing for codex/opencode payload targets.
   w('engine/resolver.js', "'use strict';\nmodule.exports = {};\n");
   // A NON-STANDARD folder the plugin invented: no provider discovers `policies/`

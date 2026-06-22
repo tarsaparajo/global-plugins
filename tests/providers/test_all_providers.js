@@ -164,7 +164,7 @@ for (const [target, exp] of Object.entries(EXPECTATIONS)) {
 
 // Namespacing: a plugin's non-standard infra lands in its private bundle
 // `_<slug>/`, standard/shared surfaces stay at the dotfolder root, and no flat
-// `_engine`/`dist` remains — so installs never collide.
+// `engine`/`dist` remains — so installs never collide.
 for (const target of ['codex', 'opencode']) {
   test(`provider ${target}: non-standard infra is namespaced under _<slug>/`, () => {
     const { root, out, res } = projectTo(target);
@@ -173,9 +173,9 @@ for (const target of ['codex', 'opencode']) {
       const dot = path.join(out, `.${target}`);
       // Payload in the private bundle.
       assert.ok(fs.existsSync(path.join(payloadBasePath(dot, root), 'engine', 'resolver.js')),
-        `${target}: payload must live under .${target}/${FIXTURE_BUNDLE}/_engine/`);
+        `${target}: payload must live under .${target}/${FIXTURE_BUNDLE}/engine/`);
       // No flat (un-namespaced) infra at the dotfolder root.
-      assert.ok(!fs.existsSync(path.join(dot, '_engine')), `${target}: flat _engine must not exist at the root`);
+      assert.ok(!fs.existsSync(path.join(dot, 'engine')), `${target}: flat engine must not exist at the root`);
       assert.ok(!fs.existsSync(path.join(dot, 'dist')), `${target}: flat dist must not exist at the root`);
       if (target === 'opencode') {
         // Compiled plugin in the bundle, discovery loader in the shared dir.
@@ -183,9 +183,9 @@ for (const target of ['codex', 'opencode']) {
           'opencode dist must live under the private bundle');
         assert.ok(fs.existsSync(path.join(dot, 'plugins', `${FIXTURE_PLUGIN_NAME}.js`)),
           'opencode per-slug discovery loader must exist in the shared plugins/ dir');
-        // dist tools resolve the payload as a sibling (../../_engine).
+        // dist tools resolve the payload as a sibling (../../engine).
         const tools = fs.readFileSync(path.join(dot, FIXTURE_BUNDLE, 'dist', 'tools', 'index.js'), 'utf8');
-        assert.ok(/'\.\.', '\.\.', '_engine'/.test(tools), 'opencode dist tools must resolve ../../_engine (sibling of dist)');
+        assert.ok(/'\.\.', '\.\.', 'engine'/.test(tools), 'opencode dist tools must resolve ../../engine (sibling of dist)');
         // Tool names are slug-prefixed (no shadowing across installed plugins).
         assert.ok(tools.includes(`${FIXTURE_PLUGIN_NAME}-generate`), 'opencode tool names must be slug-prefixed');
         // Standard/shared surfaces stay at the root, NOT inside the bundle.
@@ -296,7 +296,7 @@ test('two plugins install side-by-side without colliding (opencode)', () => {
     }
     // Both bundles + both loaders coexist.
     for (const slug of ['plugin-alpha', 'plugin-beta']) {
-      assert.ok(fs2.existsSync(path.join(home, '.opencode', `_${slug}`, '_engine', 'engine', 'resolver.js')),
+      assert.ok(fs2.existsSync(path.join(home, '.opencode', `_${slug}`, 'engine', 'engine', 'resolver.js')),
         `${slug} payload survived the second install`);
       assert.ok(fs2.existsSync(path.join(home, '.opencode', `_${slug}`, 'dist', 'index.js')),
         `${slug} dist survived the second install`);

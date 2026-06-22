@@ -9,7 +9,7 @@
 하나의 정규 소스로 모든 프로바이더에. 설명 하나로 AI 코딩 플러그인을 생성하고 적응시키고 발전시킵니다.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -110,7 +110,7 @@ opencode는 전역 설정을 `~/.config/opencode/`에서 읽습니다(`~/.openco
 
 Global Plugins는 자가 호스팅(self-hosting) 방식입니다. 자체 evolve 및 migrate 인터페이스를 제공하며, 자신이 생성하는 모든 플러그인에 동일한 `/<plugin>:evolve`와 `/<plugin>:migrate`를 그대로 반영합니다.
 
-**Claude Code뿐 아니라 어떤 프로바이더에서도 생성할 수 있습니다.** 프로젝션 엔진은 runtime payload로서 모든 설치에 함께 따라가므로, 설치된 플러그인 자체가 세 가지 CLI 모두에서 멀티 프로바이더 자식 플러그인을 생성/적응/진화시킬 수 있습니다. Claude Code는 저장소 전체 설치를 통해 이를 가지고 다니며, **Codex**와 **opencode**는 예약된 하위 디렉터리 `_engine/`(`~/.codex/_engine/`, `~/.config/opencode/_engine/`)에 가지고 다닙니다. Codex에서는 에이전트가 Node로 번들된 엔진을 실행합니다(`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, 실행당 한 번의 승인). opencode에서는 `dist/`의 컴파일된 플러그인이 동일한 payload에 기반한 네이티브 도구 `generate`/`adapt`/`evolve`/`validate`/`migrate`를 노출합니다. 생성된 모든 자식도 엔진을 함께 가지고 있으므로 자급자족적이며 스스로 다시 프로젝션할 수 있습니다.
+**Claude Code뿐 아니라 어떤 프로바이더에서도 생성할 수 있습니다.** 프로젝션 엔진은 runtime payload로서 모든 설치에 함께 따라가므로, 설치된 플러그인 자체가 세 가지 CLI 모두에서 멀티 프로바이더 자식 플러그인을 생성/적응/진화시킬 수 있습니다. Claude Code는 저장소 전체 설치를 통해 이를 가지고 다니며, **Codex**와 **opencode**는 예약된 하위 디렉터리 `engine/`(`~/.codex/engine/`, `~/.config/opencode/engine/`)에 가지고 다닙니다. Codex에서는 에이전트가 Node로 번들된 엔진을 실행합니다(`cd ~/.codex/engine && node scripts/evolve/project.mjs`, 실행당 한 번의 승인). opencode에서는 `dist/`의 컴파일된 플러그인이 동일한 payload에 기반한 네이티브 도구 `generate`/`adapt`/`evolve`/`validate`/`migrate`를 노출합니다. 생성된 모든 자식도 엔진을 함께 가지고 있으므로 자급자족적이며 스스로 다시 프로젝션할 수 있습니다.
 
 ## 내부 아키텍처
 

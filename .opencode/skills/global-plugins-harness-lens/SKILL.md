@@ -28,7 +28,7 @@ The user wants to model a plugin idea before generating it, or to understand how
 
 ## What the lens does
 
-It composes whatever subset of the nine dimensions the request demands — one, three, or all nine — mapping each to concrete plugin artifacts (skills, agents, commands, hooks, scripts, permissions, MCP, settings). It drops sub-items that have no meaning inside a plugin and offers unlit dimensions as opt-in. See `skills/_knowledge/harness-lens.md`.
+It composes whatever subset of the nine dimensions the request demands — one, three, or all nine — mapping each to concrete plugin artifacts (skills, agents, commands, hooks, scripts, permissions, MCP, settings). It drops sub-items that have no meaning inside a plugin and offers unlit dimensions as opt-in. See `_global-plugins/knowledge/harness-lens.md`.
 
 ## Invariants
 

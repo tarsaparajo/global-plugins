@@ -45,7 +45,7 @@ function makeInstall() {
   for (const dot of ['.codex', '.opencode']) {
     w(`${dot}/policies/STYLE.md`, 'policy');
     w(`${dot}/prompts/p.md`, 'prompt');
-    fs.mkdirSync(path.join(root, dot, BUNDLE, '_engine'), { recursive: true });
+    fs.mkdirSync(path.join(root, dot, BUNDLE, 'engine'), { recursive: true });
   }
   // A capability dir that must NOT move.
   w('.codex/skills/keep.md', 'skill');

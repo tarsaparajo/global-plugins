@@ -9,7 +9,7 @@
 Một nguồn chuẩn, mọi nhà cung cấp. Tạo, điều chỉnh và tiến hóa các plugin lập trình AI từ một mô tả duy nhất.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](../../VERSION)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](../../VERSION)
 [![Buy Me A Coffee](https://img.shields.io/badge/support-buymeacoffee-yellow.svg)](https://buymeacoffee.com/tarsaparajo)
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ / Idioma / Idioma / Langue / Lingua**
@@ -110,7 +110,7 @@ Xem [Ma trận nhà cung cấp](#provider-matrix) để biết chính xác phép
 
 Global Plugins tự lưu trữ (self-hosting): nó đi kèm bề mặt evolve và migrate của riêng mình, và phản chiếu cùng `/<plugin>:evolve` và `/<plugin>:migrate` vào mọi plugin mà nó tạo ra.
 
-**Tạo từ bất kỳ nhà cung cấp nào — không chỉ Claude Code.** Engine chiếu (projection engine) đi theo mỗi lần cài đặt dưới dạng runtime payload, nên một plugin đã cài có thể tự tạo/điều chỉnh/tiến hóa các plugin con đa nhà cung cấp từ cả ba CLI. Claude Code mang nó qua việc cài đặt toàn bộ kho mã; **Codex** và **opencode** mang nó trong thư mục con dành riêng `_engine/` (`~/.codex/_engine/`, `~/.config/opencode/_engine/`). Trên Codex, agent chạy engine đóng gói bằng Node (`cd ~/.codex/_engine && node scripts/evolve/project.mjs`, với một lần phê duyệt cho mỗi lần chạy); trên opencode, plugin đã biên dịch trong `dist/` cung cấp các công cụ gốc `generate`/`adapt`/`evolve`/`validate`/`migrate` được hỗ trợ bởi cùng payload đó. Mỗi plugin con được tạo ra cũng mang theo engine, nên nó tự cung tự cấp và có thể tự chiếu lại.
+**Tạo từ bất kỳ nhà cung cấp nào — không chỉ Claude Code.** Engine chiếu (projection engine) đi theo mỗi lần cài đặt dưới dạng runtime payload, nên một plugin đã cài có thể tự tạo/điều chỉnh/tiến hóa các plugin con đa nhà cung cấp từ cả ba CLI. Claude Code mang nó qua việc cài đặt toàn bộ kho mã; **Codex** và **opencode** mang nó trong thư mục con dành riêng `engine/` (`~/.codex/engine/`, `~/.config/opencode/engine/`). Trên Codex, agent chạy engine đóng gói bằng Node (`cd ~/.codex/engine && node scripts/evolve/project.mjs`, với một lần phê duyệt cho mỗi lần chạy); trên opencode, plugin đã biên dịch trong `dist/` cung cấp các công cụ gốc `generate`/`adapt`/`evolve`/`validate`/`migrate` được hỗ trợ bởi cùng payload đó. Mỗi plugin con được tạo ra cũng mang theo engine, nên nó tự cung tự cấp và có thể tự chiếu lại.
 
 ## Kiến trúc nội bộ
 

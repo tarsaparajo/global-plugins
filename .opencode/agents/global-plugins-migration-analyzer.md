@@ -31,7 +31,7 @@ Run `scripts/evolve/detect-substrates.mjs` to inventory what exists.
 - A component removed or renamed that downstream references by stable id (command name, agent name, skill id, hook matcher).
 - A frontmatter contract narrowed: required arg added, arg/tool removed, model class changed.
 - A destination `rootSegments` path changed (installed files move).
-- A folder's PLACEMENT changed for installed copies — e.g. a non-standard folder that used to sit loose at the provider root (or under a flat `_engine`/`dist`) now lands in the private bundle `_<slug>/<folder>/`. Installed files move, so this is breaking for codex/opencode copies (Claude whole-repo installs are unaffected).
+- A folder's PLACEMENT changed for installed copies — e.g. a non-standard folder that used to sit loose at the provider root (or under a flat `engine`/`dist`) now lands in the private bundle `_<slug>/<folder>/`. Installed files move, so this is breaking for codex/opencode copies (Claude whole-repo installs are unaffected).
 - A module dropped a provider from `targets[]` (a supported harness loses support).
 - A settings schema key removed or retyped, or a default changed in a way that alters behavior.
 - A hook event/matcher or MCP transport semantics changed.

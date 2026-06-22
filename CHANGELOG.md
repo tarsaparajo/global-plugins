@@ -5,6 +5,23 @@ Format: Keep a Changelog. Versioning: Semantic Versioning.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-06-22
+
+### Changed
+
+- **BREAKING — clean bundle-member names: reference doctrine and the runtime payload no longer carry a redundant underscore, and doctrine never sits loose in the shared `skills/` dir.** Two non-standard folders violated the plugin's own namespacing convention and are corrected:
+  - **`skills/_knowledge/` → `_<slug>/knowledge/`.** Reference doctrine (`namespacing.md`, `provider-matrix.md`, the per-provider harness references, `hero-skeleton.md`, …) was copied verbatim, un-prefixed, into the **shared** `skills/` dir, where two plugins co-installed in one `~/.codex/` or `~/.config/opencode/` collide on `skills/_knowledge/`. Doctrine is NOT a capability: it moves to a top-level canonical `knowledge/` folder, which the generic classifier namespaces into the private bundle as `_<slug>/knowledge/` on Codex/OpenCode (kept at the repo root on Claude via whole-repo install). The exception that copied `_knowledge` through the skills capability channel (`engine/providers/_base.js`) is removed; capability bodies that read it are rewritten to `_<slug>/knowledge/…` per provider by the existing G5 reference rewriter.
+  - **`_<slug>/_engine/` → `_<slug>/engine/`.** The bundle dir `_<slug>/` already marks the group as infrastructure, so the leading underscore on its members was redundant. Bundle members now carry clean names (`engine`, `dist`, `knowledge`, …). The OpenCode compiled `dist/tools` resolves the payload by the fixed offset `../../engine` (was `../../_engine`); `engine/build-opencode.js`, `engine/helpers.js` (`payloadBasePath`, `BUNDLE_SIBLING_NAMES`, `RESERVED_DIR_NAMES`), `engine/compliance.js`, the migration runner, the doctrine, and the drift guard all track the new name.
+- **Provenance stamp + version-gated migration chain.** Projection now writes `install-state.json` into each provider's bundle (`_<slug>/install-state.json`, or the provider root for Claude) carrying `schemaVersion` (the install's own version — the migration gating key) and `generatedWith` (`<slug>@<version>` — which release authored the install). A generated/adapted child records `generatedWith` via a seeded `.evolution/baseline/provenance.json`. `scripts/evolve/migrate-apply.mjs` now computes the real **pending chain** — only migrations whose `from` range contains the installed version run; the rest are reported `skippedAlreadyApplied`. A clean apply re-stamps `schemaVersion` to HEAD. Idempotence remains the safety net.
+
+### Added
+
+- **New structured migration step kinds** in `scripts/evolve/migrate-apply.mjs` (and the child template runner): `relocate-subpath` (move a nested provider-root path — e.g. `skills/_knowledge` — into the bundle), `rename-bundle-member` (rename a bundle member, e.g. `_engine` → `engine`), and `rebuild-opencode-dist` (regenerate the compiled dist for the new offset). Each is dry-run / apply / rollback safe and idempotent.
+
+### Migrations
+
+- **[migrations/2.0.0.md](migrations/2.0.0.md)** — BREAKING for Codex/OpenCode installs that carry a loose `skills/_knowledge/` and/or a `_<slug>/_engine/` payload. Relocates doctrine into `_<slug>/knowledge/`, renames the payload to `_<slug>/engine/`, and rebuilds the OpenCode dist. Claude installs are unaffected (whole-repo). Generated children carry the same migration (seeded into `templates/child/governance/migrations/2.0.0.md`) and run their own `/migrate` after re-seeding on `/evolve`. Gated by the provenance stamp (`from: >=1.1.0 <2.0.0`); dry-run/apply/rollback via `/<plugin>:migrate`.
+
 ## [1.2.0] - 2026-06-21
 
 ### Added

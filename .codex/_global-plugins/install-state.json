@@ -1,0 +1,6 @@
+{
+  "plugin": "global-plugins",
+  "schemaVersion": "2.0.0",
+  "generatedWith": "global-plugins@2.0.0",
+  "provider": "codex"
+}

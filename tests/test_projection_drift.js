@@ -79,10 +79,13 @@ for (const target of targets) {
           continue;
         }
         // Byte-check .md/.toml capability files AND every runtime-payload file
-        // (under a `_engine/` segment, any extension — engine .js, manifests .json,
-        // scripts .mjs, the delta baseline). The payload must be byte-identical to
-        // a fresh projection too, or a Codex/OpenCode install would run a stale engine.
-        const isPayload = !!op.destinationPath && /(^|\/)_engine\//.test(op.destinationPath);
+        // (under the bundle's `engine/` member, any extension — engine .js,
+        // manifests .json, scripts .mjs, the delta baseline). The payload must be
+        // byte-identical to a fresh projection too, or a Codex/OpenCode install
+        // would run a stale engine. No capability path contains an `engine/`
+        // segment (capability dirs are agents/skills/commands), so this matches
+        // payload only.
+        const isPayload = !!op.destinationPath && /(^|\/)engine\//.test(op.destinationPath);
         if (!op.destinationPath || (!isPayload && !/\.(md|toml)$/.test(op.destinationPath))) {
           continue;
         }
@@ -154,8 +157,8 @@ test('committed OpenCode agents carry only valid colors (QUOTED hex or theme tok
 // 4) Projection surface: infrastructure (engine/, adapters/, manifests/, config/,
 // templates/, docs/) must NEVER appear at the TOP LEVEL of a provider dotfolder
 // (that would be the 0.7.0 bloat regression). It is allowed ONLY inside the
-// reserved `_engine/` runtime-payload subdir. This guards the 0.7.0 capability
-// guard while permitting the additive payload channel.
+// private bundle's `engine/` runtime-payload member. This guards the 0.7.0
+// capability guard while permitting the additive payload channel.
 test('no infrastructure dir leaks into the capability surface (only the private bundle may hold it)', () => {
   const FORBIDDEN = ['engine', 'adapters', 'manifests', 'config', 'templates', 'docs'];
   for (const dot of ['.claude', '.codex', '.opencode']) {
@@ -169,14 +172,14 @@ test('no infrastructure dir leaks into the capability surface (only the private 
     for (const dir of FORBIDDEN) {
       assert.ok(
         !top.includes(dir),
-        `${dot}/${dir}/ leaked into the capability surface — infrastructure belongs only under the private bundle ${dot}/${BUNDLE}/_engine/. Run: ${FIX}`,
+        `${dot}/${dir}/ leaked into the capability surface — infrastructure belongs only under the private bundle ${dot}/${BUNDLE}/engine/. Run: ${FIX}`,
       );
     }
-    // No flat (un-namespaced) `_engine`/`dist` at the dotfolder root: they must
-    // live inside the private bundle `_<slug>/` so installs never collide.
+    // No flat (un-namespaced) `engine`/`dist` at the dotfolder root: they must
+    // live inside the private bundle `_<slug>/` so installs never collide. (Note
+    // the FORBIDDEN check above already covers a top-level `engine`; `dist` is
+    // checked here as the OpenCode compiled-plugin sibling.)
     if (dot !== '.claude') {
-      assert.ok(!top.includes('_engine'),
-        `${dot}/_engine/ is flat (un-namespaced) — it must live under ${dot}/${BUNDLE}/_engine/. Run: ${FIX}`);
       assert.ok(!top.includes('dist'),
         `${dot}/dist/ is flat (un-namespaced) — it must live under ${dot}/${BUNDLE}/dist/. Run: ${FIX}`);
     }
@@ -184,10 +187,10 @@ test('no infrastructure dir leaks into the capability surface (only the private 
 });
 
 // 5) Runtime payload: Codex and OpenCode installs MUST carry a complete engine
-// under _engine/ so they can generate/adapt/evolve themselves (Claude carries it
-// via the whole-repo install, so no _engine/ there). A partial payload would fail
-// at re-projection time on the user's machine — catch it here instead.
-test('codex and opencode ship a complete _engine runtime payload in the private bundle', () => {
+// under the bundle's `engine/` member so they can generate/adapt/evolve themselves
+// (Claude carries it via the whole-repo install, so no bundle there). A partial
+// payload would fail at re-projection time on the user's machine — catch it here.
+test('codex and opencode ship a complete engine runtime payload in the private bundle', () => {
   const REQUIRED = [
     'engine/resolver.js', 'engine/projector.js', 'engine/executor.js', 'engine/builder.js',
     'engine/frontmatter.js', 'engine/helpers.js', 'engine/registry.js',
@@ -195,11 +198,11 @@ test('codex and opencode ship a complete _engine runtime payload in the private 
   ];
   for (const dot of ['.codex', '.opencode']) {
     const payload = payloadBasePath(path.join(ROOT, dot), ROOT);
-    assert.ok(fs.existsSync(payload), `${dot}/${BUNDLE}/_engine/ missing — install cannot run the projection engine. Run: ${FIX}`);
+    assert.ok(fs.existsSync(payload), `${dot}/${BUNDLE}/engine/ missing — install cannot run the projection engine. Run: ${FIX}`);
     for (const rel of REQUIRED) {
       assert.ok(
         fs.existsSync(path.join(payload, rel)),
-        `${dot}/${BUNDLE}/_engine/${rel} missing — incomplete runtime payload. Run: ${FIX}`,
+        `${dot}/${BUNDLE}/engine/${rel} missing — incomplete runtime payload. Run: ${FIX}`,
       );
     }
   }
@@ -211,39 +214,47 @@ test('codex and opencode ship a complete _engine runtime payload in the private 
     `.opencode/plugins/${pluginLabel(ROOT)}.js missing — OpenCode discovery loader absent. Run: ${FIX}`);
   // Claude carries the engine at the repo root (whole-repo install), NOT in a
   // dotfolder payload.
-  assert.ok(!fs.existsSync(path.join(ROOT, '.claude', '_engine')),
-    '.claude/_engine/ should not exist — Claude carries the engine via the whole-repo install');
+  assert.ok(!fs.existsSync(path.join(ROOT, '.claude', 'engine')),
+    '.claude/engine/ should not exist — Claude carries the engine via the whole-repo install');
   assert.ok(!fs.existsSync(path.join(ROOT, '.claude', BUNDLE)),
     `.claude/${BUNDLE}/ should not exist — Claude carries the engine via the whole-repo install`);
 });
 
-// 6) Hero doctrine: the hero-skeleton standard is shared reference doctrine, so it
-// must project verbatim into EVERY provider's skills/_knowledge/ (the channel that
-// also carries readme-skeleton.md / namespacing.md). If it is missing from any
-// dotfolder, a Codex/OpenCode user (or a generated child seeded from one) would not
-// carry the hero standard. The general byte-equality check (#1) covers its content;
-// this gives a precise, actionable failure.
-test('hero-skeleton doctrine projects into every provider skills/_knowledge/', () => {
-  for (const dot of ['.claude', '.codex', '.opencode']) {
-    const p = path.join(ROOT, dot, 'skills', '_knowledge', 'hero-skeleton.md');
+// 6) Reference doctrine: the hero-skeleton standard is reference doctrine in the
+// top-level knowledge/ folder, namespaced into the bundle as `_<slug>/knowledge/`
+// on Codex/OpenCode (the channel that also carries readme-skeleton.md /
+// namespacing.md). On Claude it stays at the repo root `knowledge/` (whole-repo
+// install) and is NOT copied into the .claude/ capability surface. If it is missing
+// from a bundle, a Codex/OpenCode user (or a child seeded from one) would not carry
+// the hero standard. The general byte-equality check (#1) covers its content; this
+// gives a precise, actionable failure.
+test('hero-skeleton doctrine is namespaced into the bundle knowledge/ on codex and opencode', () => {
+  for (const dot of ['.codex', '.opencode']) {
+    const p = path.join(ROOT, dot, BUNDLE, 'knowledge', 'hero-skeleton.md');
     assert.ok(
       fs.existsSync(p),
-      `${dot}/skills/_knowledge/hero-skeleton.md missing — the hero skeleton standard did not project to ${dot}. Run: ${FIX}`,
+      `${dot}/${BUNDLE}/knowledge/hero-skeleton.md missing — the hero skeleton standard did not namespace to ${dot}. Run: ${FIX}`,
     );
   }
+  // Claude keeps doctrine at the repo root via whole-repo install; it must NOT be
+  // copied into the .claude/ capability surface (no skills/_knowledge there).
+  assert.ok(fs.existsSync(path.join(ROOT, 'knowledge', 'hero-skeleton.md')),
+    'knowledge/hero-skeleton.md missing at the repo root — Claude carries doctrine via whole-repo install.');
+  assert.ok(!fs.existsSync(path.join(ROOT, '.claude', 'skills', '_knowledge')),
+    '.claude/skills/_knowledge/ should not exist — doctrine is no longer under the skills capability dir.');
 });
 
 // 7) Hero skeleton payload: the neutral model + its two authoring guides ride the
 // child-templates payload channel verbatim, so every Codex/OpenCode install (and
-// every child seeded from one) carries them under the private bundle's _engine/.
-test('hero skeleton + guides ride the _engine payload on codex and opencode', () => {
+// every child seeded from one) carries them under the private bundle's engine/.
+test('hero skeleton + guides ride the engine payload on codex and opencode', () => {
   const ASSETS = ['hero.skeleton.svg', 'hero-svg.md', 'hero-authoring.md'];
   for (const dot of ['.codex', '.opencode']) {
     const assetsBase = path.join(payloadBasePath(path.join(ROOT, dot), ROOT), 'templates', 'child', 'assets');
     for (const name of ASSETS) {
       assert.ok(
         fs.existsSync(path.join(assetsBase, name)),
-        `${dot}/${BUNDLE}/_engine/templates/child/assets/${name} missing — the hero skeleton ecosystem did not ride the payload to ${dot}. Run: ${FIX}`,
+        `${dot}/${BUNDLE}/engine/templates/child/assets/${name} missing — the hero skeleton ecosystem did not ride the payload to ${dot}. Run: ${FIX}`,
       );
     }
   }
